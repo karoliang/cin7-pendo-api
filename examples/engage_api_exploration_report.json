@@ -1,0 +1,1203 @@
+{
+  "exploration_timestamp": "2025-10-28T12:00:01.331047",
+  "case_code": "b071f706-e996-4018-8e88-295c586edfe3",
+  "integration_key": "f4acdb2c-0...",
+  "base_urls_tested": [
+    "https://api.pendo.io",
+    "https://engageapi.pendo.io"
+  ],
+  "total_tests": 34,
+  "successful_tests": 1,
+  "success_rate": 2.941176470588235,
+  "working_endpoints": [
+    "/"
+  ],
+  "working_auth_methods": [
+    "Combined Auth (Integration + Case)"
+  ],
+  "detailed_results": [
+    {
+      "endpoint": "/",
+      "method": "GET",
+      "status_code": 200,
+      "success": true,
+      "content_type": "application/json; charset=utf-8",
+      "content_length": 16127,
+      "headers": {
+        "x-srv-trace": "v=1;t=464585174a4c27d1",
+        "x-srv-span": "v=1;s=53e8e438b313d1b1",
+        "date": "Mon, 27 Oct 2025 22:59:33 GMT",
+        "content-type": "application/json; charset=utf-8",
+        "transfer-encoding": "chunked",
+        "connection": "close",
+        "cf-ray": "9955cdf658ac3ae0-IAD",
+        "content-security-policy": "default-src https: 'self' *.getpostman.com *.gw.postman.com documenter.postman.com; font-src 'self' *.getpostman.com documenter.postman.com fonts.gstatic.com fonts.googleapis.com *.pstmn.io; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; img-src * data:; script-src 'self' 'strict-dynamic' *.getpostman.com documenter.postman.com documenter-assets.pstmn.io content.pstmn.io run.pstmn.io https://cdn.ravenjs.com 'nonce-oUutbSJ+VoDr1a8s5cJ6bKtja987RuWxksZ/GakcERfJPe0s'; style-src 'self' 'unsafe-inline' *.getpostman.com documenter.postman.com *.pstmn.io fonts.gstatic.com fonts.googleapis.com; frame-src https://youtube.com https://www.youtube.com https://player.vimeo.com",
+        "x-content-security-policy": "default-src https: 'self' *.getpostman.com *.gw.postman.com documenter.postman.com; font-src 'self' *.getpostman.com documenter.postman.com fonts.gstatic.com fonts.googleapis.com *.pstmn.io; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; img-src * data:; script-src 'self' 'strict-dynamic' *.getpostman.com documenter.postman.com documenter-assets.pstmn.io content.pstmn.io run.pstmn.io https://cdn.ravenjs.com 'nonce-oUutbSJ+VoDr1a8s5cJ6bKtja987RuWxksZ/GakcERfJPe0s'; style-src 'self' 'unsafe-inline' *.getpostman.com documenter.postman.com *.pstmn.io fonts.gstatic.com fonts.googleapis.com; frame-src https://youtube.com https://www.youtube.com https://player.vimeo.com",
+        "x-webkit-csp": "default-src https: 'self' *.getpostman.com *.gw.postman.com documenter.postman.com; font-src 'self' *.getpostman.com documenter.postman.com fonts.gstatic.com fonts.googleapis.com *.pstmn.io; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; img-src * data:; script-src 'self' 'strict-dynamic' *.getpostman.com documenter.postman.com documenter-assets.pstmn.io content.pstmn.io run.pstmn.io https://cdn.ravenjs.com 'nonce-oUutbSJ+VoDr1a8s5cJ6bKtja987RuWxksZ/GakcERfJPe0s'; style-src 'self' 'unsafe-inline' *.getpostman.com documenter.postman.com *.pstmn.io fonts.gstatic.com fonts.googleapis.com; frame-src https://youtube.com https://www.youtube.com https://player.vimeo.com",
+        "x-frame-options": "DENY",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "x-content-type-options": "nosniff",
+        "referrer-policy": "no-referrer-when-downgrade",
+        "x-xss-protection": "1; mode=block",
+        "access-control-allow-origin": "https://phs.getpostman.com",
+        "access-control-allow-credentials": "true",
+        "access-control-expose-headers": "",
+        "etag": "W/\"3eff-TxY/9zGBkvuOLTZHbXAhIjBL3Gc\"",
+        "Vary": "Accept-Encoding",
+        "content-encoding": "gzip",
+        "x-envoy-upstream-service-time": "13",
+        "cf-cache-status": "DYNAMIC",
+        "set-cookie": "__cf_bm=Kd3LpWGBMB6K.RCSv99R2RfFGA2862LEk7Tz3DuWDpk-1761605973-1.0.1.1-PTjuF1nSzTGOGdmfz9UfpA21hu9s.l9nKm5brYYE0sBLj2WTec84OVijefuzGUvdG6aB3pDmfEeaWmOctN2dWvkVj0K4IrWGrAlslaaf_3o; path=/; expires=Mon, 27-Oct-25 23:29:33 GMT; domain=.getpostman.com; HttpOnly; Secure; SameSite=None",
+        "server": "cloudflare"
+      },
+      "sample_data": {
+        "activeVersionTag": "latest",
+        "latestAvailableVersionTag": "latest",
+        "collection": {
+          "info": {
+            "_postman_id": "ded8d9bb-679b-41df-a93f-7ecf3acf2acf",
+            "name": "Pendo API",
+            "description": "## API Status\n\nStatus for the API can be found at [https://status.pendo.io/](https://status.pendo.io/)\n\n## Release Notes\n\nRelease notes for new stable agent versions are published at [https://developers.pendo.io/agent-sdk-updates/.](https://developers.pendo.io/agent-sdk-updates/.) Updates are promoted to stable on Thusdays with hotfixes and beta releases pushing more frequently.\n\n## Additional Resources\n\nIf you're looking for how to install Pendo into your application, how Pendo collects visitor and account analytics from your application, or how you can retrieve or extract those analytics data from Pendo for external consumption, Pendo provides the following APIs and integration kits for customers:\n\n- The [Pendo Agent API](https://agent.pendo.io) allows developers to programmatically interact with Pendo's Agent, the JavaScript client that collects user interactions and displays in-app messaging.\n    \n- The [Feedback API](https://feedbackapi.pendo.io) is available in a separate Postman collection.\n    \n- The [<b>Pendo Resource Center Integration Kit</b>](https://github.com/pendo-io/resource-center-integration-kit) provides an integration framework that allows third party developers to create applications that Pendo customers can activate and provide to their users.\n    \n- The Pendo Tech Corner offers an introduction to Pendo's API here: [https://academy.pendo.io/api-setup](https://academy.pendo.io/api-setup)\n    \n\n# Getting Started\n\nThe easiest way to start using the Pendo API is by clicking the **Run in Postman** button at the top of the collection. [Postman](https://www.getpostman.com/) is a free tool which helps developers run and debug API requests, and is the source of truth for this documentation. Every endpoint you see documented here is readily available by running our Postman collection.\n\n### Get an integration key\n\nYou must have a Pendo integration key from your Pendo subscription to use this collection. Access to this API is dependent on your level of service with Pendo. Check with your Pendo admin at your company or a Pendo representative if you don't know if you have API access.\n\nIntegration keys are created in Pendo Settings > Integrations. Please visit [this help center page](https://support.pendo.io/hc/en-us/articles/9491198203547-Pendo-Integration-Key) for more information. When enabled for the subscription, admins can create and manage those keys [here](https://app.pendo.io/admin/integrationkeys).\n\n**Integration keys should be kept secret!** It is how you securely access and update information about your users and accounts in Pendo. Do not share them in client-side javascript, publicly accessible code repositories, etc.\n\nTo create an Integration Key:\n\n1. Login to the Pendo Application as an Admin user.\n    \n2. Visit the **Integrations** section in the Pendo App, and then click on **Integration Keys**.\n    \n3. Click on the **Add Integration Key** button at the top right-hand side of the screen.\n    \n4. Give your new key an appropriate description.\n    \n5. If a read-write key is needed, tick the box marked **Allow Write Access**.\n    \n6. Click on **Create** to finish.\n    \n7. Securely capture and store your new key outside of Pendo.\n    \n\nIntegration keys are only displayed at the time of creation and aren't listed in the UI. We can't recover a lost integration key. If you're unable to find the value for an existing key, you must create a new key. Pendo doesn't limit the number of keys generated.\n\n### Add your integration key to the collection\n\nThe Engage API collection is built to propagate the API key down to all requests when it is added to the Authorization tab for the collection.\n\n1. Select the Pendo API collection.\n    \n2. Open the Authorization tab.\n    \n3. Add your integration key to the Value field.\n    \n4. All other fields are preconfigured.\n    \n    1. Type = API Key\n        \n    2. Key = x-pendo-integration-key\n        \n    3. Add to = Header\n        \n\nAll folders and requests are set to inherit auth from their parent and adding the integration key to the collection automatically pushes the integration key to the request header for all requests.\n\n### Add your base URL to the collection\n\nThe main URL used to access the Pendo API corresponds to the region and web address that you use when logging into Pendo's UI. Those URLs are:\n\n[https://app.pendo.io](https://app.pendo.io)  \n[https://app.eu.pendo.io](https://app.eu.pendo.io)  \n[https://us1.app.pendo.io<br>](https://us1.app.pendo.io)[https://app.jpn.pendo.io<br>](https://app.jpn.pendo.io)[https://app.au.pendo.io](https://app.au.pendo.io)\n\nAll endpoints in this collection are configured to use a variable, `baseUrl`, to represent these. This collection is defaulted to [https://app.pendo.io](https://app.pendo.io). If you log into Pendo using one of the other domains, please follow these steps to update the collection with the relevant base URL for your subscription.\n\n1. Select the Pendo API collection.\n    \n2. Open the Variables tab.\n    \n3. Add your baseURL to the Current Value field.\n    \n4. Click Save.\n    \n\n### Send a request\n\nMany GET methods in the Pendo API are functional without any additional variables or configuration changes. Try `GET Return List of All Pages` or `GET Return List of All Features` to see a request without any additional changes.\n\nTargeted requests for individual objects need an ID. The ID is returned in the list of all objects using the API. This ID is also available in the page URL when viewing the object in Pendo for most objects. For example, when viewing guide details in Pendo the URL path is:\n\n`app.pendo.io/s/[subscriptionId]/guides/[guideId]`\n\nAdd IDs to the Value column in the Params tab in the request. The Key is already filled in.\n\n# Pendo API Overview\n\nWelcome to Pendo's API documentation. This is a [RESTful API](https://en.wikipedia.org/wiki/Representational_state_transfer) used to query, update, and reset Pendo data primarily by running [Aggregation queries](https://engageapi.pendo.io/#7c8479b8-3843-403c-94a9-04cbdf542db9) or modifying [Guide resources](https://engageapi.pendo.io/#b071f706-e996-4018-8e88-295c586edfe3).\n\n#### How Does Pendo Work?\n\nOnce installed the Pendo snippet in your application, visitor activity is collected automatically by the Pendo agent and sent via [Image Beacons](https://en.wikipedia.org/wiki/Web_beacon) to Pendo for data processing. Pendo accepts these events immediately but ingests and processes visitor data asynchronously. Events sent by the agent are not immediately available via the API but they are usually available within 15 minutes of receipt.\n\n#### What can I access using the Pendo API?\n\nThe Pendo API allows developers to\n\n- request and modify resources like guides, visitor metadata, and reports\n    \n- create [track events](https://support.pendo.io/hc/en-us/articles/360032294151-Track-Events) to record events not associated with simple browser events\n    \n- use powerful aggregation queries to retrieve and transform your visitor data\n    \n\n#### What's an aggregation?\n\nPendo's [Aggregation API](#aggregation-api) allows you to request structured transformations of the events collected by the agent using a MongoDB-like query language. It supports arbitrary grouping, filtering, and projections, as well as selecting and merging object-specific analytics for pages, features, track events, and guides. Many of the charts, graphs, and reports provided in the Pendo interface are generated by the sources and operations provided.\n\n**Note:** All request and response bodies, including errors, are encoded in [JSON](http://www.json.org/).\n\n## Status Codes\n\nWe use conventional HTTP response codes to indicate the success or failure of an API request. The various HTTP status codes we might return are listed below, but in general, consider the following:\n\n- **2xx** range indicates success\n    \n- **4xx** range indicates an error that failed given the information provided (e.g., a required parameter was omitted, a resource was not able to be found or updated, etc.)\n    \n- **5xx** range indicates an error on the server side. These calls should be retried within a reasonable timeframe. We recommend one second or more.\n    \n\n| Status Code | Definition |\n| --- | --- |\n| 200 - OK | Everything worked as expected. |\n| 400 - Bad Request | The request was unacceptable, often due to missing a required parameter. |\n| 401 - Unauthorized | No valid integration key provided. |\n| 402 - Request Failed | The parameters were valid but the request failed. |\n| 404 - Not Found | The requested resource doesn't exist. |\n| 422 - Unprocessable Entity | The request could not process the payload. The syntax may be correct, but may be semantically wrong |\n| 429 - Too Many Requests | Too many requests hit the API too quickly. Slow down. |\n| 500, 502, 503, 504 - Server Errors | It's not you, it's us. We're sorry. |",
+            "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+            "isPublicCollection": false,
+            "owner": "16265887",
+            "collectionId": "ded8d9bb-679b-41df-a93f-7ecf3acf2acf",
+            "publishedId": "Tzm6jvKG",
+            "public": true,
+            "publicUrl": "https://engageapi.pendo.io",
+            "privateUrl": "https://go.postman.co/documentation/16265887-ded8d9bb-679b-41df-a93f-7ecf3acf2acf",
+            "customColor": {
+              "top-bar": "FFFFFF",
+              "right-sidebar": "303030",
+              "highlight": "ec2059"
+            },
+            "documentationLayout": "classic-double-column",
+            "customisation": null,
+            "version": "8.8.0",
+            "publishDate": "2022-09-20T18:07:15.000Z",
+            "activeVersionTag": "latest",
+            "documentationTheme": "light",
+            "metaTags": {},
+            "logos": {}
+          },
+          "statusCode": 200
+        },
+        "environments": [],
+        "user": {
+          "authenticated": false,
+          "permissions": {
+            "publish": false
+          }
+        },
+        "run": {
+          "button": {
+            "js": "https://run.pstmn.io/button.js",
+            "css": "https://run.pstmn.io/button.css"
+          }
+        },
+        "web": "https://www.getpostman.com/",
+        "team": {
+          "logo": "https://res.cloudinary.com/postman/image/upload/t_team_logo_pubdoc/v1/team/768118b36f06c94b0306958b980558e6915839447e859fe16906e29d683976f0",
+          "favicon": "https://pendo.io/favicon.ico"
+        },
+        "isEnvFetchError": false,
+        "languages": "[{\"key\":\"csharp\",\"label\":\"C#\",\"variant\":\"HttpClient\"},{\"key\":\"csharp\",\"label\":\"C#\",\"variant\":\"RestSharp\"},{\"key\":\"curl\",\"label\":\"cURL\",\"variant\":\"cURL\"},{\"key\":\"dart\",\"label\":\"Dart\",\"variant\":\"http\"},{\"key\":\"go\",\"label\":\"Go\",\"variant\":\"Native\"},{\"key\":\"http\",\"label\":\"HTTP\",\"variant\":\"HTTP\"},{\"key\":\"java\",\"label\":\"Java\",\"variant\":\"OkHttp\"},{\"key\":\"java\",\"label\":\"Java\",\"variant\":\"Unirest\"},{\"key\":\"javascript\",\"label\":\"JavaScript\",\"variant\":\"Fetch\"},{\"key\":\"javascript\",\"label\":\"JavaScript\",\"variant\":\"jQuery\"},{\"key\":\"javascript\",\"label\":\"JavaScript\",\"variant\":\"XHR\"},{\"key\":\"c\",\"label\":\"C\",\"variant\":\"libcurl\"},{\"key\":\"nodejs\",\"label\":\"NodeJs\",\"variant\":\"Axios\"},{\"key\":\"nodejs\",\"label\":\"NodeJs\",\"variant\":\"Native\"},{\"key\":\"nodejs\",\"label\":\"NodeJs\",\"variant\":\"Request\"},{\"key\":\"nodejs\",\"label\":\"NodeJs\",\"variant\":\"Unirest\"},{\"key\":\"objective-c\",\"label\":\"Objective-C\",\"variant\":\"NSURLSession\"},{\"key\":\"ocaml\",\"label\":\"OCaml\",\"variant\":\"Cohttp\"},{\"key\":\"php\",\"label\":\"PHP\",\"variant\":\"cURL\"},{\"key\":\"php\",\"label\":\"PHP\",\"variant\":\"Guzzle\"},{\"key\":\"php\",\"label\":\"PHP\",\"variant\":\"HTTP_Request2\"},{\"key\":\"php\",\"label\":\"PHP\",\"variant\":\"pecl_http\"},{\"key\":\"powershell\",\"label\":\"PowerShell\",\"variant\":\"RestMethod\"},{\"key\":\"python\",\"label\":\"Python\",\"variant\":\"http.client\"},{\"key\":\"python\",\"label\":\"Python\",\"variant\":\"Requests\"},{\"key\":\"r\",\"label\":\"R\",\"variant\":\"httr\"},{\"key\":\"r\",\"label\":\"R\",\"variant\":\"RCurl\"},{\"key\":\"ruby\",\"label\":\"Ruby\",\"variant\":\"Net::HTTP\"},{\"key\":\"shell\",\"label\":\"Shell\",\"variant\":\"Httpie\"},{\"key\":\"shell\",\"label\":\"Shell\",\"variant\":\"wget\"},{\"key\":\"swift\",\"label\":\"Swift\",\"variant\":\"URLSession\"}]",
+        "languageSettings": [
+          {
+            "key": "csharp",
+            "label": "C#",
+            "variant": "HttpClient"
+          },
+          {
+            "key": "csharp",
+            "label": "C#",
+            "variant": "RestSharp"
+          },
+          {
+            "key": "curl",
+            "label": "cURL",
+            "variant": "cURL"
+          },
+          {
+            "key": "dart",
+            "label": "Dart",
+            "variant": "http"
+          },
+          {
+            "key": "go",
+            "label": "Go",
+            "variant": "Native"
+          },
+          {
+            "key": "http",
+            "label": "HTTP",
+            "variant": "HTTP"
+          },
+          {
+            "key": "java",
+            "label": "Java",
+            "variant": "OkHttp"
+          },
+          {
+            "key": "java",
+            "label": "Java",
+            "variant": "Unirest"
+          },
+          {
+            "key": "javascript",
+            "label": "JavaScript",
+            "variant": "Fetch"
+          },
+          {
+            "key": "javascript",
+            "label": "JavaScript",
+            "variant": "jQuery"
+          },
+          {
+            "key": "javascript",
+            "label": "JavaScript",
+            "variant": "XHR"
+          },
+          {
+            "key": "c",
+            "label": "C",
+            "variant": "libcurl"
+          },
+          {
+            "key": "nodejs",
+            "label": "NodeJs",
+            "variant": "Axios"
+          },
+          {
+            "key": "nodejs",
+            "label": "NodeJs",
+            "variant": "Native"
+          },
+          {
+            "key": "nodejs",
+            "label": "NodeJs",
+            "variant": "Request"
+          },
+          {
+            "key": "nodejs",
+            "label": "NodeJs",
+            "variant": "Unirest"
+          },
+          {
+            "key": "objective-c",
+            "label": "Objective-C",
+            "variant": "NSURLSession"
+          },
+          {
+            "key": "ocaml",
+            "label": "OCaml",
+            "variant": "Cohttp"
+          },
+          {
+            "key": "php",
+            "label": "PHP",
+            "variant": "cURL"
+          },
+          {
+            "key": "php",
+            "label": "PHP",
+            "variant": "Guzzle"
+          },
+          {
+            "key": "php",
+            "label": "PHP",
+            "variant": "HTTP_Request2"
+          },
+          {
+            "key": "php",
+            "label": "PHP",
+            "variant": "pecl_http"
+          },
+          {
+            "key": "powershell",
+            "label": "PowerShell",
+            "variant": "RestMethod"
+          },
+          {
+            "key": "python",
+            "label": "Python",
+            "variant": "http.client"
+          },
+          {
+            "key": "python",
+            "label": "Python",
+            "variant": "Requests"
+          },
+          {
+            "key": "r",
+            "label": "R",
+            "variant": "httr"
+          },
+          {
+            "key": "r",
+            "label": "R",
+            "variant": "RCurl"
+          },
+          {
+            "key": "ruby",
+            "label": "Ruby",
+            "variant": "Net::HTTP"
+          },
+          {
+            "key": "shell",
+            "label": "Shell",
+            "variant": "Httpie"
+          },
+          {
+            "key": "shell",
+            "label": "Shell",
+            "variant": "wget"
+          },
+          {
+            "key": "swift",
+            "label": "Swift",
+            "variant": "URLSession"
+          }
+        ],
+        "languageOptions": [
+          {
+            "label": "C# - HttpClient",
+            "value": "csharp - HttpClient - C#"
+          },
+          {
+            "label": "C# - RestSharp",
+            "value": "csharp - RestSharp - C#"
+          },
+          {
+            "label": "cURL - cURL",
+            "value": "curl - cURL - cURL"
+          },
+          {
+            "label": "Dart - http",
+            "value": "dart - http - Dart"
+          },
+          {
+            "label": "Go - Native",
+            "value": "go - Native - Go"
+          },
+          {
+            "label": "HTTP - HTTP",
+            "value": "http - HTTP - HTTP"
+          },
+          {
+            "label": "Java - OkHttp",
+            "value": "java - OkHttp - Java"
+          },
+          {
+            "label": "Java - Unirest",
+            "value": "java - Unirest - Java"
+          },
+          {
+            "label": "JavaScript - Fetch",
+            "value": "javascript - Fetch - JavaScript"
+          },
+          {
+            "label": "JavaScript - jQuery",
+            "value": "javascript - jQuery - JavaScript"
+          },
+          {
+            "label": "JavaScript - XHR",
+            "value": "javascript - XHR - JavaScript"
+          },
+          {
+            "label": "C - libcurl",
+            "value": "c - libcurl - C"
+          },
+          {
+            "label": "NodeJs - Axios",
+            "value": "nodejs - Axios - NodeJs"
+          },
+          {
+            "label": "NodeJs - Native",
+            "value": "nodejs - Native - NodeJs"
+          },
+          {
+            "label": "NodeJs - Request",
+            "value": "nodejs - Request - NodeJs"
+          },
+          {
+            "label": "NodeJs - Unirest",
+            "value": "nodejs - Unirest - NodeJs"
+          },
+          {
+            "label": "Objective-C - NSURLSession",
+            "value": "objective-c - NSURLSession - Objective-C"
+          },
+          {
+            "label": "OCaml - Cohttp",
+            "value": "ocaml - Cohttp - OCaml"
+          },
+          {
+            "label": "PHP - cURL",
+            "value": "php - cURL - PHP"
+          },
+          {
+            "label": "PHP - Guzzle",
+            "value": "php - Guzzle - PHP"
+          },
+          {
+            "label": "PHP - HTTP_Request2",
+            "value": "php - HTTP_Request2 - PHP"
+          },
+          {
+            "label": "PHP - pecl_http",
+            "value": "php - pecl_http - PHP"
+          },
+          {
+            "label": "PowerShell - RestMethod",
+            "value": "powershell - RestMethod - PowerShell"
+          },
+          {
+            "label": "Python - http.client",
+            "value": "python - http.client - Python"
+          },
+          {
+            "label": "Python - Requests",
+            "value": "python - Requests - Python"
+          },
+          {
+            "label": "R - httr",
+            "value": "r - httr - R"
+          },
+          {
+            "label": "R - RCurl",
+            "value": "r - RCurl - R"
+          },
+          {
+            "label": "Ruby - Net::HTTP",
+            "value": "ruby - Net::HTTP - Ruby"
+          },
+          {
+            "label": "Shell - Httpie",
+            "value": "shell - Httpie - Shell"
+          },
+          {
+            "label": "Shell - wget",
+            "value": "shell - wget - Shell"
+          },
+          {
+            "label": "Swift - URLSession",
+            "value": "swift - URLSession - Swift"
+          }
+        ],
+        "layoutOptions": [
+          {
+            "value": "classic-single-column",
+            "label": "Single Column"
+          },
+          {
+            "value": "classic-double-column",
+            "label": "Double Column"
+          }
+        ],
+        "versionOptions": [],
+        "environmentOptions": [
+          {
+            "value": "0",
+            "label": "No Environment"
+          }
+        ],
+        "canonicalUrl": "https://engageapi.pendo.io/"
+      },
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/api/v1",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=c3c3e9a89ff28791",
+        "x-srv-span": "v=1;s=aaaeca26abf0eca1",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 90ad2a23a8617490c9d13e1f260633f8.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "kyS88yCxX9uXlhjWUuimhsg0i75r5up-3xF0sG9SCOy8IlPaoC6biw==",
+        "age": "50141",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/api/v1/campaigns",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=fdb5383043b694c4",
+        "x-srv-span": "v=1;s=1d0455d5bda93dc4",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 e0ed595b39732d9e9972db26854384ec.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "QCwOwaoA8imcDeCjBb7OJ_rB8OHL6MSncLA6SZE81xcLXCFgDczqZQ==",
+        "age": "50142",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/api/v1/analytics",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=3dd838406c008322",
+        "x-srv-span": "v=1;s=1f112a9013bf259e",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 e0ed595b39732d9e9972db26854384ec.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "IGcnh1nlzTUFFkuCWyfCm19A7iBB5tHUYHrucKP2UvFMPvhwE1rvZQ==",
+        "age": "50143",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/api/v1/feedback",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=a42bcc213e6de4b1",
+        "x-srv-span": "v=1;s=d8248aff0341361a",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 13af704549c5ac5d9fb78e3b737019ec.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "b7ipVKk-zK3dvLw8nVEUG9OsfJ68oXVOG6-zL1KuPRBsKnkNBqI45A==",
+        "age": "50144",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/campaigns",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=17374d9ef7be96fc",
+        "x-srv-span": "v=1;s=d85b3384b5c16dfe",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 f762d56afc88f7f52f51da3b63ad4658.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "TsKtqgdP_kiJLlr_Fs77Gi4ipALF4osZk6twzHyuUGjJmf07LuxDug==",
+        "age": "50145",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/analytics",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=59070f146abc07f3",
+        "x-srv-span": "v=1;s=345029b2d76482fa",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 ec8b1bfbf511818c606f196b49f871e2.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "1b7Vt2y_qNPCfpqeR_6G9sYEr_0OHfxDk8zPkkNMFvWzS20Qqijtzg==",
+        "age": "50145",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/engagement",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=48dba3829292a590",
+        "x-srv-span": "v=1;s=29c08ee6e0bc32f9",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 d439433d975e4e608c1677c8e16e7fe2.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "FZ8643x8QA7SfJfF438LJWM0hyenAMtES3G0GxxNbhAWYL7znMxYQA==",
+        "age": "50146",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/caseb071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=66b9d650a87e953f",
+        "x-srv-span": "v=1;s=f9de7b832c494dcf",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 966a4e45512437c14125c564c492a2d6.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "upyH6J6MSLUh17m8RGSVjj5-XPLrXGfS087X7Ulmw1dXhUVXJIBP4w==",
+        "age": "50147",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/api/v1/cases/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=6bda7cecf3adba3f",
+        "x-srv-span": "v=1;s=5dbce1b448f77d1b",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 c57d1eb27f41d3e95fc5060845849c06.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "V6K8RFYoRZjzUVnm8TLDAbAQgzDwznuDKneKD1kaXzW9GI-Ytr9-5w==",
+        "age": "50148",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont",
+      "auth_method": "Combined Auth (Integration + Case)"
+    },
+    {
+      "endpoint": "/case/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=74c1eab976f9902b",
+        "x-srv-span": "v=1;s=0bb21dcfa6c55207",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 6306947fb6ab60dc617ca2e025941652.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "ZkitDMns2tOhgXYbMAeqnmBlVONLc2qaCdDBIU88boCdOHz3hPF1Hg==",
+        "age": "50149",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/api/v1/cases/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=4aeee9175b884460",
+        "x-srv-span": "v=1;s=07471b9b67d0d2c3",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 df08ba5d249ec7fb2513313ea66b59f8.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "Q4nJPJkL_YwkQRTtNsvWJ02IaZGS-hWHwF3aO6puAbqNPQZUxXIkFQ==",
+        "age": "50150",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/api/v1/case/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=83c83d687d06bb2b",
+        "x-srv-span": "v=1;s=09e00ad123a2909e",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 8d0bf2975485a7f0e4b8d82ddd378292.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "T-TFIKs_SSbT0iFb0sPQtCA6YyfAe6gY8OJuRWd0dRqQ7c3RP0pnig==",
+        "age": "50151",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/engagement/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=9ebd59da66b6f9fa",
+        "x-srv-span": "v=1;s=bd99f05276c98998",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 09028890675e48687e2855f3bdad98ea.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "CliHJbDyNKKHo709vjqztQOHARq-7ihgKWS7m_oY3zZjjrQEdBDUaQ==",
+        "age": "50151",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/analytics/case/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=d26e2376f0baabb4",
+        "x-srv-span": "v=1;s=5d70fcb180dec574",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 6f18ca2e5109f8aa7cd1212932dc4e9a.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "n1q4jhF3Q-2vinT2nHb7KuC61CZa7tg49_MMTPDaSVH9evym3BdZkQ==",
+        "age": "50152",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/reports/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=8b6dc98b21db18c6",
+        "x-srv-span": "v=1;s=66a6c9db432b1cb5",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 924c3fd5fff04ef5cac09fbfc470e618.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "GezcyIsRuUWcwXECjK0TqWqhemV9rMfqu1-DZyQsqA0QtBOtiTF_BA==",
+        "age": "50153",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/campaigns/case/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=b2e0c54582c48172",
+        "x-srv-span": "v=1;s=b593be0217f5196a",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 67711c5cba0352ee130f60f6cc103e0a.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "34xc5nk77tzqjhZhDz4Smz3woYIMIZ9LFckSSJMhhg-RvnBjQkrGGw==",
+        "age": "50154",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/feedback/case/b071f706-e996-4018-8e88-295c586edfe3",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=4e3aaef86a0eac8d",
+        "x-srv-span": "v=1;s=e880e6199f6fefcc",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 e0ed595b39732d9e9972db26854384ec.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "aEzPJp7pzKKTRj0P7Yn150wwgJ7FzJthOkWl8n5RdhgYL8nw64_P0w==",
+        "age": "50155",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "base_url": "https://api.pendo.io",
+      "endpoint": "/api/v1/status",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017
+    },
+    {
+      "base_url": "https://engageapi.pendo.io",
+      "endpoint": "/api/v1/status",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017
+    },
+    {
+      "base_url": "https://developers.pendo.io",
+      "endpoint": "/api/v1/status",
+      "status_code": 403,
+      "success": false,
+      "content_type": "text/html",
+      "content_length": 146
+    },
+    {
+      "base_url": "https://data.pendo.io",
+      "endpoint": "/api/v1/status",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 13
+    },
+    {
+      "base_url": "https://app.pendo.io/api",
+      "endpoint": "/api/v1/status",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/plain; charset=utf-8",
+      "content_length": 19
+    },
+    {
+      "base_url": "https://app.pendo.io",
+      "endpoint": "/api/v1/status",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/plain; charset=utf-8",
+      "content_length": 19
+    },
+    {
+      "base_url": "https://pendo.io/api",
+      "endpoint": "/api/v1/status",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 12605
+    },
+    {
+      "endpoint": "/webhooks",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=012349b31d3aeafb",
+        "x-srv-span": "v=1;s=56698d57487517e7",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 4a21175361a1e842a337986b5f7399aa.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "BFQl9rYAmUwZpAXmcwwTjlEkzhBrwjGv63PyJ46gcEzSw5bduFfoww==",
+        "age": "50161",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/api/v1/webhooks",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=9f97ca1a80922d87",
+        "x-srv-span": "v=1;s=37ae1880d1da53c5",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 5893c71b6cde828b408a700f9c0673b0.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "mTfae-zOPE2Qb3Tze9AKTDpLUveJc5AoAQt-dRWtuitGtJpLw5VCvQ==",
+        "age": "50162",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/integrations",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=a64c252eac5651a1",
+        "x-srv-span": "v=1;s=7d4cf9f24faadbd9",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 966a4e45512437c14125c564c492a2d6.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "GFuSbtAQvuh4fD_36u0-IGEx4uL-sdVVsYhrOX-Le-1qUnSzJ7TY2A==",
+        "age": "50163",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/api/v1/integrations",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=6b23738239e6df28",
+        "x-srv-span": "v=1;s=41140f18fcb803c3",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 65515d7b1028cd133489fb761d35fa06.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "TkBeOP75X1XrzeU_DEJD7x_Je-FP8XFAtCwcooGX4snYjfHG3qWFEQ==",
+        "age": "50163",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/api/v1/subscriptions",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=bd1056e0f911f579",
+        "x-srv-span": "v=1;s=c85d0944306bb342",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 07b0e28d0c589c8a26610bbc5dcd660a.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "Z3EgLN_u4Dh79CmtH7m82g1_M8fNmaah_Yyf1jrF2Jy4sFZckUssXw==",
+        "age": "50164",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/api/v1/feeds",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=b4b008f6ace000ed",
+        "x-srv-span": "v=1;s=2cb293512cf0ecf6",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 d5710f445906ae917df909d01c495c9e.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "dVvZz6G3vqU1tIj5SYM4GuM5itGOzE8l4FkXcMMvR9x0yM11VeopyA==",
+        "age": "50165",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/api/v1/streams",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=e192771d23339bef",
+        "x-srv-span": "v=1;s=3a65ee1aa886d692",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 929cbb64d024a9973633b197e2a23482.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "Yi4nOuZR34rkiIVYmp2egrZZmgbeobX0DTvjfFL1WbW5pWQotjS1Ew==",
+        "age": "50166",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/case/b071f706-e996-4018-8e88-295c586edfe3/webhooks",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=ab64e23434177da2",
+        "x-srv-span": "v=1;s=cf4b36d1512acb14",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 c57d1eb27f41d3e95fc5060845849c06.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "zE1fZPrXPGDwvLpnPKvdZWQlGoJTmuR9K4eOBlAF5T4rlOJVRu2KCg==",
+        "age": "50167",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    },
+    {
+      "endpoint": "/api/v1/cases/b071f706-e996-4018-8e88-295c586edfe3/integrations",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "headers": {
+        "x-srv-trace": "v=1;t=a204e38b876bcda1",
+        "x-srv-span": "v=1;s=2b5d9a5bacf81ef5",
+        "content-type": "text/html; charset=utf-8",
+        "connection": "close",
+        "last-modified": "Thu, 23 Mar 2017 16:44:47 GMT",
+        "accept-ranges": "bytes",
+        "server": "AmazonS3",
+        "date": "Mon, 27 Oct 2025 09:03:54 GMT",
+        "etag": "\"2b078dd85ec6f9f16b7c1d6cef11fe13\"",
+        "x-cache": "Hit from cloudfront",
+        "via": "1.1 ec809871438c11b540493503de981368.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "IAD50-C2",
+        "x-amz-cf-id": "K5ZaD1fWU8lk8jeMEG6sKfdRDBrOnq4igchEeqObhs67JEod664VQw==",
+        "age": "50168",
+        "Vary": "Accept-Encoding",
+        "Content-Encoding": "gzip",
+        "Transfer-Encoding": "chunked"
+      },
+      "text_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" cont"
+    }
+  ]
+}
