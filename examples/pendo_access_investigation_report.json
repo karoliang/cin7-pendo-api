@@ -1,0 +1,1746 @@
+{
+  "investigation_timestamp": "2025-10-28T12:06:35.025010",
+  "integration_key": "f4acdb2c-0...",
+  "base_url": "https://app.pendo.io",
+  "api_status": {
+    "connected": true,
+    "base_url": "https://app.pendo.io",
+    "api_key_prefix": "f4acdb2c-0...",
+    "working_endpoints": [
+      "/api/v1/guide",
+      "/api/v1/feature",
+      "/api/v1/page",
+      "/api/v1/report",
+      "/api/v1/metadata/schema/visitor",
+      "/api/v1/metadata/schema/guide"
+    ],
+    "capabilities": [
+      "Guide Management",
+      "Feature Analytics",
+      "Page Analytics",
+      "Reporting",
+      "Metadata Management"
+    ]
+  },
+  "data_overview": {
+    "timestamp": "2025-10-28T12:06:37.901197",
+    "guides": {
+      "count": 527,
+      "sample": {
+        "createdByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "createdAt": 1758784289157,
+        "lastUpdatedByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "lastUpdatedAt": 1759216882787,
+        "kind": "Guide",
+        "rootVersionId": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+        "stableVersionId": "DHk640QtRoTYNV5u8HsPqywa1Eo-20250930072122.801164468",
+        "appId": -323232,
+        "appIds": [
+          -323232
+        ],
+        "id": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+        "name": "oStripe - Partner Migration (Pop-up) | Home Dashboard",
+        "state": "_pendingReview_",
+        "emailState": "",
+        "launchMethod": "auto",
+        "isMultiStep": false,
+        "isTraining": false,
+        "steps": [
+          {
+            "id": "QdvpXs-7GKyce65kStfmXsXY1G8",
+            "guideId": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+            "templateId": "building-block-guide",
+            "type": "building-block",
+            "pageId": "iD07wrNnn2etx2c443K4OV954wA",
+            "regexUrlRule": "^https?://[^/]*/Cloud/Dashboard/HomePageDashboard\\.aspx/?(?:;[^#]*)?(?:\\?[^#]*)?(?:#.*)?$",
+            "elementPathRule": "",
+            "triggerElementPathRule": "",
+            "confirmationElementPathRule": "",
+            "contentType": "text/html; charset=utf-8",
+            "buildingBlocksUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/TYazcGDBXbFPe9bSeTZdVqXl5Fo.buildingBlocks.json",
+            "domUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/z6WPCl9Gfetb657MNqTcqrdCZnE.dom.json?sha256=-wuE9kMtqj9-r-reDwATjjM2uoa9COJrfYDnd2J2w3c",
+            "domJsonpUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/f4rLLpWQMv0FoPVP_dsomkKyNEc.dom.jsonp?sha256=MyHrtwzsH1p_lWkuWIuza6KvZF3FndLDSb86wHC5JMw",
+            "rank": 5000000,
+            "advanceMethod": "button",
+            "attributes": {
+              "css": "",
+              "themeId": "u_NWKGbDxXcsXlEfQujKhWgWkGU",
+              "isAutoFocus": true,
+              "darkMode": {
+                "selector": ""
+              },
+              "blockOutUI": {
+                "additionalElements": "",
+                "enabled": false,
+                "padding": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                }
+              }
+            },
+            "lastUpdatedAt": 1758784863100,
+            "resetAt": 0,
+            "launchUrl": "https://go.cin7.com/Cloud/Dashboard/HomePageDashboard.aspx"
+          }
+        ],
+        "attributes": {
+          "type": "building-block",
+          "device": {
+            "type": "desktop"
+          },
+          "sharedServiceVersion": "5.17.1",
+          "priority": 1006
+        },
+        "audience": [
+          {
+            "source": {
+              "visitors": null
+            }
+          },
+          {
+            "eval": {
+              "accountId": "metadata.auto.accountids"
+            }
+          },
+          {
+            "unwind": {
+              "field": "accountId",
+              "keepEmpty": true
+            }
+          },
+          {
+            "segment": {
+              "id": "KMmIqB7pN2Q59HJZPE-X4VZWSOc"
+            }
+          },
+          {
+            "select": {
+              "visitorId": "visitorId"
+            }
+          },
+          {
+            "identified": "visitorId"
+          }
+        ],
+        "audienceUiHint": {
+          "filters": [
+            {
+              "kind": "visitor",
+              "segmentId": "KMmIqB7pN2Q59HJZPE-X4VZWSOc"
+            }
+          ]
+        },
+        "authoredLanguage": "en-US",
+        "recurrence": 0,
+        "recurrenceEligibilityWindow": 0,
+        "resetAt": 0,
+        "publishedAt": 0,
+        "publishedEver": false,
+        "currentFirstEligibleToBeSeenAt": 0,
+        "expiresAfter": 1761861600000,
+        "isTopLevel": false,
+        "isModule": false,
+        "editorType": "visualDesignStudio",
+        "dependentMetadata": [],
+        "autoCreateFeedback": false
+      }
+    },
+    "features": {
+      "count": 956,
+      "sample": {
+        "createdByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "createdAt": 1673824341617,
+        "lastUpdatedByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "lastUpdatedAt": 1673824341617,
+        "kind": "Feature",
+        "rootVersionId": "uXfQdbqvfgduiCvUF1gjVBA4vng",
+        "stableVersionId": "uXfQdbqvfgduiCvUF1gjVBA4vng-20230115231221.626310622",
+        "id": "uXfQdbqvfgduiCvUF1gjVBA4vng",
+        "appId": -323232,
+        "appIds": [
+          -323232
+        ],
+        "name": "'Default' Tabs Selected",
+        "group": {
+          "id": "Wgt0R6wAsWPgeUdma0Y6M3APsxs",
+          "name": "Reporting / Insights",
+          "description": "",
+          "color": ".groupColor06",
+          "length": 408,
+          "items": [],
+          "type": "group",
+          "createdByUser": {
+            "id": "4880924937158656",
+            "username": "walter.lim@cin7.com",
+            "first": "Walter",
+            "last": "Lim",
+            "role": 2,
+            "userType": "normal",
+            "deletedAt": 1666921914095,
+            "hasLoggedIn": true,
+            "lastLogin": 1662093256687,
+            "visitorIds": [
+              "70359",
+              "42060"
+            ]
+          },
+          "createdAt": 1643838718284,
+          "lastUpdatedByUser": {
+            "id": "5415320457969664",
+            "username": "adrian.mendoza@cin7.com",
+            "first": "Adrian",
+            "last": "Mendoza",
+            "role": 2,
+            "userType": "normal",
+            "hasLoggedIn": true,
+            "lastLogin": 1761604490075,
+            "useCase": "IMPROVE_CONVERSION_RATES",
+            "jobRole": "unset"
+          },
+          "lastUpdatedAt": 1747825541919
+        },
+        "isCoreEvent": false,
+        "validThrough": 1761602400000,
+        "dirty": false,
+        "dailyMergeFirst": 0,
+        "dailyRollupFirst": 0,
+        "ignoredFrustrationTypes": [],
+        "appWide": false,
+        "createdDesignerVersion": "4.2.3",
+        "elementInitialTag": "A",
+        "elementPathRules": [
+          "#ReportTabSelectedLink"
+        ],
+        "elementSelectionType": "suggested",
+        "eventPropertyConfigurations": [],
+        "isSuggested": false,
+        "pageId": "FRjso4qGCLr3K9kkkzq4xOm-eLQ",
+        "suggestedMatch": "#ReportTabSelectedLink"
+      }
+    },
+    "pages": {
+      "count": 356,
+      "sample": {
+        "createdByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "createdAt": 1685320590281,
+        "lastUpdatedByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "lastUpdatedAt": 1685322552149,
+        "kind": "Page",
+        "rootVersionId": "aRnno0-bo2WMPJ7HBIFzCuDtKfg",
+        "stableVersionId": "aRnno0-bo2WMPJ7HBIFzCuDtKfg-20230529010912.171926141",
+        "id": "aRnno0-bo2WMPJ7HBIFzCuDtKfg",
+        "appId": -323232,
+        "appIds": [
+          -323232
+        ],
+        "name": "3PL Dashboards only",
+        "group": {
+          "id": "ZHcbMOL2I-K5WW23KijhW_bqyZ8",
+          "name": "3PL",
+          "description": "",
+          "color": ".groupColor01",
+          "length": 16,
+          "items": [],
+          "type": "group",
+          "createdByUser": {
+            "id": "4880924937158656",
+            "username": "walter.lim@cin7.com",
+            "first": "Walter",
+            "last": "Lim",
+            "role": 2,
+            "userType": "normal",
+            "deletedAt": 1666921914095,
+            "hasLoggedIn": true,
+            "lastLogin": 1662093256687,
+            "visitorIds": [
+              "70359",
+              "42060"
+            ]
+          },
+          "createdAt": 1637879120338,
+          "lastUpdatedByUser": {
+            "id": "5415320457969664",
+            "username": "adrian.mendoza@cin7.com",
+            "first": "Adrian",
+            "last": "Mendoza",
+            "role": 2,
+            "userType": "normal",
+            "hasLoggedIn": true,
+            "lastLogin": 1761604490075,
+            "useCase": "IMPROVE_CONVERSION_RATES",
+            "jobRole": "unset"
+          },
+          "lastUpdatedAt": 1747637199351
+        },
+        "isCoreEvent": false,
+        "validThrough": 1761602400000,
+        "dirty": false,
+        "dailyMergeFirst": 0,
+        "dailyRollupFirst": 0,
+        "ignoredFrustrationTypes": [],
+        "rules": [
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=AmazonFBA",
+            "designerHint": "https://go.cin7.com/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartners=232&idEDITradingPartnerLink=3370&page=DavidJonesSPS",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=AmazonFBA(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=EWEV2",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=EWEV2(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=MainfreightUSECOM",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=MainfreightUSECOM(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Mainfreight",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Mainfreight(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipBob",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipBob(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=CrossDocks",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=CrossDocks(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLCentral",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLCentral(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=G3PL",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=G3PL(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=AveryDennison",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=AveryDennison(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Go2TigersV2",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Go2TigersV2(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=EliteLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=EliteLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Dockhigh",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Dockhigh(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Coghlan",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Coghlan(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLUKv2",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLUKv2(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLMasonhub",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLMasonhub(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=SortedLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=SortedLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Ottogi3pl",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Ottogi3pl(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipwireV2",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipwireV2(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ExpeditorsNew",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ExpeditorsNew(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipFusion",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipFusion(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipMonk",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipMonk(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=MaxwellLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=MaxwellLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=smartwarehouse",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=smartwarehouse(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Cargoline",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Cargoline(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=BCNLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=BCNLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Fastrack3PLCentral",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Fastrack3PLCentral(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=DSLLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=DSLLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=GS3PL",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=GS3PL(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Cargocare",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Cargocare(?:&[^&#]*)*(?:#.*)?$"
+          }
+        ],
+        "rulesjson": "",
+        "isSuggested": false,
+        "suggestedName": "Cin7"
+      }
+    },
+    "reports": {
+      "count": 474,
+      "sample": {
+        "createdByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "createdAt": 1744841664837,
+        "lastUpdatedByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "lastUpdatedAt": 1744841740391,
+        "kind": "Report",
+        "rootVersionId": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4",
+        "stableVersionId": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4-20250416221540.446544549",
+        "ownedByUser": {
+          "id": "",
+          "username": "",
+          "first": "",
+          "last": "",
+          "role": 0,
+          "userType": "",
+          "hasLoggedIn": false
+        },
+        "share": "",
+        "target": "",
+        "scope": "",
+        "level": "",
+        "lastSuccessRunAt": 1760055182317,
+        "lastSuccessRunObj": "aggregation--AsTA2Rjbf2Z4MeGdfhWLaRVri4-path--AsTA2Rjbf2Z4MeGdfhWLaRVri4-1760055182317",
+        "lastRunAt": 1760055167706,
+        "id": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4",
+        "type": "Path",
+        "name": "Leading to | Connect to Amazon",
+        "shared": true,
+        "definition": {
+          "type": "Path",
+          "config": {
+            "maxInterval": 3600,
+            "predecessors": true,
+            "omitPages": false,
+            "features": true,
+            "trackEvents": true,
+            "guideEvents": true,
+            "collapseDups": true,
+            "uniqueVisitors": false,
+            "maxLength": 10,
+            "segmentId": "everyone",
+            "acrossApps": false,
+            "mapAnonymous": false,
+            "replayData": true,
+            "selectedAccount": {
+              "text": "All Accounts",
+              "id": "",
+              "className": "account-chooser-all-accounts"
+            },
+            "appId": 6253630842798080,
+            "featureId": "XYFJ0o8HjKGYMW_FvWJGASy1sXw",
+            "excludedEvents": [
+              {
+                "id": "q0pSf3sjsSpLiVYjZIMIArDS_H0",
+                "name": "Amazon | Dashboard",
+                "group": {
+                  "id": "t7GrA45CZm-Urw96tziQnBSc7wU",
+                  "name": "Core - Ecommerce",
+                  "description": "",
+                  "color": ".groupColor06",
+                  "length": 50,
+                  "items": [],
+                  "type": "group",
+                  "createdByUser": {
+                    "id": "5415320457969664",
+                    "username": "adrian.mendoza@cin7.com",
+                    "first": "Adrian",
+                    "last": "Mendoza",
+                    "role": 2,
+                    "userType": "normal",
+                    "hasLoggedIn": true,
+                    "lastLogin": 1744841255812,
+                    "useCase": "NOT_SURE",
+                    "jobRole": "unset"
+                  },
+                  "createdAt": 1686019273363,
+                  "lastUpdatedByUser": {
+                    "id": "5415320457969664",
+                    "username": "adrian.mendoza@cin7.com",
+                    "first": "Adrian",
+                    "last": "Mendoza",
+                    "role": 2,
+                    "userType": "normal",
+                    "hasLoggedIn": true,
+                    "lastLogin": 1744841255812,
+                    "useCase": "NOT_SURE",
+                    "jobRole": "unset"
+                  },
+                  "lastUpdatedAt": 1744841597805
+                },
+                "appId": 6253630842798080,
+                "appIcon": {
+                  "type": "monitor"
+                },
+                "kind": "Page",
+                "dirty": false,
+                "isCoreEvent": false,
+                "isStarred": false,
+                "icon": {
+                  "type": "page"
+                },
+                "appDisplayName": "Core",
+                "type": "option",
+                "size": 52
+              },
+              {
+                "id": "StUflqA-5TQqssuFX48ikD9cBps",
+                "name": "Integrations | All Apps",
+                "group": {
+                  "id": "mn69yv7VhhChb0_LkQei79weNUM",
+                  "name": "Core - Trial Workflow",
+                  "description": "",
+                  "color": ".groupColor05",
+                  "length": 82,
+                  "items": [],
+                  "type": "group",
+                  "createdByUser": {
+                    "id": "5415320457969664",
+                    "username": "adrian.mendoza@cin7.com",
+                    "first": "Adrian",
+                    "last": "Mendoza",
+                    "role": 2,
+                    "userType": "normal",
+                    "hasLoggedIn": true,
+                    "lastLogin": 1744841255812,
+                    "useCase": "NOT_SURE",
+                    "jobRole": "unset"
+                  },
+                  "createdAt": 1686101803799,
+                  "lastUpdatedByUser": {
+                    "id": "5415320457969664",
+                    "username": "adrian.mendoza@cin7.com",
+                    "first": "Adrian",
+                    "last": "Mendoza",
+                    "role": 2,
+                    "userType": "normal",
+                    "hasLoggedIn": true,
+                    "lastLogin": 1744841255812,
+                    "useCase": "NOT_SURE",
+                    "jobRole": "unset"
+                  },
+                  "lastUpdatedAt": 1730920556583
+                },
+                "appId": 6253630842798080,
+                "appIcon": {
+                  "type": "monitor"
+                },
+                "appDisplayName": "Core",
+                "kind": "Page",
+                "dirty": false,
+                "isCoreEvent": false,
+                "isStarred": false,
+                "icon": {
+                  "type": "page"
+                },
+                "lastUsed": 1743554901197,
+                "type": "option",
+                "size": 52
+              }
+            ]
+          },
+          "minimum": 0,
+          "timeSeries": {
+            "type": "Last 30 Days",
+            "start": "2025-03-18",
+            "end": "2025-04-16"
+          },
+          "history": []
+        },
+        "aggregation": {
+          "pipeline": [
+            {
+              "source": {
+                "singleEvents": {
+                  "appId": 6253630842798080,
+                  "reverseTime": true,
+                  "eventClass": [
+                    "ui",
+                    "track"
+                  ]
+                },
+                "timeSeries": {
+                  "period": "dayRange",
+                  "first": 1742209200000,
+                  "count": 30
+                }
+              }
+            },
+            {
+              "identified": "visitorId"
+            },
+            {
+              "group": {
+                "group": [
+                  "visitorId"
+                ],
+                "fields": [
+                  {
+                    "path": {
+                      "path": {
+                        "featureId": "XYFJ0o8HjKGYMW_FvWJGASy1sXw",
+                        "collapseDups": true,
+                        "maxInterval": 3600,
+                        "maxLength": 10,
+                        "predecessors": true,
+                        "followAcrossSessions": false,
+                        "omitPages": false,
+                        "features": true,
+                        "trackEvents": true,
+                        "guideEvents": true,
+                        "replayData": true,
+                        "excludeItems": true,
+                        "items": [
+                          {
+                            "pageId": "q0pSf3sjsSpLiVYjZIMIArDS_H0"
+                          },
+                          {
+                            "pageId": "StUflqA-5TQqssuFX48ikD9cBps"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "unwind": {
+                "field": "path"
+              }
+            },
+            {
+              "fork": [
+                [
+                  {
+                    "limit": 10000
+                  }
+                ],
+                [
+                  {
+                    "eval": {
+                      "items": "map(x, path, x.items)"
+                    }
+                  },
+                  {
+                    "reduce": {
+                      "tree": {
+                        "treeify": {
+                          "threshold": 0.0001,
+                          "keySort": true,
+                          "uniqueVisitors": false
+                        }
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          ],
+          "settings": {
+            "excludeList": "apply"
+          }
+        },
+        "dependentMetadata": [],
+        "createdByDashboardTemplate": false
+      }
+    }
+  },
+  "access_level": "LIMITED ACCESS",
+  "permission_breakdown": {
+    "Guides": {
+      "success": 1,
+      "total": 1
+    },
+    "Features": {
+      "success": 1,
+      "total": 1
+    },
+    "Pages": {
+      "success": 1,
+      "total": 1
+    },
+    "Reports": {
+      "success": 1,
+      "total": 2
+    },
+    "Metadata": {
+      "success": 2,
+      "total": 2
+    },
+    "Visitor": {
+      "success": 0,
+      "total": 1
+    },
+    "Account": {
+      "success": 0,
+      "total": 9
+    },
+    "Guide": {
+      "success": 0,
+      "total": 1
+    },
+    "Analytics": {
+      "success": 0,
+      "total": 1
+    },
+    "Events": {
+      "success": 0,
+      "total": 1
+    },
+    "Bulk Operations": {
+      "success": 0,
+      "total": 1
+    },
+    "Delete": {
+      "success": 0,
+      "total": 1
+    }
+  },
+  "total_operations_tested": 22,
+  "successful_operations": 6,
+  "detailed_results": [
+    {
+      "timestamp": "2025-10-28T12:06:26.797240",
+      "category": "Guides",
+      "operation": "List All Guides",
+      "success": true,
+      "details": "Retrieved 527 items",
+      "data_count": 527,
+      "sample_data": {
+        "createdByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "createdAt": 1758784289157,
+        "lastUpdatedByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "lastUpdatedAt": 1759216882787,
+        "kind": "Guide",
+        "rootVersionId": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+        "stableVersionId": "DHk640QtRoTYNV5u8HsPqywa1Eo-20250930072122.801164468",
+        "appId": -323232,
+        "appIds": [
+          -323232
+        ],
+        "id": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+        "name": "oStripe - Partner Migration (Pop-up) | Home Dashboard",
+        "state": "_pendingReview_",
+        "emailState": "",
+        "launchMethod": "auto",
+        "isMultiStep": false,
+        "isTraining": false,
+        "steps": [
+          {
+            "id": "QdvpXs-7GKyce65kStfmXsXY1G8",
+            "guideId": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+            "templateId": "building-block-guide",
+            "type": "building-block",
+            "pageId": "iD07wrNnn2etx2c443K4OV954wA",
+            "regexUrlRule": "^https?://[^/]*/Cloud/Dashboard/HomePageDashboard\\.aspx/?(?:;[^#]*)?(?:\\?[^#]*)?(?:#.*)?$",
+            "elementPathRule": "",
+            "triggerElementPathRule": "",
+            "confirmationElementPathRule": "",
+            "contentType": "text/html; charset=utf-8",
+            "buildingBlocksUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/TYazcGDBXbFPe9bSeTZdVqXl5Fo.buildingBlocks.json",
+            "domUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/z6WPCl9Gfetb657MNqTcqrdCZnE.dom.json?sha256=-wuE9kMtqj9-r-reDwATjjM2uoa9COJrfYDnd2J2w3c",
+            "domJsonpUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/f4rLLpWQMv0FoPVP_dsomkKyNEc.dom.jsonp?sha256=MyHrtwzsH1p_lWkuWIuza6KvZF3FndLDSb86wHC5JMw",
+            "rank": 5000000,
+            "advanceMethod": "button",
+            "attributes": {
+              "css": "",
+              "themeId": "u_NWKGbDxXcsXlEfQujKhWgWkGU",
+              "isAutoFocus": true,
+              "darkMode": {
+                "selector": ""
+              },
+              "blockOutUI": {
+                "additionalElements": "",
+                "enabled": false,
+                "padding": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                }
+              }
+            },
+            "lastUpdatedAt": 1758784863100,
+            "resetAt": 0,
+            "launchUrl": "https://go.cin7.com/Cloud/Dashboard/HomePageDashboard.aspx"
+          }
+        ],
+        "attributes": {
+          "type": "building-block",
+          "device": {
+            "type": "desktop"
+          },
+          "sharedServiceVersion": "5.17.1",
+          "priority": 1006
+        },
+        "audience": [
+          {
+            "source": {
+              "visitors": null
+            }
+          },
+          {
+            "eval": {
+              "accountId": "metadata.auto.accountids"
+            }
+          },
+          {
+            "unwind": {
+              "field": "accountId",
+              "keepEmpty": true
+            }
+          },
+          {
+            "segment": {
+              "id": "KMmIqB7pN2Q59HJZPE-X4VZWSOc"
+            }
+          },
+          {
+            "select": {
+              "visitorId": "visitorId"
+            }
+          },
+          {
+            "identified": "visitorId"
+          }
+        ],
+        "audienceUiHint": {
+          "filters": [
+            {
+              "kind": "visitor",
+              "segmentId": "KMmIqB7pN2Q59HJZPE-X4VZWSOc"
+            }
+          ]
+        },
+        "authoredLanguage": "en-US",
+        "recurrence": 0,
+        "recurrenceEligibilityWindow": 0,
+        "resetAt": 0,
+        "publishedAt": 0,
+        "publishedEver": false,
+        "currentFirstEligibleToBeSeenAt": 0,
+        "expiresAfter": 1761861600000,
+        "isTopLevel": false,
+        "isModule": false,
+        "editorType": "visualDesignStudio",
+        "dependentMetadata": [],
+        "autoCreateFeedback": false
+      }
+    },
+    {
+      "timestamp": "2025-10-28T12:06:27.447045",
+      "category": "Features",
+      "operation": "List All Features",
+      "success": true,
+      "details": "Retrieved 956 items",
+      "data_count": 956,
+      "sample_data": {
+        "createdByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "createdAt": 1673824341617,
+        "lastUpdatedByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "lastUpdatedAt": 1673824341617,
+        "kind": "Feature",
+        "rootVersionId": "uXfQdbqvfgduiCvUF1gjVBA4vng",
+        "stableVersionId": "uXfQdbqvfgduiCvUF1gjVBA4vng-20230115231221.626310622",
+        "id": "uXfQdbqvfgduiCvUF1gjVBA4vng",
+        "appId": -323232,
+        "appIds": [
+          -323232
+        ],
+        "name": "'Default' Tabs Selected",
+        "group": {
+          "id": "Wgt0R6wAsWPgeUdma0Y6M3APsxs",
+          "name": "Reporting / Insights",
+          "description": "",
+          "color": ".groupColor06",
+          "length": 408,
+          "items": [],
+          "type": "group",
+          "createdByUser": {
+            "id": "4880924937158656",
+            "username": "walter.lim@cin7.com",
+            "first": "Walter",
+            "last": "Lim",
+            "role": 2,
+            "userType": "normal",
+            "deletedAt": 1666921914095,
+            "hasLoggedIn": true,
+            "lastLogin": 1662093256687,
+            "visitorIds": [
+              "70359",
+              "42060"
+            ]
+          },
+          "createdAt": 1643838718284,
+          "lastUpdatedByUser": {
+            "id": "5415320457969664",
+            "username": "adrian.mendoza@cin7.com",
+            "first": "Adrian",
+            "last": "Mendoza",
+            "role": 2,
+            "userType": "normal",
+            "hasLoggedIn": true,
+            "lastLogin": 1761604490075,
+            "useCase": "IMPROVE_CONVERSION_RATES",
+            "jobRole": "unset"
+          },
+          "lastUpdatedAt": 1747825541919
+        },
+        "isCoreEvent": false,
+        "validThrough": 1761602400000,
+        "dirty": false,
+        "dailyMergeFirst": 0,
+        "dailyRollupFirst": 0,
+        "ignoredFrustrationTypes": [],
+        "appWide": false,
+        "createdDesignerVersion": "4.2.3",
+        "elementInitialTag": "A",
+        "elementPathRules": [
+          "#ReportTabSelectedLink"
+        ],
+        "elementSelectionType": "suggested",
+        "eventPropertyConfigurations": [],
+        "isSuggested": false,
+        "pageId": "FRjso4qGCLr3K9kkkzq4xOm-eLQ",
+        "suggestedMatch": "#ReportTabSelectedLink"
+      }
+    },
+    {
+      "timestamp": "2025-10-28T12:06:27.963525",
+      "category": "Pages",
+      "operation": "List All Pages",
+      "success": true,
+      "details": "Retrieved 356 items",
+      "data_count": 356,
+      "sample_data": {
+        "createdByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "createdAt": 1685320590281,
+        "lastUpdatedByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "lastUpdatedAt": 1685322552149,
+        "kind": "Page",
+        "rootVersionId": "aRnno0-bo2WMPJ7HBIFzCuDtKfg",
+        "stableVersionId": "aRnno0-bo2WMPJ7HBIFzCuDtKfg-20230529010912.171926141",
+        "id": "aRnno0-bo2WMPJ7HBIFzCuDtKfg",
+        "appId": -323232,
+        "appIds": [
+          -323232
+        ],
+        "name": "3PL Dashboards only",
+        "group": {
+          "id": "ZHcbMOL2I-K5WW23KijhW_bqyZ8",
+          "name": "3PL",
+          "description": "",
+          "color": ".groupColor01",
+          "length": 16,
+          "items": [],
+          "type": "group",
+          "createdByUser": {
+            "id": "4880924937158656",
+            "username": "walter.lim@cin7.com",
+            "first": "Walter",
+            "last": "Lim",
+            "role": 2,
+            "userType": "normal",
+            "deletedAt": 1666921914095,
+            "hasLoggedIn": true,
+            "lastLogin": 1662093256687,
+            "visitorIds": [
+              "70359",
+              "42060"
+            ]
+          },
+          "createdAt": 1637879120338,
+          "lastUpdatedByUser": {
+            "id": "5415320457969664",
+            "username": "adrian.mendoza@cin7.com",
+            "first": "Adrian",
+            "last": "Mendoza",
+            "role": 2,
+            "userType": "normal",
+            "hasLoggedIn": true,
+            "lastLogin": 1761604490075,
+            "useCase": "IMPROVE_CONVERSION_RATES",
+            "jobRole": "unset"
+          },
+          "lastUpdatedAt": 1747637199351
+        },
+        "isCoreEvent": false,
+        "validThrough": 1761602400000,
+        "dirty": false,
+        "dailyMergeFirst": 0,
+        "dailyRollupFirst": 0,
+        "ignoredFrustrationTypes": [],
+        "rules": [
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=AmazonFBA",
+            "designerHint": "https://go.cin7.com/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartners=232&idEDITradingPartnerLink=3370&page=DavidJonesSPS",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=AmazonFBA(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=EWEV2",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=EWEV2(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=MainfreightUSECOM",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=MainfreightUSECOM(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Mainfreight",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Mainfreight(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipBob",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipBob(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=CrossDocks",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=CrossDocks(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLCentral",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLCentral(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=G3PL",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=G3PL(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=AveryDennison",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=AveryDennison(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Go2TigersV2",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Go2TigersV2(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=EliteLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=EliteLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Dockhigh",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Dockhigh(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Coghlan",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Coghlan(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLUKv2",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLUKv2(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLMasonhub",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLMasonhub(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=SortedLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=SortedLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Ottogi3pl",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Ottogi3pl(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipwireV2",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipwireV2(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ExpeditorsNew",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ExpeditorsNew(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipFusion",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipFusion(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipMonk",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipMonk(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=MaxwellLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=MaxwellLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=smartwarehouse",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=smartwarehouse(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Cargoline",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Cargoline(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=BCNLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=BCNLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Fastrack3PLCentral",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Fastrack3PLCentral(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=DSLLogistics",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=DSLLogistics(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=GS3PL",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=GS3PL(?:&[^&#]*)*(?:#.*)?$"
+          },
+          {
+            "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Cargocare",
+            "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Cargocare(?:&[^&#]*)*(?:#.*)?$"
+          }
+        ],
+        "rulesjson": "",
+        "isSuggested": false,
+        "suggestedName": "Cin7"
+      }
+    },
+    {
+      "timestamp": "2025-10-28T12:06:28.934986",
+      "category": "Reports",
+      "operation": "List All Reports",
+      "success": true,
+      "details": "Retrieved 474 items",
+      "data_count": 474,
+      "sample_data": {
+        "createdByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "createdAt": 1744841664837,
+        "lastUpdatedByUser": {
+          "id": "5415320457969664",
+          "username": "adrian.mendoza@cin7.com",
+          "first": "Adrian",
+          "last": "Mendoza",
+          "role": 2,
+          "userType": "normal",
+          "hasLoggedIn": true,
+          "lastLogin": 1761604490075,
+          "useCase": "IMPROVE_CONVERSION_RATES",
+          "jobRole": "unset"
+        },
+        "lastUpdatedAt": 1744841740391,
+        "kind": "Report",
+        "rootVersionId": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4",
+        "stableVersionId": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4-20250416221540.446544549",
+        "ownedByUser": {
+          "id": "",
+          "username": "",
+          "first": "",
+          "last": "",
+          "role": 0,
+          "userType": "",
+          "hasLoggedIn": false
+        },
+        "share": "",
+        "target": "",
+        "scope": "",
+        "level": "",
+        "lastSuccessRunAt": 1760055182317,
+        "lastSuccessRunObj": "aggregation--AsTA2Rjbf2Z4MeGdfhWLaRVri4-path--AsTA2Rjbf2Z4MeGdfhWLaRVri4-1760055182317",
+        "lastRunAt": 1760055167706,
+        "id": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4",
+        "type": "Path",
+        "name": "Leading to | Connect to Amazon",
+        "shared": true,
+        "definition": {
+          "type": "Path",
+          "config": {
+            "maxInterval": 3600,
+            "predecessors": true,
+            "omitPages": false,
+            "features": true,
+            "trackEvents": true,
+            "guideEvents": true,
+            "collapseDups": true,
+            "uniqueVisitors": false,
+            "maxLength": 10,
+            "segmentId": "everyone",
+            "acrossApps": false,
+            "mapAnonymous": false,
+            "replayData": true,
+            "selectedAccount": {
+              "text": "All Accounts",
+              "id": "",
+              "className": "account-chooser-all-accounts"
+            },
+            "appId": 6253630842798080,
+            "featureId": "XYFJ0o8HjKGYMW_FvWJGASy1sXw",
+            "excludedEvents": [
+              {
+                "id": "q0pSf3sjsSpLiVYjZIMIArDS_H0",
+                "name": "Amazon | Dashboard",
+                "group": {
+                  "id": "t7GrA45CZm-Urw96tziQnBSc7wU",
+                  "name": "Core - Ecommerce",
+                  "description": "",
+                  "color": ".groupColor06",
+                  "length": 50,
+                  "items": [],
+                  "type": "group",
+                  "createdByUser": {
+                    "id": "5415320457969664",
+                    "username": "adrian.mendoza@cin7.com",
+                    "first": "Adrian",
+                    "last": "Mendoza",
+                    "role": 2,
+                    "userType": "normal",
+                    "hasLoggedIn": true,
+                    "lastLogin": 1744841255812,
+                    "useCase": "NOT_SURE",
+                    "jobRole": "unset"
+                  },
+                  "createdAt": 1686019273363,
+                  "lastUpdatedByUser": {
+                    "id": "5415320457969664",
+                    "username": "adrian.mendoza@cin7.com",
+                    "first": "Adrian",
+                    "last": "Mendoza",
+                    "role": 2,
+                    "userType": "normal",
+                    "hasLoggedIn": true,
+                    "lastLogin": 1744841255812,
+                    "useCase": "NOT_SURE",
+                    "jobRole": "unset"
+                  },
+                  "lastUpdatedAt": 1744841597805
+                },
+                "appId": 6253630842798080,
+                "appIcon": {
+                  "type": "monitor"
+                },
+                "kind": "Page",
+                "dirty": false,
+                "isCoreEvent": false,
+                "isStarred": false,
+                "icon": {
+                  "type": "page"
+                },
+                "appDisplayName": "Core",
+                "type": "option",
+                "size": 52
+              },
+              {
+                "id": "StUflqA-5TQqssuFX48ikD9cBps",
+                "name": "Integrations | All Apps",
+                "group": {
+                  "id": "mn69yv7VhhChb0_LkQei79weNUM",
+                  "name": "Core - Trial Workflow",
+                  "description": "",
+                  "color": ".groupColor05",
+                  "length": 82,
+                  "items": [],
+                  "type": "group",
+                  "createdByUser": {
+                    "id": "5415320457969664",
+                    "username": "adrian.mendoza@cin7.com",
+                    "first": "Adrian",
+                    "last": "Mendoza",
+                    "role": 2,
+                    "userType": "normal",
+                    "hasLoggedIn": true,
+                    "lastLogin": 1744841255812,
+                    "useCase": "NOT_SURE",
+                    "jobRole": "unset"
+                  },
+                  "createdAt": 1686101803799,
+                  "lastUpdatedByUser": {
+                    "id": "5415320457969664",
+                    "username": "adrian.mendoza@cin7.com",
+                    "first": "Adrian",
+                    "last": "Mendoza",
+                    "role": 2,
+                    "userType": "normal",
+                    "hasLoggedIn": true,
+                    "lastLogin": 1744841255812,
+                    "useCase": "NOT_SURE",
+                    "jobRole": "unset"
+                  },
+                  "lastUpdatedAt": 1730920556583
+                },
+                "appId": 6253630842798080,
+                "appIcon": {
+                  "type": "monitor"
+                },
+                "appDisplayName": "Core",
+                "kind": "Page",
+                "dirty": false,
+                "isCoreEvent": false,
+                "isStarred": false,
+                "icon": {
+                  "type": "page"
+                },
+                "lastUsed": 1743554901197,
+                "type": "option",
+                "size": 52
+              }
+            ]
+          },
+          "minimum": 0,
+          "timeSeries": {
+            "type": "Last 30 Days",
+            "start": "2025-03-18",
+            "end": "2025-04-16"
+          },
+          "history": []
+        },
+        "aggregation": {
+          "pipeline": [
+            {
+              "source": {
+                "singleEvents": {
+                  "appId": 6253630842798080,
+                  "reverseTime": true,
+                  "eventClass": [
+                    "ui",
+                    "track"
+                  ]
+                },
+                "timeSeries": {
+                  "period": "dayRange",
+                  "first": 1742209200000,
+                  "count": 30
+                }
+              }
+            },
+            {
+              "identified": "visitorId"
+            },
+            {
+              "group": {
+                "group": [
+                  "visitorId"
+                ],
+                "fields": [
+                  {
+                    "path": {
+                      "path": {
+                        "featureId": "XYFJ0o8HjKGYMW_FvWJGASy1sXw",
+                        "collapseDups": true,
+                        "maxInterval": 3600,
+                        "maxLength": 10,
+                        "predecessors": true,
+                        "followAcrossSessions": false,
+                        "omitPages": false,
+                        "features": true,
+                        "trackEvents": true,
+                        "guideEvents": true,
+                        "replayData": true,
+                        "excludeItems": true,
+                        "items": [
+                          {
+                            "pageId": "q0pSf3sjsSpLiVYjZIMIArDS_H0"
+                          },
+                          {
+                            "pageId": "StUflqA-5TQqssuFX48ikD9cBps"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "unwind": {
+                "field": "path"
+              }
+            },
+            {
+              "fork": [
+                [
+                  {
+                    "limit": 10000
+                  }
+                ],
+                [
+                  {
+                    "eval": {
+                      "items": "map(x, path, x.items)"
+                    }
+                  },
+                  {
+                    "reduce": {
+                      "tree": {
+                        "treeify": {
+                          "threshold": 0.0001,
+                          "keySort": true,
+                          "uniqueVisitors": false
+                        }
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          ],
+          "settings": {
+            "excludeList": "apply"
+          }
+        },
+        "dependentMetadata": [],
+        "createdByDashboardTemplate": false
+      }
+    },
+    {
+      "timestamp": "2025-10-28T12:06:29.369372",
+      "category": "Metadata",
+      "operation": "Visitor Schema",
+      "success": true,
+      "details": "Retrieved data items",
+      "data_count": 1,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:29.737614",
+      "category": "Metadata",
+      "operation": "Guide Schema",
+      "success": true,
+      "details": "Retrieved data items",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:29.985925",
+      "category": "Visitor",
+      "operation": "Create/Update Visitor",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:30.240477",
+      "category": "Account",
+      "operation": "Create/Update Account",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:31.292111",
+      "category": "Guide",
+      "operation": "Update Guide",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:31.665597",
+      "category": "Analytics",
+      "operation": "Run Aggregation Query",
+      "success": false,
+      "details": "Error: 422 Client Error: unknown for url: https://app.pen",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:31.955231",
+      "category": "Events",
+      "operation": "Track Custom Event",
+      "success": false,
+      "details": "Error: Expecting value: line 1 column 1 (char 0)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:32.205393",
+      "category": "Account",
+      "operation": "Subscription Info",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:32.458291",
+      "category": "Account",
+      "operation": "Usage Statistics",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:32.824670",
+      "category": "Account",
+      "operation": "Account Details",
+      "success": false,
+      "details": "Error: Expecting value: line 1 column 1 (char 0)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:33.083061",
+      "category": "Account",
+      "operation": "User Permissions",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:33.332268",
+      "category": "Account",
+      "operation": "API Keys Info",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:33.666097",
+      "category": "Account",
+      "operation": "Webhook Settings",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:33.915850",
+      "category": "Account",
+      "operation": "Data Settings",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:34.168852",
+      "category": "Account",
+      "operation": "Feature Flags",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:34.420595",
+      "category": "Bulk Operations",
+      "operation": "Bulk Visitor Update",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:34.670443",
+      "category": "Reports",
+      "operation": "Create Custom Report",
+      "success": false,
+      "details": "Error: Extra data: line 1 column 5 (char 4)",
+      "data_count": 0,
+      "sample_data": null
+    },
+    {
+      "timestamp": "2025-10-28T12:06:35.024976",
+      "category": "Delete",
+      "operation": "Delete Visitor",
+      "success": false,
+      "details": "Error: Expecting value: line 1 column 1 (char 0)",
+      "data_count": 0,
+      "sample_data": null
+    }
+  ],
+  "capabilities_summary": {
+    "read_access": 6,
+    "write_access": 0,
+    "management_access": 0,
+    "delete_access": 0,
+    "account_access": 0
+  }
+}
