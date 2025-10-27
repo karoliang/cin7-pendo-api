@@ -1,0 +1,400 @@
+{
+  "exploration_timestamp": "2025-10-28T11:54:36.975036",
+  "api_key": "f4acdb2c-0...",
+  "base_url": "https://api.pendo.io",
+  "discovered_endpoints": [
+    "/status"
+  ],
+  "total_endpoints_tested": 42,
+  "successful_endpoints": 1,
+  "success_rate": 2.380952380952381,
+  "detailed_results": [
+    {
+      "endpoint": "/api/v1/",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v2/",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/v1/",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/v2/",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/users",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/accounts",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/campaigns",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/analytics",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/feedback",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/guides",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/events",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/features",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/reports",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/metadata",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/visitors",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/aggregates",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/monitors",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/segments",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/applications",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/featureFlags",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/users",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/accounts",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/campaigns",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/analytics",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/feedback",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/guides",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/events",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/info",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/status",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/health",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/status",
+      "method": "GET",
+      "status_code": 200,
+      "success": true,
+      "content_type": "application/json; charset=utf-8",
+      "content_length": 89,
+      "sample_data": {
+        "version": "1.2.1",
+        "uptime": 1005720.45,
+        "mem": 0.41662348622050993,
+        "load": [
+          0.25,
+          0.21,
+          0.18
+        ]
+      }
+    },
+    {
+      "endpoint": "/ping",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/integrations",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/integrations",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/webhooks",
+      "method": "GET",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 5017,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/events",
+      "method": "POST",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html",
+      "content_length": 1053,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/feedback",
+      "method": "POST",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html",
+      "content_length": 1053,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/users",
+      "method": "POST",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html",
+      "content_length": 1053,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/accounts",
+      "method": "POST",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html",
+      "content_length": 1053,
+      "sample_data": null
+    },
+    {
+      "endpoint": "/api/v1/campaigns",
+      "method": "POST",
+      "status_code": 404,
+      "success": false,
+      "content_type": "text/html",
+      "content_length": 1053,
+      "sample_data": null
+    }
+  ]
+}
