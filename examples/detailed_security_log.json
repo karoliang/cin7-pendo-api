@@ -1,0 +1,434 @@
+[
+  {
+    "timestamp": "2025-10-28T13:13:18.398943",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/guide",
+    "method": "GET",
+    "success": true,
+    "details": "Status 200, Data retrieved safely",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:19.055295",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/feature",
+    "method": "GET",
+    "success": true,
+    "details": "Status 200, Data retrieved safely",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:19.593670",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/page",
+    "method": "GET",
+    "success": true,
+    "details": "Status 200, Data retrieved safely",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:20.683543",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/report",
+    "method": "GET",
+    "success": true,
+    "details": "Status 200, Data retrieved safely",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:21.053182",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/metadata/schema/visitor",
+    "method": "GET",
+    "success": true,
+    "details": "Status 200, Data retrieved safely",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:21.412688",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/metadata/schema/guide",
+    "method": "GET",
+    "success": true,
+    "details": "Status 200, Data retrieved safely",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:21.663520",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/visitor",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:21.918873",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/account",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:22.277217",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/user/me",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:22.607465",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/account/me",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:22.871924",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/subscription",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:23.133579",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/usage",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:23.406054",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/integrationkeys",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:23.663008",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/webhooks",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:23.922804",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/featureFlags",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:24.175050",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/data-settings",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:24.423525",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/visitor",
+    "method": "OPTIONS",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:24.672907",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/visitor",
+    "method": "HEAD",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:24.934173",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/visitor",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:25.183842",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/account",
+    "method": "OPTIONS",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:25.435628",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/account",
+    "method": "HEAD",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:25.686417",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/account",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:25.938635",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/guide",
+    "method": "OPTIONS",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:26.592418",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/guide",
+    "method": "HEAD",
+    "success": false,
+    "details": "Request failed: Expecting value: line 1 column 1 (char 0)",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:27.332779",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/guide",
+    "method": "GET",
+    "success": true,
+    "details": "Status 200, Data retrieved safely",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:27.617243",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/track",
+    "method": "OPTIONS",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:27.894509",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/track",
+    "method": "HEAD",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:28.147887",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/track",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:28.403150",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/aggregation",
+    "method": "OPTIONS",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:28.764464",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/aggregation",
+    "method": "HEAD",
+    "success": false,
+    "details": "Status 400: Bad Request",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:29.182461",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/aggregation",
+    "method": "GET",
+    "success": false,
+    "details": "Status 400: Bad Request",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:29.432338",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/report",
+    "method": "OPTIONS",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:30.195859",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/report",
+    "method": "HEAD",
+    "success": false,
+    "details": "Request failed: Expecting value: line 1 column 1 (char 0)",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:31.130237",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/report",
+    "method": "GET",
+    "success": true,
+    "details": "Status 200, Data retrieved safely",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:31.417478",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/visitors/bulk",
+    "method": "OPTIONS",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:31.669910",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/visitors/bulk",
+    "method": "HEAD",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:31.922650",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/visitors/bulk",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:32.192829",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/webhooks",
+    "method": "OPTIONS",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:32.448994",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/webhooks",
+    "method": "HEAD",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:32.741287",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/webhooks",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:32.992209",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/visitor",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:33.242014",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/account",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:33.492978",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/user/me",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:33.744340",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/subscription",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:33.994845",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/usage",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:34.257201",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/integrationkeys",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:34.511493",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/track",
+    "method": "GET",
+    "success": false,
+    "details": "Status 404: Not Found",
+    "data_safe": true
+  },
+  {
+    "timestamp": "2025-10-28T13:13:35.475208",
+    "operation": "SAFE_READ_REQUEST",
+    "endpoint": "/api/v1/aggregation",
+    "method": "GET",
+    "success": false,
+    "details": "Status 400: Bad Request",
+    "data_safe": true
+  }
+]

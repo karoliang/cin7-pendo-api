@@ -1,0 +1,14 @@
+{
+  "analysis_timestamp": "2025-10-28T13:13:35.475422",
+  "api_key": "0c23cd4d-c...",
+  "base_url": "https://app.pendo.io",
+  "total_operations": 48,
+  "successful_operations": 8,
+  "success_rate": 16.666666666666664,
+  "write_attempts_blocked": 0,
+  "data_safety_verified": true,
+  "analysis_categories": 4,
+  "security_log_entries": 48,
+  "data_modification_attempts": 0,
+  "safety_status": "VERIFIED SAFE"
+}

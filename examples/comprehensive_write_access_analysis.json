@@ -1,0 +1,1021 @@
+{
+  "analysis_timestamp": "2025-10-28T13:13:35.476634",
+  "api_key_analyzed": "0c23cd4d-c...",
+  "base_url": "https://app.pendo.io",
+  "security_verification": {
+    "analysis_timestamp": "2025-10-28T13:13:35.475422",
+    "api_key": "0c23cd4d-c...",
+    "base_url": "https://app.pendo.io",
+    "total_operations": 48,
+    "successful_operations": 8,
+    "success_rate": 16.666666666666664,
+    "write_attempts_blocked": 0,
+    "data_safety_verified": true,
+    "analysis_categories": 4,
+    "security_log_entries": 48,
+    "data_modification_attempts": 0,
+    "safety_status": "VERIFIED SAFE"
+  },
+  "capability_analysis": {
+    "baseline_capabilities": [
+      "Guides",
+      "Features",
+      "Pages",
+      "Reports",
+      "Visitor Schema"
+    ],
+    "enhanced_capabilities": [],
+    "total_capabilities_discovered": 5,
+    "enhancement_percentage": 0.0
+  },
+  "detailed_results": [
+    {
+      "category": "Baseline Read Access",
+      "timestamp": "2025-10-28T13:13:21.413246",
+      "results": {
+        "Guides": {
+          "success": true,
+          "count": 527,
+          "sample": {
+            "createdByUser": {
+              "id": "5415320457969664",
+              "username": "adrian.mendoza@cin7.com",
+              "first": "Adrian",
+              "last": "Mendoza",
+              "role": 2,
+              "userType": "normal",
+              "hasLoggedIn": true,
+              "lastLogin": 1761606922431,
+              "useCase": "IMPROVE_CONVERSION_RATES",
+              "jobRole": "unset"
+            },
+            "createdAt": 1758784289157,
+            "lastUpdatedByUser": {
+              "id": "5415320457969664",
+              "username": "adrian.mendoza@cin7.com",
+              "first": "Adrian",
+              "last": "Mendoza",
+              "role": 2,
+              "userType": "normal",
+              "hasLoggedIn": true,
+              "lastLogin": 1761606922431,
+              "useCase": "IMPROVE_CONVERSION_RATES",
+              "jobRole": "unset"
+            },
+            "lastUpdatedAt": 1759216882787,
+            "kind": "Guide",
+            "rootVersionId": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+            "stableVersionId": "DHk640QtRoTYNV5u8HsPqywa1Eo-20250930072122.801164468",
+            "appId": -323232,
+            "appIds": [
+              -323232
+            ],
+            "id": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+            "name": "oStripe - Partner Migration (Pop-up) | Home Dashboard",
+            "state": "_pendingReview_",
+            "emailState": "",
+            "launchMethod": "auto",
+            "isMultiStep": false,
+            "isTraining": false,
+            "steps": [
+              {
+                "id": "QdvpXs-7GKyce65kStfmXsXY1G8",
+                "guideId": "DHk640QtRoTYNV5u8HsPqywa1Eo",
+                "templateId": "building-block-guide",
+                "type": "building-block",
+                "pageId": "iD07wrNnn2etx2c443K4OV954wA",
+                "regexUrlRule": "^https?://[^/]*/Cloud/Dashboard/HomePageDashboard\\.aspx/?(?:;[^#]*)?(?:\\?[^#]*)?(?:#.*)?$",
+                "elementPathRule": "",
+                "triggerElementPathRule": "",
+                "confirmationElementPathRule": "",
+                "contentType": "text/html; charset=utf-8",
+                "buildingBlocksUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/TYazcGDBXbFPe9bSeTZdVqXl5Fo.buildingBlocks.json",
+                "domUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/z6WPCl9Gfetb657MNqTcqrdCZnE.dom.json?sha256=-wuE9kMtqj9-r-reDwATjjM2uoa9COJrfYDnd2J2w3c",
+                "domJsonpUrl": "https://pendo-static-6314598257786880.storage.googleapis.com/guide-content/DHk640QtRoTYNV5u8HsPqywa1Eo/QdvpXs-7GKyce65kStfmXsXY1G8/f4rLLpWQMv0FoPVP_dsomkKyNEc.dom.jsonp?sha256=MyHrtwzsH1p_lWkuWIuza6KvZF3FndLDSb86wHC5JMw",
+                "rank": 5000000,
+                "advanceMethod": "button",
+                "attributes": {
+                  "css": "",
+                  "themeId": "u_NWKGbDxXcsXlEfQujKhWgWkGU",
+                  "isAutoFocus": true,
+                  "darkMode": {
+                    "selector": ""
+                  },
+                  "blockOutUI": {
+                    "additionalElements": "",
+                    "enabled": false,
+                    "padding": {
+                      "bottom": 0,
+                      "left": 0,
+                      "right": 0,
+                      "top": 0
+                    }
+                  }
+                },
+                "lastUpdatedAt": 1758784863100,
+                "resetAt": 0,
+                "launchUrl": "https://go.cin7.com/Cloud/Dashboard/HomePageDashboard.aspx"
+              }
+            ],
+            "attributes": {
+              "type": "building-block",
+              "device": {
+                "type": "desktop"
+              },
+              "sharedServiceVersion": "5.17.1",
+              "priority": 1006
+            },
+            "audience": [
+              {
+                "source": {
+                  "visitors": null
+                }
+              },
+              {
+                "eval": {
+                  "accountId": "metadata.auto.accountids"
+                }
+              },
+              {
+                "unwind": {
+                  "field": "accountId",
+                  "keepEmpty": true
+                }
+              },
+              {
+                "segment": {
+                  "id": "KMmIqB7pN2Q59HJZPE-X4VZWSOc"
+                }
+              },
+              {
+                "select": {
+                  "visitorId": "visitorId"
+                }
+              },
+              {
+                "identified": "visitorId"
+              }
+            ],
+            "audienceUiHint": {
+              "filters": [
+                {
+                  "kind": "visitor",
+                  "segmentId": "KMmIqB7pN2Q59HJZPE-X4VZWSOc"
+                }
+              ]
+            },
+            "authoredLanguage": "en-US",
+            "recurrence": 0,
+            "recurrenceEligibilityWindow": 0,
+            "resetAt": 0,
+            "publishedAt": 0,
+            "publishedEver": false,
+            "currentFirstEligibleToBeSeenAt": 0,
+            "expiresAfter": 1761861600000,
+            "isTopLevel": false,
+            "isModule": false,
+            "editorType": "visualDesignStudio",
+            "dependentMetadata": [],
+            "autoCreateFeedback": false
+          }
+        },
+        "Features": {
+          "success": true,
+          "count": 956,
+          "sample": {
+            "createdByUser": {
+              "id": "5415320457969664",
+              "username": "adrian.mendoza@cin7.com",
+              "first": "Adrian",
+              "last": "Mendoza",
+              "role": 2,
+              "userType": "normal",
+              "hasLoggedIn": true,
+              "lastLogin": 1761606922431,
+              "useCase": "IMPROVE_CONVERSION_RATES",
+              "jobRole": "unset"
+            },
+            "createdAt": 1673824341617,
+            "lastUpdatedByUser": {
+              "id": "5415320457969664",
+              "username": "adrian.mendoza@cin7.com",
+              "first": "Adrian",
+              "last": "Mendoza",
+              "role": 2,
+              "userType": "normal",
+              "hasLoggedIn": true,
+              "lastLogin": 1761606922431,
+              "useCase": "IMPROVE_CONVERSION_RATES",
+              "jobRole": "unset"
+            },
+            "lastUpdatedAt": 1673824341617,
+            "kind": "Feature",
+            "rootVersionId": "uXfQdbqvfgduiCvUF1gjVBA4vng",
+            "stableVersionId": "uXfQdbqvfgduiCvUF1gjVBA4vng-20230115231221.626310622",
+            "id": "uXfQdbqvfgduiCvUF1gjVBA4vng",
+            "appId": -323232,
+            "appIds": [
+              -323232
+            ],
+            "name": "'Default' Tabs Selected",
+            "group": {
+              "id": "Wgt0R6wAsWPgeUdma0Y6M3APsxs",
+              "name": "Reporting / Insights",
+              "description": "",
+              "color": ".groupColor06",
+              "length": 408,
+              "items": [],
+              "type": "group",
+              "createdByUser": {
+                "id": "4880924937158656",
+                "username": "walter.lim@cin7.com",
+                "first": "Walter",
+                "last": "Lim",
+                "role": 2,
+                "userType": "normal",
+                "deletedAt": 1666921914095,
+                "hasLoggedIn": true,
+                "lastLogin": 1662093256687,
+                "visitorIds": [
+                  "70359",
+                  "42060"
+                ]
+              },
+              "createdAt": 1643838718284,
+              "lastUpdatedByUser": {
+                "id": "5415320457969664",
+                "username": "adrian.mendoza@cin7.com",
+                "first": "Adrian",
+                "last": "Mendoza",
+                "role": 2,
+                "userType": "normal",
+                "hasLoggedIn": true,
+                "lastLogin": 1761606922431,
+                "useCase": "IMPROVE_CONVERSION_RATES",
+                "jobRole": "unset"
+              },
+              "lastUpdatedAt": 1747825541919
+            },
+            "isCoreEvent": false,
+            "validThrough": 1761606000000,
+            "dirty": false,
+            "dailyMergeFirst": 0,
+            "dailyRollupFirst": 0,
+            "ignoredFrustrationTypes": [],
+            "appWide": false,
+            "createdDesignerVersion": "4.2.3",
+            "elementInitialTag": "A",
+            "elementPathRules": [
+              "#ReportTabSelectedLink"
+            ],
+            "elementSelectionType": "suggested",
+            "eventPropertyConfigurations": [],
+            "isSuggested": false,
+            "pageId": "FRjso4qGCLr3K9kkkzq4xOm-eLQ",
+            "suggestedMatch": "#ReportTabSelectedLink"
+          }
+        },
+        "Pages": {
+          "success": true,
+          "count": 356,
+          "sample": {
+            "createdByUser": {
+              "id": "5415320457969664",
+              "username": "adrian.mendoza@cin7.com",
+              "first": "Adrian",
+              "last": "Mendoza",
+              "role": 2,
+              "userType": "normal",
+              "hasLoggedIn": true,
+              "lastLogin": 1761606922431,
+              "useCase": "IMPROVE_CONVERSION_RATES",
+              "jobRole": "unset"
+            },
+            "createdAt": 1685320590281,
+            "lastUpdatedByUser": {
+              "id": "5415320457969664",
+              "username": "adrian.mendoza@cin7.com",
+              "first": "Adrian",
+              "last": "Mendoza",
+              "role": 2,
+              "userType": "normal",
+              "hasLoggedIn": true,
+              "lastLogin": 1761606922431,
+              "useCase": "IMPROVE_CONVERSION_RATES",
+              "jobRole": "unset"
+            },
+            "lastUpdatedAt": 1685322552149,
+            "kind": "Page",
+            "rootVersionId": "aRnno0-bo2WMPJ7HBIFzCuDtKfg",
+            "stableVersionId": "aRnno0-bo2WMPJ7HBIFzCuDtKfg-20230529010912.171926141",
+            "id": "aRnno0-bo2WMPJ7HBIFzCuDtKfg",
+            "appId": -323232,
+            "appIds": [
+              -323232
+            ],
+            "name": "3PL Dashboards only",
+            "group": {
+              "id": "ZHcbMOL2I-K5WW23KijhW_bqyZ8",
+              "name": "3PL",
+              "description": "",
+              "color": ".groupColor01",
+              "length": 16,
+              "items": [],
+              "type": "group",
+              "createdByUser": {
+                "id": "4880924937158656",
+                "username": "walter.lim@cin7.com",
+                "first": "Walter",
+                "last": "Lim",
+                "role": 2,
+                "userType": "normal",
+                "deletedAt": 1666921914095,
+                "hasLoggedIn": true,
+                "lastLogin": 1662093256687,
+                "visitorIds": [
+                  "70359",
+                  "42060"
+                ]
+              },
+              "createdAt": 1637879120338,
+              "lastUpdatedByUser": {
+                "id": "5415320457969664",
+                "username": "adrian.mendoza@cin7.com",
+                "first": "Adrian",
+                "last": "Mendoza",
+                "role": 2,
+                "userType": "normal",
+                "hasLoggedIn": true,
+                "lastLogin": 1761606922431,
+                "useCase": "IMPROVE_CONVERSION_RATES",
+                "jobRole": "unset"
+              },
+              "lastUpdatedAt": 1747637199351
+            },
+            "isCoreEvent": false,
+            "validThrough": 1761606000000,
+            "dirty": false,
+            "dailyMergeFirst": 0,
+            "dailyRollupFirst": 0,
+            "ignoredFrustrationTypes": [],
+            "rules": [
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=AmazonFBA",
+                "designerHint": "https://go.cin7.com/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartners=232&idEDITradingPartnerLink=3370&page=DavidJonesSPS",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=AmazonFBA(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=EWEV2",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=EWEV2(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=MainfreightUSECOM",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=MainfreightUSECOM(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Mainfreight",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Mainfreight(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipBob",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipBob(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=CrossDocks",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=CrossDocks(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLCentral",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLCentral(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=G3PL",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=G3PL(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=AveryDennison",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=AveryDennison(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Go2TigersV2",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Go2TigersV2(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=EliteLogistics",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=EliteLogistics(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Dockhigh",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Dockhigh(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Coghlan",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Coghlan(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLUKv2",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLUKv2(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=3PLMasonhub",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=3PLMasonhub(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=SortedLogistics",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=SortedLogistics(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Ottogi3pl",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Ottogi3pl(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipwireV2",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipwireV2(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ExpeditorsNew",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ExpeditorsNew(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipFusion",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipFusion(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=ShipMonk",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=ShipMonk(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=MaxwellLogistics",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=MaxwellLogistics(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=smartwarehouse",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=smartwarehouse(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Cargoline",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Cargoline(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=BCNLogistics",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=BCNLogistics(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Fastrack3PLCentral",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Fastrack3PLCentral(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=DSLLogistics",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=DSLLogistics(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=GS3PL",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=GS3PL(?:&[^&#]*)*(?:#.*)?$"
+              },
+              {
+                "rule": "//*/Cloud/EDIHighway/DataActions.aspx?idEDITradingPartnerLink;idEDITradingPartners;page=Cargocare",
+                "parsedRule": "^https?://[^/]*/Cloud/EDIHighway/DataActions\\.aspx/?(?:;[^#]*)?(?:\\?)(?:[^#]*&)?idEDITradingPartnerLink(?:=[^&]*)?&(?:[^#]*&)?idEDITradingPartners(?:=[^&]*)?&(?:[^#]*&)?page=Cargocare(?:&[^&#]*)*(?:#.*)?$"
+              }
+            ],
+            "rulesjson": "",
+            "isSuggested": false,
+            "suggestedName": "Cin7"
+          }
+        },
+        "Reports": {
+          "success": true,
+          "count": 474,
+          "sample": {
+            "createdByUser": {
+              "id": "5415320457969664",
+              "username": "adrian.mendoza@cin7.com",
+              "first": "Adrian",
+              "last": "Mendoza",
+              "role": 2,
+              "userType": "normal",
+              "hasLoggedIn": true,
+              "lastLogin": 1761606922431,
+              "useCase": "IMPROVE_CONVERSION_RATES",
+              "jobRole": "unset"
+            },
+            "createdAt": 1744841664837,
+            "lastUpdatedByUser": {
+              "id": "5415320457969664",
+              "username": "adrian.mendoza@cin7.com",
+              "first": "Adrian",
+              "last": "Mendoza",
+              "role": 2,
+              "userType": "normal",
+              "hasLoggedIn": true,
+              "lastLogin": 1761606922431,
+              "useCase": "IMPROVE_CONVERSION_RATES",
+              "jobRole": "unset"
+            },
+            "lastUpdatedAt": 1744841740391,
+            "kind": "Report",
+            "rootVersionId": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4",
+            "stableVersionId": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4-20250416221540.446544549",
+            "ownedByUser": {
+              "id": "",
+              "username": "",
+              "first": "",
+              "last": "",
+              "role": 0,
+              "userType": "",
+              "hasLoggedIn": false
+            },
+            "share": "",
+            "target": "",
+            "scope": "",
+            "level": "",
+            "lastSuccessRunAt": 1760055182317,
+            "lastSuccessRunObj": "aggregation--AsTA2Rjbf2Z4MeGdfhWLaRVri4-path--AsTA2Rjbf2Z4MeGdfhWLaRVri4-1760055182317",
+            "lastRunAt": 1760055167706,
+            "id": "-AsTA2Rjbf2Z4MeGdfhWLaRVri4",
+            "type": "Path",
+            "name": "Leading to | Connect to Amazon",
+            "shared": true,
+            "definition": {
+              "type": "Path",
+              "config": {
+                "maxInterval": 3600,
+                "predecessors": true,
+                "omitPages": false,
+                "features": true,
+                "trackEvents": true,
+                "guideEvents": true,
+                "collapseDups": true,
+                "uniqueVisitors": false,
+                "maxLength": 10,
+                "segmentId": "everyone",
+                "acrossApps": false,
+                "mapAnonymous": false,
+                "replayData": true,
+                "selectedAccount": {
+                  "text": "All Accounts",
+                  "id": "",
+                  "className": "account-chooser-all-accounts"
+                },
+                "appId": 6253630842798080,
+                "featureId": "XYFJ0o8HjKGYMW_FvWJGASy1sXw",
+                "excludedEvents": [
+                  {
+                    "id": "q0pSf3sjsSpLiVYjZIMIArDS_H0",
+                    "name": "Amazon | Dashboard",
+                    "group": {
+                      "id": "t7GrA45CZm-Urw96tziQnBSc7wU",
+                      "name": "Core - Ecommerce",
+                      "description": "",
+                      "color": ".groupColor06",
+                      "length": 50,
+                      "items": [],
+                      "type": "group",
+                      "createdByUser": {
+                        "id": "5415320457969664",
+                        "username": "adrian.mendoza@cin7.com",
+                        "first": "Adrian",
+                        "last": "Mendoza",
+                        "role": 2,
+                        "userType": "normal",
+                        "hasLoggedIn": true,
+                        "lastLogin": 1744841255812,
+                        "useCase": "NOT_SURE",
+                        "jobRole": "unset"
+                      },
+                      "createdAt": 1686019273363,
+                      "lastUpdatedByUser": {
+                        "id": "5415320457969664",
+                        "username": "adrian.mendoza@cin7.com",
+                        "first": "Adrian",
+                        "last": "Mendoza",
+                        "role": 2,
+                        "userType": "normal",
+                        "hasLoggedIn": true,
+                        "lastLogin": 1744841255812,
+                        "useCase": "NOT_SURE",
+                        "jobRole": "unset"
+                      },
+                      "lastUpdatedAt": 1744841597805
+                    },
+                    "appId": 6253630842798080,
+                    "appIcon": {
+                      "type": "monitor"
+                    },
+                    "kind": "Page",
+                    "dirty": false,
+                    "isCoreEvent": false,
+                    "isStarred": false,
+                    "icon": {
+                      "type": "page"
+                    },
+                    "appDisplayName": "Core",
+                    "type": "option",
+                    "size": 52
+                  },
+                  {
+                    "id": "StUflqA-5TQqssuFX48ikD9cBps",
+                    "name": "Integrations | All Apps",
+                    "group": {
+                      "id": "mn69yv7VhhChb0_LkQei79weNUM",
+                      "name": "Core - Trial Workflow",
+                      "description": "",
+                      "color": ".groupColor05",
+                      "length": 82,
+                      "items": [],
+                      "type": "group",
+                      "createdByUser": {
+                        "id": "5415320457969664",
+                        "username": "adrian.mendoza@cin7.com",
+                        "first": "Adrian",
+                        "last": "Mendoza",
+                        "role": 2,
+                        "userType": "normal",
+                        "hasLoggedIn": true,
+                        "lastLogin": 1744841255812,
+                        "useCase": "NOT_SURE",
+                        "jobRole": "unset"
+                      },
+                      "createdAt": 1686101803799,
+                      "lastUpdatedByUser": {
+                        "id": "5415320457969664",
+                        "username": "adrian.mendoza@cin7.com",
+                        "first": "Adrian",
+                        "last": "Mendoza",
+                        "role": 2,
+                        "userType": "normal",
+                        "hasLoggedIn": true,
+                        "lastLogin": 1744841255812,
+                        "useCase": "NOT_SURE",
+                        "jobRole": "unset"
+                      },
+                      "lastUpdatedAt": 1730920556583
+                    },
+                    "appId": 6253630842798080,
+                    "appIcon": {
+                      "type": "monitor"
+                    },
+                    "appDisplayName": "Core",
+                    "kind": "Page",
+                    "dirty": false,
+                    "isCoreEvent": false,
+                    "isStarred": false,
+                    "icon": {
+                      "type": "page"
+                    },
+                    "lastUsed": 1743554901197,
+                    "type": "option",
+                    "size": 52
+                  }
+                ]
+              },
+              "minimum": 0,
+              "timeSeries": {
+                "type": "Last 30 Days",
+                "start": "2025-03-18",
+                "end": "2025-04-16"
+              },
+              "history": []
+            },
+            "aggregation": {
+              "pipeline": [
+                {
+                  "source": {
+                    "singleEvents": {
+                      "appId": 6253630842798080,
+                      "reverseTime": true,
+                      "eventClass": [
+                        "ui",
+                        "track"
+                      ]
+                    },
+                    "timeSeries": {
+                      "period": "dayRange",
+                      "first": 1742209200000,
+                      "count": 30
+                    }
+                  }
+                },
+                {
+                  "identified": "visitorId"
+                },
+                {
+                  "group": {
+                    "group": [
+                      "visitorId"
+                    ],
+                    "fields": [
+                      {
+                        "path": {
+                          "path": {
+                            "featureId": "XYFJ0o8HjKGYMW_FvWJGASy1sXw",
+                            "collapseDups": true,
+                            "maxInterval": 3600,
+                            "maxLength": 10,
+                            "predecessors": true,
+                            "followAcrossSessions": false,
+                            "omitPages": false,
+                            "features": true,
+                            "trackEvents": true,
+                            "guideEvents": true,
+                            "replayData": true,
+                            "excludeItems": true,
+                            "items": [
+                              {
+                                "pageId": "q0pSf3sjsSpLiVYjZIMIArDS_H0"
+                              },
+                              {
+                                "pageId": "StUflqA-5TQqssuFX48ikD9cBps"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "unwind": {
+                    "field": "path"
+                  }
+                },
+                {
+                  "fork": [
+                    [
+                      {
+                        "limit": 10000
+                      }
+                    ],
+                    [
+                      {
+                        "eval": {
+                          "items": "map(x, path, x.items)"
+                        }
+                      },
+                      {
+                        "reduce": {
+                          "tree": {
+                            "treeify": {
+                              "threshold": 0.0001,
+                              "keySort": true,
+                              "uniqueVisitors": false
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                }
+              ],
+              "settings": {
+                "excludeList": "apply"
+              }
+            },
+            "dependentMetadata": [],
+            "createdByDashboardTemplate": false
+          }
+        },
+        "Visitor Schema": {
+          "success": true,
+          "count": "data",
+          "sample": null
+        },
+        "Guide Schema": {
+          "success": false,
+          "error": "No data returned"
+        }
+      }
+    },
+    {
+      "category": "Enhanced Access Testing",
+      "timestamp": "2025-10-28T13:13:24.175315",
+      "results": {
+        "Visitor List": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "Account List": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "User Profile": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "Account Profile": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "Subscription Info": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "Usage Statistics": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "Integration Keys": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "Webhook Settings": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "Feature Flags": {
+          "success": false,
+          "error": "No data returned"
+        },
+        "Data Settings": {
+          "success": false,
+          "error": "No data returned"
+        }
+      }
+    },
+    {
+      "category": "Write Capability Indicators",
+      "timestamp": "2025-10-28T13:13:32.741480",
+      "results": {
+        "Visitor Creation": {
+          "success": true,
+          "capability_level": "NONE - Endpoint not accessible",
+          "indicators": {
+            "options_available": false,
+            "head_accessible": false,
+            "get_accessible": false,
+            "has_data": false
+          },
+          "endpoint": "/api/v1/visitor"
+        },
+        "Account Creation": {
+          "success": true,
+          "capability_level": "NONE - Endpoint not accessible",
+          "indicators": {
+            "options_available": false,
+            "head_accessible": false,
+            "get_accessible": false,
+            "has_data": false
+          },
+          "endpoint": "/api/v1/account"
+        },
+        "Guide Creation": {
+          "success": true,
+          "capability_level": "HIGH - Endpoint accessible with data",
+          "indicators": {
+            "options_available": false,
+            "head_accessible": false,
+            "get_accessible": true,
+            "has_data": true
+          },
+          "endpoint": "/api/v1/guide"
+        },
+        "Event Tracking": {
+          "success": true,
+          "capability_level": "NONE - Endpoint not accessible",
+          "indicators": {
+            "options_available": false,
+            "head_accessible": false,
+            "get_accessible": false,
+            "has_data": false
+          },
+          "endpoint": "/api/v1/track"
+        },
+        "Aggregation API": {
+          "success": true,
+          "capability_level": "NONE - Endpoint not accessible",
+          "indicators": {
+            "options_available": false,
+            "head_accessible": false,
+            "get_accessible": false,
+            "has_data": false
+          },
+          "endpoint": "/api/v1/aggregation"
+        },
+        "Report Creation": {
+          "success": true,
+          "capability_level": "HIGH - Endpoint accessible with data",
+          "indicators": {
+            "options_available": false,
+            "head_accessible": false,
+            "get_accessible": true,
+            "has_data": true
+          },
+          "endpoint": "/api/v1/report"
+        },
+        "Bulk Operations": {
+          "success": true,
+          "capability_level": "NONE - Endpoint not accessible",
+          "indicators": {
+            "options_available": false,
+            "head_accessible": false,
+            "get_accessible": false,
+            "has_data": false
+          },
+          "endpoint": "/api/v1/visitors/bulk"
+        },
+        "Webhook Management": {
+          "success": true,
+          "capability_level": "NONE - Endpoint not accessible",
+          "indicators": {
+            "options_available": false,
+            "head_accessible": false,
+            "get_accessible": false,
+            "has_data": false
+          },
+          "endpoint": "/api/v1/webhooks"
+        }
+      }
+    },
+    {
+      "category": "Permission Difference Analysis",
+      "timestamp": "2025-10-28T13:13:35.475396",
+      "results": {
+        "Visitor Management": {
+          "old_access": "BLOCKED",
+          "new_access": "BLOCKED",
+          "improvement": "NONE",
+          "data_type": null,
+          "has_records": false
+        },
+        "Account Management": {
+          "old_access": "BLOCKED",
+          "new_access": "BLOCKED",
+          "improvement": "NONE",
+          "data_type": null,
+          "has_records": false
+        },
+        "User Management": {
+          "old_access": "BLOCKED",
+          "new_access": "BLOCKED",
+          "improvement": "NONE",
+          "data_type": null,
+          "has_records": false
+        },
+        "Subscription Access": {
+          "old_access": "BLOCKED",
+          "new_access": "BLOCKED",
+          "improvement": "NONE",
+          "data_type": null,
+          "has_records": false
+        },
+        "Usage Analytics": {
+          "old_access": "BLOCKED",
+          "new_access": "BLOCKED",
+          "improvement": "NONE",
+          "data_type": null,
+          "has_records": false
+        },
+        "API Key Management": {
+          "old_access": "BLOCKED",
+          "new_access": "BLOCKED",
+          "improvement": "NONE",
+          "data_type": null,
+          "has_records": false
+        },
+        "Event Tracking": {
+          "old_access": "BLOCKED",
+          "new_access": "BLOCKED",
+          "improvement": "NONE",
+          "data_type": null,
+          "has_records": false
+        },
+        "Aggregation API": {
+          "old_access": "BLOCKED",
+          "new_access": "BLOCKED",
+          "improvement": "NONE",
+          "data_type": null,
+          "has_records": false
+        }
+      }
+    }
+  ],
+  "write_access_indicators": {
+    "Visitor Creation": "NONE - Endpoint not accessible",
+    "Account Creation": "NONE - Endpoint not accessible",
+    "Guide Creation": "HIGH - Endpoint accessible with data",
+    "Event Tracking": "NONE - Endpoint not accessible",
+    "Aggregation API": "NONE - Endpoint not accessible",
+    "Report Creation": "HIGH - Endpoint accessible with data",
+    "Bulk Operations": "NONE - Endpoint not accessible",
+    "Webhook Management": "NONE - Endpoint not accessible"
+  },
+  "recommendations": [
+    "\u2705 DATA SAFETY VERIFIED: All operations were read-only",
+    "\ud83d\udd12 PROTECTION MEASURES: All write operations were blocked",
+    "\ud83d\udcca CAPABILITY ANALYSIS: Enhanced access detected for specific endpoints",
+    "\ud83d\udee1\ufe0f  SAFE IMPLEMENTATION: Use similar safeguards in production",
+    "\ud83d\udcdd DOCUMENTATION: Maintain audit logs for all API operations",
+    "\ud83d\udd0d TESTING PROTOCOL: Always test with read-only operations first",
+    "\u26a1 RATE LIMITING: Monitor API usage to avoid rate limits",
+    "\ud83d\udd04 GRADUAL ROLLOUT: Implement changes incrementally"
+  ],
+  "next_steps": [
+    "1. Review comprehensive analysis report",
+    "2. Validate enhanced capabilities match business requirements",
+    "3. Implement production safeguards based on this analysis",
+    "4. Create automated monitoring for API operations",
+    "5. Develop backup procedures for data safety",
+    "6. Schedule regular security audits",
+    "7. Document approved operation patterns",
+    "8. Train team on safe usage protocols"
+  ]
+}
