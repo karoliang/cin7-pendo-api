@@ -17,6 +17,8 @@ export const useGuideReport = (id: string) => {
     queryKey: ['guide-report', id],
     queryFn: async () => {
       try {
+        console.log(`🚀 useGuideReport: Fetching analytics for guide ${id}`);
+
         // Calculate date range for analytics (last 30 days)
         const endDate = new Date();
         const startDate = new Date();
@@ -27,22 +29,58 @@ export const useGuideReport = (id: string) => {
           end: endDate.toISOString()
         };
 
-        // Fetch REAL comprehensive analytics data from Pendo API
+        console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
+
+        // Fetch REAL comprehensive analytics data from Pendo API with enhanced error handling
         const analyticsData = await pendoAPI.getGuideAnalytics(id, period);
 
         if (!analyticsData) {
           throw new Error('Guide analytics not found');
         }
 
+        console.log(`✅ useGuideReport: Successfully fetched analytics for ${analyticsData.name}`);
+        console.log(`📊 Summary: ${analyticsData.viewedCount} views, ${analyticsData.completionRate.toFixed(1)}% completion`);
+
         return analyticsData;
       } catch (error) {
-        console.error('Error fetching guide report:', error);
+        console.error('❌ useGuideReport: Error fetching guide report:', error);
+
+        // Enhanced error handling with user-friendly messages
+        if (error instanceof Error) {
+          if (error.message.includes('404')) {
+            console.error(`🚨 Guide ${id} not found. Available guides can be checked in browser console.`);
+            throw new Error(`Guide "${id}" not found in Pendo. Please verify the guide ID or select a different guide.`);
+          }
+
+          if (error.message.includes('not accessible')) {
+            console.error(`🚨 Pendo API access issues detected.`);
+            throw new Error(`Unable to access Pendo analytics. Please check API permissions or try again later.`);
+          }
+
+          if (error.message.includes('not found')) {
+            throw new Error(`Guide data not available. The guide may not exist or may not be accessible.`);
+          }
+        }
+
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+    retry: (failureCount, error) => {
+      // Only retry on network errors, not on 404s or permission errors
+      if (error instanceof Error && (
+        error.message.includes('404') ||
+        error.message.includes('not accessible') ||
+        error.message.includes('permission')
+      )) {
+        return false; // Don't retry these errors
+      }
+      return failureCount < 2; // Retry other errors max 2 times
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
+    refetchOnWindowFocus: false, // Don't refetch on window focus to avoid unnecessary API calls
+    refetchOnReconnect: true, // Do refetch on reconnect
   });
 };
 
