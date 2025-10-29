@@ -293,6 +293,11 @@ export const DataTables: React.FC = () => {
 
   const handleRowClick = (item: Guide | Feature | Page | Report) => {
     // Navigate to detailed report page instead of showing modal
+    console.log('Navigating to:', `/report/${activeTab}/${item.id}`, {
+      activeTab,
+      itemId: item.id,
+      itemName: 'name' in item ? item.name : 'title' in item ? item.title : 'Unknown'
+    });
     navigate(`/report/${activeTab}/${item.id}`);
   };
 
