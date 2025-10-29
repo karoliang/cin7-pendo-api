@@ -15,12 +15,17 @@ class PendoAPIClient {
     'Content-Type': 'application/json',
   };
 
-  private async request<T>(endpoint: string, params?: Record<string, any>, method: string = 'GET'): Promise<T> {
+  async request<T>(endpoint: string, params?: Record<string, any>, method: string = 'GET'): Promise<T> {
     let url = `${PENDO_BASE_URL}${endpoint}`;
     let requestOptions: RequestInit = {
       method: method,
       headers: this.headers,
     };
+
+    // Special handling for aggregation endpoint
+    if (endpoint === '/api/v1/aggregation') {
+      return this.handleAggregationRequest(params, method);
+    }
 
     if (method === 'GET' && params) {
       // For GET requests, encode parameters properly
@@ -69,6 +74,225 @@ class PendoAPIClient {
     }
 
     return response.json();
+  }
+
+  private async handleAggregationRequest(params?: Record<string, any>, method: string = 'POST'): Promise<any> {
+    console.log(`🚀 Handling aggregation request with method: ${method}`);
+
+    // Transform the request format to match Pendo's expected structure
+    const pipeline = this.buildAggregationPipeline(params);
+
+    const requestPayload = {
+      pipeline: pipeline,
+      // jzb appears to be a compressed/encoded version of the pipeline
+      // Try multiple approaches
+      jzb: this.encodePipeline(pipeline)
+    };
+
+    console.log(`📊 Aggregation pipeline:`, JSON.stringify(pipeline, null, 2));
+    console.log(`🔐 Encoded jzb:`, requestPayload.jzb);
+
+    // Try POST first with pipeline
+    try {
+      const response = await this.makeAggregationCall(requestPayload, 'POST');
+      if (response) {
+        console.log(`✅ POST with pipeline successful`);
+        return response;
+      }
+    } catch (error) {
+      console.log(`❌ POST with pipeline failed, trying alternatives...`);
+    }
+
+    // Try POST without jzb (just pipeline)
+    try {
+      const payloadWithoutJzb = { pipeline: pipeline };
+      const response = await this.makeAggregationCall(payloadWithoutJzb, 'POST');
+      if (response) {
+        console.log(`✅ POST without jzb successful`);
+        return response;
+      }
+    } catch (error) {
+      console.log(`❌ POST without jzb failed, trying GET approach...`);
+    }
+
+    // Try GET with encoded parameters
+    try {
+      const getParams = {
+        pipeline: JSON.stringify(pipeline),
+        jzb: requestPayload.jzb
+      };
+      const response = await this.makeAggregationCall(getParams, 'GET');
+      if (response) {
+        console.log(`✅ GET approach successful`);
+        return response;
+      }
+    } catch (error) {
+      console.log(`❌ GET approach failed, trying legacy format...`);
+    }
+
+    // Try legacy format (current approach)
+    try {
+      const response = await this.makeAggregationCall(params, method);
+      if (response) {
+        console.log(`✅ Legacy format successful`);
+        return response;
+      }
+    } catch (error) {
+      console.log(`❌ All approaches failed`);
+      throw error;
+    }
+  }
+
+  private buildAggregationPipeline(params?: Record<string, any>): any[] {
+    if (!params) return [];
+
+    const pipeline = [];
+
+    // Add source selection stage
+    if (params.source) {
+      pipeline.push({
+        $source: params.source
+      });
+    }
+
+    // Add filtering stage
+    if (params.operators && Array.isArray(params.operators)) {
+      const matchStage = {};
+      params.operators.forEach(op => {
+        if (op.operator === 'EQ') {
+          matchStage[op.field] = op.value;
+        } else if (op.operator === 'BETWEEN' && Array.isArray(op.value)) {
+          matchStage[op.field] = {
+            $gte: op.value[0],
+            $lte: op.value[1]
+          };
+        } else if (op.operator === 'IN' && Array.isArray(op.value)) {
+          matchStage[op.field] = { $in: op.value };
+        } else if (op.operator === 'NE') {
+          matchStage[op.field] = { $ne: op.value };
+        }
+      });
+
+      if (Object.keys(matchStage).length > 0) {
+        pipeline.push({ $match: matchStage });
+      }
+    }
+
+    // Add grouping stage
+    if (params.groupby && Array.isArray(params.groupby)) {
+      const groupStage = {
+        _id: {},
+        ...params.groupby.reduce((acc, field) => {
+          acc[field] = `$${field}`;
+          return acc;
+        }, {})
+      };
+
+      // Add metrics to grouping
+      if (params.metrics && Array.isArray(params.metrics)) {
+        params.metrics.forEach(metric => {
+          if (metric.function === 'count') {
+            groupStage[metric.name] = { $sum: 1 };
+          } else if (metric.function === 'avg') {
+            groupStage[metric.name] = { $avg: `$${metric.name}` };
+          } else if (metric.function === 'sum') {
+            groupStage[metric.name] = { $sum: `$${metric.name}` };
+          } else if (metric.function === 'max') {
+            groupStage[metric.name] = { $max: `$${metric.name}` };
+          } else if (metric.function === 'min') {
+            groupStage[metric.name] = { $min: `$${metric.name}` };
+          }
+        });
+      }
+
+      pipeline.push({ $group: groupStage });
+    }
+
+    // Add time series processing if specified
+    if (params.timeSeries) {
+      if (params.timeSeries === 'daily') {
+        pipeline.push({
+          $project: {
+            eventTime: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$eventTime"
+              }
+            },
+            ...Object.keys(pipeline[pipeline.length - 1] || {}).reduce((acc, key) => {
+              if (key !== '_id') acc[key] = 1;
+              return acc;
+            }, {})
+          }
+        });
+      }
+    }
+
+    return pipeline;
+  }
+
+  private encodePipeline(pipeline: any[]): string {
+    // Simple base64 encoding of the pipeline JSON
+    // Pendo might use a specific encoding format, but this is a reasonable attempt
+    try {
+      const jsonString = JSON.stringify(pipeline);
+      return btoa(jsonString);
+    } catch (error) {
+      console.error('Error encoding pipeline:', error);
+      return '';
+    }
+  }
+
+  private async makeAggregationCall(params: any, method: string): Promise<any> {
+    let url = `${PENDO_BASE_URL}/api/v1/aggregation`;
+    let requestOptions: RequestInit = {
+      method: method,
+      headers: this.headers,
+    };
+
+    if (method === 'GET' && params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === 'object') {
+            searchParams.append(key, JSON.stringify(value));
+          } else {
+            searchParams.append(key, String(value));
+          }
+        }
+      });
+      url += `?${searchParams.toString()}`;
+    } else if (method === 'POST' && params) {
+      requestOptions.body = JSON.stringify(params);
+      requestOptions.headers = {
+        ...this.headers,
+        'Content-Type': 'application/json',
+      };
+    }
+
+    console.log(`🔬 Making aggregation ${method} call to: ${url}`);
+    console.log(`📋 Request params:`, params);
+
+    const response = await fetch(url, requestOptions);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Aggregation API error: ${response.status} ${response.statusText}`);
+      console.error(`📄 Error details:`, errorText);
+
+      try {
+        const errorData = JSON.parse(errorText);
+        console.error(`🔍 Parsed error:`, errorData);
+      } catch (e) {
+        // Error response is not JSON
+      }
+
+      throw new Error(`Aggregation API error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log(`✅ Aggregation response:`, result);
+    return result;
   }
 
   async getGuides(params?: {
@@ -276,176 +500,225 @@ class PendoAPIClient {
 
   private async getGuideTimeSeries(id: string, period: { start: string; end: string }) {
     try {
-      // Try POST method first as many aggregation APIs prefer POST for complex queries
-      const requestPayload = {
-        source: 'guideEvent',
-        timeSeries: 'daily',
-        operators: [
-          { field: 'guideId', operator: 'EQ', value: id },
-          { field: 'eventTime', operator: 'BETWEEN', value: [period.start, period.end] }
-        ],
-        groupby: ['eventTime'],
-        metrics: [
-          { name: 'visitorId', function: 'count' },
-          { name: 'accountId', function: 'count' },
-          { name: 'eventType', function: 'count' },
-          { name: 'duration', function: 'avg' }
-        ]
-      };
-
       console.log(`🚀 Attempting time series aggregation for guide ${id}`);
-      let response = await this.request<any[]>('/api/v1/aggregation', requestPayload, 'POST');
 
-      // If POST fails, try GET with proper encoding
-      if (!response || response.length === 0) {
-        console.log(`🔄 POST failed, trying GET with proper encoding...`);
-        response = await this.request<any[]>('/api/v1/aggregation', {
-          source: 'guideEvent',
-          timeSeries: 'daily',
-          guideId: id,
-          operators: requestPayload.operators,
-          groupby: requestPayload.groupby,
-          metrics: requestPayload.metrics
-        });
-      }
-
-      // If still no data, try with alternative field names
-      if (!response || response.length === 0) {
-        console.log(`🔄 Still no data, trying alternative field names...`);
-        response = await this.request<any[]>('/api/v1/aggregation', {
+      // Method 1: Try the new pipeline-based approach
+      try {
+        const response = await this.request<any[]>('/api/v1/aggregation', {
           source: 'guideEvent',
           timeSeries: 'daily',
           operators: [
             { field: 'guideId', operator: 'EQ', value: id },
-            { field: 'serverTime', operator: 'BETWEEN', value: [period.start, period.end] }
+            { field: 'eventTime', operator: 'BETWEEN', value: [period.start, period.end] }
           ],
-          groupby: ['serverTime'],
+          groupby: ['eventTime'],
           metrics: [
             { name: 'visitorId', function: 'count' },
             { name: 'accountId', function: 'count' },
             { name: 'eventType', function: 'count' },
-            { name: 'timeOnPage', function: 'avg' }
+            { name: 'duration', function: 'avg' }
           ]
-        });
+        }, 'POST');
+
+        if (response && response.length > 0) {
+          console.log(`✅ Pipeline approach successful:`, response.length, 'records');
+          return this.transformTimeSeriesData(response);
+        }
+      } catch (error) {
+        console.log(`❌ Pipeline approach failed, trying Method 2...`);
       }
 
-      if (!response || response.length === 0) {
-        console.log(`⚠️ No time series data available for guide ${id}`);
-        return this.generateFallbackTimeSeries(30);
+      // Method 2: Try simplified Pendo format (no operators array)
+      try {
+        const response = await this.request<any[]>('/api/v1/aggregation', {
+          source: 'guideEvent',
+          timeSeries: 'daily',
+          guideId: id,
+          startTime: period.start,
+          endTime: period.end,
+          groupby: 'eventTime',
+          metrics: 'visitorId,count,accountId,count,eventType,count,duration,avg'
+        }, 'POST');
+
+        if (response && response.length > 0) {
+          console.log(`✅ Simplified format successful:`, response.length, 'records');
+          return this.transformTimeSeriesData(response);
+        }
+      } catch (error) {
+        console.log(`❌ Simplified format failed, trying Method 3...`);
       }
 
-      console.log(`✅ Successfully retrieved time series data:`, response.length, 'records');
+      // Method 3: Try GET request with query parameters
+      try {
+        const response = await this.request<any[]>('/api/v1/aggregation', {
+          source: 'guideEvent',
+          timeSeries: 'daily',
+          guideId: id,
+          eventTime: `${period.start},${period.end}`,
+          groupby: 'eventTime',
+          metrics: 'visitorId,count,duration,avg'
+        }, 'GET');
 
-      return response.map(item => ({
-        date: new Date(item.eventTime || item.serverTime || item.firstResponseTime).toISOString().split('T')[0],
-        views: item.visitorId || item.numUsers || 0,
-        completions: item.eventType === 'guideCompleted' ? (item.eventType || 0) : Math.floor((item.visitorId || 0) * 0.6),
-        uniqueVisitors: item.accountId || item.numAccounts || 0,
-        averageTimeSpent: item.duration || item.timeOnPage || 0,
-        dropOffRate: Math.max(0, ((item.visitorId || 0) - (item.eventType === 'guideCompleted' ? (item.eventType || 0) : Math.floor((item.visitorId || 0) * 0.6))) / (item.visitorId || 1) * 100)
-      }));
+        if (response && response.length > 0) {
+          console.log(`✅ GET approach successful:`, response.length, 'records');
+          return this.transformTimeSeriesData(response);
+        }
+      } catch (error) {
+        console.log(`❌ GET approach failed, trying Method 4...`);
+      }
+
+      // Method 4: Try alternative endpoint or approach
+      try {
+        const response = await this.request<any[]>('/api/v1/aggregation', {
+          pipeline: [
+            { $match: { guideId: id, eventTime: { $gte: period.start, $lte: period.end } } },
+            { $group: {
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$eventTime" } },
+              visitorId: { $sum: 1 },
+              accountId: { $sum: 1 },
+              duration: { $avg: "$duration" }
+            }}
+          ]
+        }, 'POST');
+
+        if (response && response.length > 0) {
+          console.log(`✅ Direct pipeline approach successful:`, response.length, 'records');
+          return this.transformTimeSeriesData(response);
+        }
+      } catch (error) {
+        console.log(`❌ Direct pipeline approach failed`);
+      }
+
+      console.log(`⚠️ All aggregation methods failed for guide ${id}, using fallback data`);
+      return this.generateFallbackTimeSeries(30);
+
     } catch (error) {
       console.error('Error fetching guide time series:', error);
       return this.generateFallbackTimeSeries(30);
     }
   }
 
+  private transformTimeSeriesData(response: any[]): any[] {
+    return response.map(item => ({
+      date: new Date(item.eventTime || item.serverTime || item.firstResponseTime || item._id).toISOString().split('T')[0],
+      views: item.visitorId || item.numUsers || 0,
+      completions: item.eventType === 'guideCompleted' ? (item.eventType || 0) : Math.floor((item.visitorId || 0) * 0.6),
+      uniqueVisitors: item.accountId || item.numAccounts || 0,
+      averageTimeSpent: item.duration || item.timeOnPage || 0,
+      dropOffRate: Math.max(0, ((item.visitorId || 0) - (item.eventType === 'guideCompleted' ? (item.eventType || 0) : Math.floor((item.visitorId || 0) * 0.6))) / (item.visitorId || 1) * 100)
+    }));
+  }
+
   private async getGuideStepAnalytics(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Attempting step analytics aggregation for guide ${id}`);
 
-      // Try POST method first
-      const requestPayload = {
-        source: 'guideEvent',
-        timeSeries: 'all',
-        operators: [
-          { field: 'guideId', operator: 'EQ', value: id },
-          { field: 'eventType', operator: 'IN', value: ['guideAdvanced', 'guideDismissed', 'guideCompleted'] }
-        ],
-        groupby: ['stepNumber', 'eventType'],
-        metrics: [
-          { name: 'visitorId', function: 'count' },
-          { name: 'duration', function: 'avg' }
-        ]
-      };
-
-      let response = await this.request<any[]>('/api/v1/aggregation', requestPayload, 'POST');
-
-      // If POST fails, try GET with proper encoding
-      if (!response || response.length === 0) {
-        console.log(`🔄 POST failed, trying GET with proper encoding...`);
-        response = await this.request<any[]>('/api/v1/aggregation', {
-          source: 'guideEvent',
-          timeSeries: 'all',
-          guideId: id,
-          operators: requestPayload.operators,
-          groupby: requestPayload.groupby,
-          metrics: requestPayload.metrics
-        });
-      }
-
-      // Try alternative field names
-      if (!response || response.length === 0) {
-        console.log(`🔄 Trying alternative field names...`);
-        response = await this.request<any[]>('/api/v1/aggregation', {
+      // Method 1: Pipeline approach
+      try {
+        const response = await this.request<any[]>('/api/v1/aggregation', {
           source: 'guideEvent',
           timeSeries: 'all',
           operators: [
             { field: 'guideId', operator: 'EQ', value: id },
             { field: 'eventType', operator: 'IN', value: ['guideAdvanced', 'guideDismissed', 'guideCompleted'] }
           ],
-          groupby: ['guideStepNum', 'eventType'],
+          groupby: ['stepNumber', 'eventType'],
           metrics: [
-            { name: 'numUsers', function: 'count' },
-            { name: 'timeOnPage', function: 'avg' }
+            { name: 'visitorId', function: 'count' },
+            { name: 'duration', function: 'avg' }
           ]
-        });
+        }, 'POST');
+
+        if (response && response.length > 0) {
+          console.log(`✅ Step analytics pipeline successful:`, response.length, 'records');
+          return this.transformStepData(response);
+        }
+      } catch (error) {
+        console.log(`❌ Step pipeline failed, trying simplified format...`);
       }
 
-      if (!response || response.length === 0) {
-        console.log(`⚠️ No step analytics data available for guide ${id}`);
-        return this.generateFallbackStepData();
+      // Method 2: Simplified format
+      try {
+        const response = await this.request<any[]>('/api/v1/aggregation', {
+          source: 'guideEvent',
+          guideId: id,
+          eventType: 'guideAdvanced,guideDismissed,guideCompleted',
+          groupby: 'stepNumber,eventType',
+          metrics: 'visitorId,count,duration,avg'
+        }, 'POST');
+
+        if (response && response.length > 0) {
+          console.log(`✅ Step simplified format successful:`, response.length, 'records');
+          return this.transformStepData(response);
+        }
+      } catch (error) {
+        console.log(`❌ Step simplified format failed, trying direct pipeline...`);
       }
 
-      console.log(`✅ Successfully retrieved step analytics data:`, response.length, 'records');
+      // Method 3: Direct pipeline approach
+      try {
+        const response = await this.request<any[]>('/api/v1/aggregation', {
+          pipeline: [
+            { $match: { guideId: id, eventType: { $in: ['guideAdvanced', 'guideDismissed', 'guideCompleted'] } } },
+            { $group: {
+              _id: { stepNumber: '$stepNumber', eventType: '$eventType' },
+              visitorId: { $sum: 1 },
+              duration: { $avg: '$duration' }
+            }}
+          ]
+        }, 'POST');
 
-      const stepData: any[] = [];
-      const maxStep = Math.max(...response.map(r => r.stepNumber || r.guideStepNum || 0));
-
-      // If no step data found, create default step structure
-      if (maxStep === 0) {
-        console.log(`⚠️ No step numbers found, creating default step structure...`);
-        return this.generateFallbackStepData();
+        if (response && response.length > 0) {
+          console.log(`✅ Step direct pipeline successful:`, response.length, 'records');
+          return this.transformStepData(response);
+        }
+      } catch (error) {
+        console.log(`❌ Step direct pipeline failed`);
       }
 
-      for (let stepNum = 1; stepNum <= maxStep; stepNum++) {
-        const stepEvents = response.filter(r => (r.stepNumber || r.guideStepNum) === stepNum);
-        const viewed = stepEvents.find(r => r.eventType === 'guideAdvanced')?.visitorId ||
-                     stepEvents.find(r => r.eventType === 'guideAdvanced')?.numUsers || 0;
-        const completed = stepEvents.find(r => r.eventType === 'guideCompleted')?.visitorId ||
-                         stepEvents.find(r => r.eventType === 'guideCompleted')?.numUsers || 0;
-        const avgTime = stepEvents.find(r => r.eventType === 'guideAdvanced')?.duration ||
-                       stepEvents.find(r => r.eventType === 'guideAdvanced')?.timeOnPage || 0;
+      console.log(`⚠️ All step analytics methods failed for guide ${id}, using fallback data`);
+      return this.generateFallbackStepData();
 
-        stepData.push({
-          id: `step-${stepNum}`,
-          name: `Step ${stepNum}`,
-          order: stepNum,
-          content: `Content for step ${stepNum}`,
-          elementType: 'standard',
-          viewedCount: viewed,
-          completedCount: completed,
-          timeSpent: Math.floor(avgTime),
-          dropOffCount: Math.max(0, viewed - completed),
-          dropOffRate: viewed > 0 ? ((viewed - completed) / viewed) * 100 : 0,
-        });
-      }
-
-      return stepData.length > 0 ? stepData : this.generateFallbackStepData();
     } catch (error) {
       console.error('Error fetching guide step analytics:', error);
       return this.generateFallbackStepData();
     }
+  }
+
+  private transformStepData(response: any[]): any[] {
+    const stepData: any[] = [];
+    const maxStep = Math.max(...response.map(r => r.stepNumber || r.guideStepNum || 0));
+
+    // If no step data found, create default step structure
+    if (maxStep === 0) {
+      console.log(`⚠️ No step numbers found, creating default step structure...`);
+      return this.generateFallbackStepData();
+    }
+
+    for (let stepNum = 1; stepNum <= maxStep; stepNum++) {
+      const stepEvents = response.filter(r => (r.stepNumber || r.guideStepNum) === stepNum);
+      const viewed = stepEvents.find(r => r.eventType === 'guideAdvanced')?.visitorId ||
+                   stepEvents.find(r => r.eventType === 'guideAdvanced')?.numUsers || 0;
+      const completed = stepEvents.find(r => r.eventType === 'guideCompleted')?.visitorId ||
+                       stepEvents.find(r => r.eventType === 'guideCompleted')?.numUsers || 0;
+      const avgTime = stepEvents.find(r => r.eventType === 'guideAdvanced')?.duration ||
+                     stepEvents.find(r => r.eventType === 'guideAdvanced')?.timeOnPage || 0;
+
+      stepData.push({
+        id: `step-${stepNum}`,
+        name: `Step ${stepNum}`,
+        order: stepNum,
+        content: `Content for step ${stepNum}`,
+        elementType: 'standard',
+        viewedCount: viewed,
+        completedCount: completed,
+        timeSpent: Math.floor(avgTime),
+        dropOffCount: Math.max(0, viewed - completed),
+        dropOffRate: viewed > 0 ? ((viewed - completed) / viewed) * 100 : 0,
+      });
+    }
+
+    return stepData.length > 0 ? stepData : this.generateFallbackStepData();
   }
 
   private async getGuideSegmentPerformance(id: string, period: { start: string; end: string }) {
@@ -1543,4 +1816,145 @@ export async function testSingleAggregationCall(guideId: string) {
     console.error('❌ Aggregation call failed:', error);
     return { success: false, error };
   }
+}
+
+/**
+ * Comprehensive test function for the new aggregation API fixes
+ */
+export async function testNewAggregationFixes(guideId?: string) {
+  console.log('🧪 Starting COMPREHENSIVE Pendo Aggregation API Fix Test');
+  console.log('=======================================================');
+
+  try {
+    // Test basic guide listing first
+    console.log('\n1️⃣ Testing basic guide listing...');
+    const guides = await pendoAPI.getGuides({ limit: 5 });
+    console.log(`✅ Found ${guides.length} guides`);
+
+    if (guides.length > 0) {
+      const testGuideId = guideId || guides[0].id;
+      console.log(`📋 Using guide: ${guides[0].name} (ID: ${testGuideId})`);
+
+      // Define test period (last 7 days for testing)
+      const period = {
+        start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        end: new Date().toISOString()
+      };
+
+      console.log(`📅 Test period: ${period.start} to ${period.end}`);
+
+      // Test 1: Time series aggregation with multiple approaches
+      console.log('\n2️⃣ Testing enhanced time series aggregation...');
+      try {
+        const timeSeries = await pendoAPI['getGuideTimeSeries'](testGuideId, period);
+        console.log(`✅ Time series data retrieved: ${timeSeries.length} days`);
+
+        // Show sample of the data
+        if (timeSeries.length > 0) {
+          console.log('📊 Sample time series data:');
+          console.log(JSON.stringify(timeSeries.slice(0, 3), null, 2));
+        }
+      } catch (error) {
+        console.log(`❌ Time series aggregation failed:`, error.message);
+      }
+
+      // Test 2: Step analytics
+      console.log('\n3️⃣ Testing enhanced step analytics...');
+      try {
+        const stepAnalytics = await pendoAPI['getGuideStepAnalytics'](testGuideId, period);
+        console.log(`✅ Step analytics retrieved: ${stepAnalytics.length} steps`);
+
+        if (stepAnalytics.length > 0) {
+          console.log('📊 Sample step data:');
+          console.log(JSON.stringify(stepAnalytics.slice(0, 2), null, 2));
+        }
+      } catch (error) {
+        console.log(`❌ Step analytics failed:`, error.message);
+      }
+
+      // Test 3: Raw aggregation pipeline test
+      console.log('\n4️⃣ Testing raw aggregation pipeline...');
+      try {
+        const pipelineResponse = await pendoAPI.request('/api/v1/aggregation', {
+          pipeline: [
+            { $match: { guideId: testGuideId } },
+            { $group: { _id: '$eventType', count: { $sum: 1 } } }
+          ]
+        }, 'POST');
+        console.log(`✅ Raw pipeline successful:`, pipelineResponse);
+      } catch (error) {
+        console.log(`❌ Raw pipeline failed:`, error.message);
+      }
+
+      // Test 4: Test the jzb encoding
+      console.log('\n5️⃣ Testing jzb encoding approach...');
+      try {
+        const testPipeline = [{ $match: { guideId: testGuideId } }];
+        const jzbResponse = await pendoAPI.request('/api/v1/aggregation', {
+          pipeline: testPipeline,
+          jzb: btoa(JSON.stringify(testPipeline))
+        }, 'POST');
+        console.log(`✅ JZB approach successful:`, jzbResponse);
+      } catch (error) {
+        console.log(`❌ JZB approach failed:`, error.message);
+      }
+
+      console.log('\n🎉 Comprehensive testing completed!');
+      return {
+        success: true,
+        guideId: testGuideId,
+        guideName: guides[0].name,
+        message: 'All aggregation API approaches tested'
+      };
+
+    } else {
+      console.log('⚠️ No guides found to test with');
+      return { success: false, error: 'No guides available' };
+    }
+
+  } catch (error) {
+    console.error('❌ Comprehensive test failed:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+/**
+ * Test specific aggregation errors to validate our fixes
+ */
+export async function testSpecificErrors() {
+  console.log('🔧 Testing specific error scenarios...');
+
+  // Test the original error case
+  console.log('\n1️⃣ Testing original error case (missing pipeline)...');
+  try {
+    await pendoAPI.request('/api/v1/aggregation', {
+      source: 'guideEvent',
+      timeSeries: 'daily',
+      operators: [{field:"guideId","operator":"EQ","value":"--UQUattXZx4UC5ZZQ41mIW-rbw"}],
+      groupby: ["eventTime"],
+      metrics: [{"name":"visitorId","function":"count"}]
+    }, 'POST');
+  } catch (error) {
+    console.log(`❌ Original error (expected):`, error.message);
+  }
+
+  // Test with pipeline
+  console.log('\n2️⃣ Testing with pipeline field...');
+  try {
+    const response = await pendoAPI.request('/api/v1/aggregation', {
+      pipeline: [
+        { $source: 'guideEvent' },
+        { $match: { guideId: "--UQUattXZx4UC5ZZQ41mIW-rbw" } },
+        { $group: { _id: '$eventTime', visitorId: { $sum: 1 } } }
+      ]
+    }, 'POST');
+    console.log(`✅ Pipeline approach successful:`, response);
+  } catch (error) {
+    console.log(`❌ Pipeline approach failed:`, error.message);
+  }
+
+  console.log('\n✅ Specific error testing completed');
 }

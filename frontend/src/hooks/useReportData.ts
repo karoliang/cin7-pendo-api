@@ -9,7 +9,7 @@ import type {
   ComprehensiveReportData
 } from '@/types/enhanced-pendo';
 
-// Hook for fetching comprehensive guide data with all analytics
+// Hook for fetching comprehensive guide data with REAL Pendo API analytics
 export const useGuideReport = (id: string) => {
   const navigate = useNavigate();
 
@@ -17,262 +17,22 @@ export const useGuideReport = (id: string) => {
     queryKey: ['guide-report', id],
     queryFn: async () => {
       try {
-        const guides = await pendoAPI.getGuides();
-        const guide = guides.find(g => g.id === id);
+        // Calculate date range for analytics (last 30 days)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
 
-        if (!guide) {
-          throw new Error('Guide not found');
-        }
-
-        // Generate comprehensive analytics data with all available insights
-        const analyticsData: ComprehensiveGuideData = {
-          // Core Identity
-          id: guide.id,
-          name: guide.name,
-          description: guide.description,
-          state: guide.state as any,
-          type: guide.type || 'onboarding',
-          kind: 'lightbox',
-
-          // Basic Metrics
-          lastShownCount: guide.lastShownCount,
-          viewedCount: guide.viewedCount,
-          completedCount: guide.completedCount,
-
-          // Calculated Metrics
-          completionRate: guide.viewedCount > 0 ? (guide.completedCount / guide.viewedCount) * 100 : 0,
-          engagementRate: guide.lastShownCount > 0 ? (guide.viewedCount / guide.lastShownCount) * 100 : 0,
-          averageTimeToComplete: Math.floor(Math.random() * 300) + 60,
-          dropOffRate: guide.viewedCount > 0 ? ((guide.viewedCount - guide.completedCount) / guide.viewedCount) * 100 : 0,
-
-          // Step-by-step Analytics (Comprehensive)
-          steps: Array.from({ length: Math.floor(Math.random() * 3) + 4 }, (_, i) => ({
-            id: `step-${i + 1}`,
-            name: `Step ${i + 1}: ${['Welcome & Introduction', 'Feature Overview', 'Interactive Tutorial', 'Advanced Settings', 'Best Practices', 'Next Steps'][i]}`,
-            order: i + 1,
-            content: `Comprehensive content for step ${i + 1}`,
-            elementType: i === 0 ? 'welcome' : i === 3 ? 'advanced' : 'standard',
-            viewedCount: Math.floor(Math.random() * 900) + 100,
-            completedCount: Math.floor(Math.random() * 700) + 50,
-            timeSpent: Math.floor(Math.random() * 120) + 30,
-            dropOffCount: Math.floor(Math.random() * 200) + 10,
-            dropOffRate: Math.floor(Math.random() * 25) + 5,
-          })),
-
-          // Segment Performance (Advanced)
-          segmentPerformance: [
-            {
-              segmentName: 'New Users',
-              segmentId: 'new-users',
-              viewedCount: 450,
-              completedCount: 180,
-              completionRate: 40,
-              averageTimeToComplete: 120,
-              engagementRate: 65,
-              dropOffRate: 60,
-            },
-            {
-              segmentName: 'Power Users',
-              segmentId: 'power-users',
-              viewedCount: 280,
-              completedCount: 210,
-              completionRate: 75,
-              averageTimeToComplete: 90,
-              engagementRate: 85,
-              dropOffRate: 25,
-            },
-            {
-              segmentName: 'Enterprise',
-              segmentId: 'enterprise',
-              viewedCount: 160,
-              completedCount: 66,
-              completionRate: 41,
-              averageTimeToComplete: 150,
-              engagementRate: 70,
-              dropOffRate: 59,
-            },
-            {
-              segmentName: 'Trial Users',
-              segmentId: 'trial-users',
-              viewedCount: 320,
-              completedCount: 96,
-              completionRate: 30,
-              averageTimeToComplete: 80,
-              engagementRate: 45,
-              dropOffRate: 70,
-            },
-          ],
-
-          // Device Analytics (Comprehensive)
-          deviceBreakdown: [
-            {
-              device: 'Desktop',
-              platform: 'Windows',
-              browser: 'Chrome',
-              users: 680,
-              percentage: 68,
-              completionRate: 72,
-              averageTimeSpent: 140,
-            },
-            {
-              device: 'Mobile',
-              platform: 'iOS',
-              browser: 'Safari',
-              users: 220,
-              percentage: 22,
-              completionRate: 58,
-              averageTimeSpent: 90,
-            },
-            {
-              device: 'Tablet',
-              platform: 'iPadOS',
-              browser: 'Safari',
-              users: 100,
-              percentage: 10,
-              completionRate: 65,
-              averageTimeSpent: 120,
-            },
-          ],
-
-          // Geographic Distribution (Detailed)
-          geographicDistribution: [
-            {
-              region: 'North America',
-              country: 'United States',
-              city: 'New York',
-              users: 450,
-              percentage: 45,
-              completionRate: 70,
-              language: 'English',
-            },
-            {
-              region: 'Europe',
-              country: 'United Kingdom',
-              city: 'London',
-              users: 280,
-              percentage: 28,
-              completionRate: 68,
-              language: 'English',
-            },
-            {
-              region: 'Asia Pacific',
-              country: 'Australia',
-              city: 'Sydney',
-              users: 150,
-              percentage: 15,
-              completionRate: 62,
-              language: 'English',
-            },
-            {
-              region: 'North America',
-              country: 'Canada',
-              city: 'Toronto',
-              users: 120,
-              percentage: 12,
-              completionRate: 75,
-              language: 'English',
-            },
-          ],
-
-          // Time Analytics (Comprehensive)
-          dailyStats: Array.from({ length: 30 }, (_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (29 - i));
-            return {
-              date: date.toISOString().split('T')[0],
-              views: Math.floor(Math.random() * 80) + 20,
-              completions: Math.floor(Math.random() * 60) + 10,
-              uniqueVisitors: Math.floor(Math.random() * 50) + 10,
-              averageTimeSpent: Math.floor(Math.random() * 60) + 90,
-              dropOffRate: Math.floor(Math.random() * 30) + 20,
-            };
-          }),
-
-          hourlyEngagement: Array.from({ length: 24 }, (_, i) => ({
-            date: new Date().toISOString().split('T')[0],
-            hour: i,
-            views: i >= 9 && i <= 17 ? Math.floor(Math.random() * 40) + 30 : Math.floor(Math.random() * 20) + 5,
-            completions: i >= 9 && i <= 17 ? Math.floor(Math.random() * 30) + 20 : Math.floor(Math.random() * 15) + 3,
-            uniqueVisitors: i >= 9 && i <= 17 ? Math.floor(Math.random() * 25) + 15 : Math.floor(Math.random() * 12) + 3,
-            averageTimeSpent: Math.floor(Math.random() * 40) + 80,
-            dropOffRate: Math.floor(Math.random() * 25) + 15,
-          })),
-
-          weeklyTrends: Array.from({ length: 12 }, (_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (11 - i) * 7);
-            return {
-              date: date.toISOString().split('T')[0],
-              views: Math.floor(Math.random() * 400) + 200,
-              completions: Math.floor(Math.random() * 300) + 150,
-              uniqueVisitors: Math.floor(Math.random() * 200) + 100,
-              averageTimeSpent: Math.floor(Math.random() * 30) + 100,
-              dropOffRate: Math.floor(Math.random() * 20) + 20,
-            };
-          }),
-
-          // User Behavior Analytics
-          timeToFirstInteraction: Math.floor(Math.random() * 30) + 5,
-          averageSessionDuration: Math.floor(Math.random() * 180) + 120,
-          returnUserRate: Math.floor(Math.random() * 40) + 30,
-          shares: Math.floor(Math.random() * 50) + 10,
-
-          // A/B Testing Data
-          variant: 'A',
-          variantPerformance: [
-            {
-              variant: 'A',
-              conversionRate: 72,
-              engagementScore: 85,
-              userCount: 500,
-            },
-            {
-              variant: 'B',
-              conversionRate: 68,
-              engagementScore: 82,
-              userCount: 480,
-            },
-          ],
-
-          // Content Analytics
-          polls: [
-            {
-              id: 'poll-1',
-              question: 'How helpful was this guide?',
-              type: 'rating' as const,
-              responseCount: 234,
-              averageRating: 4.2,
-              responses: [
-                { option: '5 stars', count: 120, percentage: 51 },
-                { option: '4 stars', count: 80, percentage: 34 },
-                { option: '3 stars', count: 25, percentage: 11 },
-                { option: '2 stars', count: 7, percentage: 3 },
-                { option: '1 star', count: 2, percentage: 1 },
-              ],
-            },
-          ],
-          clickThroughRate: Math.floor(Math.random() * 30) + 15,
-          formInteractions: Math.floor(Math.random() * 100) + 20,
-
-          // Timing Data
-          createdAt: guide.createdAt,
-          updatedAt: guide.updatedAt,
-          publishedAt: guide.publishedAt,
-          expiresAt: guide.publishedAt ? new Date(new Date(guide.publishedAt).getTime() + 90 * 24 * 60 * 60 * 1000).toISOString() : undefined,
-          lastShownAt: new Date(Date.now() - Math.floor(Math.random() * 24 * 60 * 60 * 1000)).toISOString(),
-
-          // Configuration
-          audience: { id: 'all-users', name: 'All Users' },
-          launchMethod: 'auto',
-          isMultiStep: true,
-          stepCount: 4,
-          autoAdvance: false,
-
-          // Performance
-          loadTime: Math.floor(Math.random() * 2000) + 500,
-          errorRate: Math.floor(Math.random() * 5) + 1,
-          retryCount: Math.floor(Math.random() * 10) + 1,
+        const period = {
+          start: startDate.toISOString(),
+          end: endDate.toISOString()
         };
+
+        // Fetch REAL comprehensive analytics data from Pendo API
+        const analyticsData = await pendoAPI.getGuideAnalytics(id, period);
+
+        if (!analyticsData) {
+          throw new Error('Guide analytics not found');
+        }
 
         return analyticsData;
       } catch (error) {

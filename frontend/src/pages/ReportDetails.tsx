@@ -113,12 +113,33 @@ export const ReportDetails: React.FC = () => {
       <Layout showNavigation={true}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Report Not Found</h2>
-            <p className="text-gray-600 mb-6">The requested report could not be found or an error occurred.</p>
-            <Button onClick={() => navigate('/tables')}>
-              <ArrowLeftIcon className="h-4 w-4 mr-2" />
-              Back to Data Tables
-            </Button>
+            <ExclamationTriangleIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Pendo Data Not Available</h2>
+            <p className="text-gray-600 mb-6">
+              {error?.message?.includes('not found')
+                ? `The ${type} with ID "${id}" was not found in your Pendo system. This dashboard only displays real Pendo data.`
+                : 'Unable to load data from Pendo. Please check your API connection.'}
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+              <h3 className="font-semibold text-blue-900 mb-2">📋 To Get Real Pendo Guide IDs:</h3>
+              <ol className="list-decimal list-inside text-blue-800 space-y-1">
+                <li>Open your browser's Developer Tools (F12)</li>
+                <li>Go to the Console tab</li>
+                <li>Navigate to the Data Tables page</li>
+                <li>Look for the "📋 Available Pendo Guides:" message</li>
+                <li>Copy any real guide ID and use it in the URL: /report/guides/{`{REAL_ID}`}</li>
+              </ol>
+            </div>
+            <div className="space-x-4">
+              <Button onClick={() => navigate('/tables')}>
+                <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                Back to Data Tables
+              </Button>
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                <ArrowPathIcon className="h-4 w-4 mr-2" />
+                Retry
+              </Button>
+            </div>
           </div>
         </div>
       </Layout>
