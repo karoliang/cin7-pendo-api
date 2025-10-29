@@ -41,7 +41,25 @@ export const PageAnalyticsChart: React.FC<PageAnalyticsChartProps> = ({
     '#ec4899'  // pink
   ];
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  interface TooltipPayload {
+    name: string;
+    value: number;
+    color: string;
+    payload: {
+      name: string;
+      views: number;
+      visitors: number;
+      avgTimePerPage: number;
+    };
+  }
+
+  interface CustomTooltipProps {
+    active?: boolean;
+    payload?: TooltipPayload[];
+    label?: string;
+  }
+
+  const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
@@ -62,7 +80,16 @@ export const PageAnalyticsChart: React.FC<PageAnalyticsChartProps> = ({
     return null;
   };
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  interface CustomLabelProps {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    innerRadius: number;
+    outerRadius: number;
+    percent: number;
+  }
+
+  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: CustomLabelProps) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -115,9 +142,9 @@ export const PageAnalyticsChart: React.FC<PageAnalyticsChartProps> = ({
                 verticalAlign="middle"
                 align="right"
                 layout="vertical"
-                formatter={(value, entry: any) => (
+                formatter={(value: number, entry: { color?: string; payload?: { name: string } }) => (
                   <span style={{ color: entry.color }}>
-                    {entry.payload.name} ({value.toLocaleString()})
+                    {entry.payload?.name} ({value.toLocaleString()})
                   </span>
                 )}
               />

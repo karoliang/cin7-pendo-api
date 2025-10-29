@@ -41,14 +41,26 @@ export const GuidePerformanceChart: React.FC<GuidePerformanceChartProps> = ({
         uniqueVisitors: Math.floor(dayViews * (Math.random() * 0.8 + 0.3))
       };
     });
-  }, [guides]);
+  }, []);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipPayload {
+    name: string;
+    value: number;
+    color: string;
+  }
+
+  interface CustomTooltipProps {
+    active?: boolean;
+    payload?: TooltipPayload[];
+    label?: string;
+  }
+
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-md shadow-lg">
           <p className="text-sm font-medium">{`Date: ${label}`}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {`${entry.name}: ${entry.value.toLocaleString()}`}
             </p>

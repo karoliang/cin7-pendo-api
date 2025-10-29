@@ -38,13 +38,29 @@ export const FeatureAdoptionChart: React.FC<FeatureAdoptionChartProps> = ({
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipPayload {
+    name: string;
+    value: number;
+    color: string;
+    payload: {
+      fullName: string;
+      avgUsagePerVisitor: number;
+    };
+  }
+
+  interface CustomTooltipProps {
+    active?: boolean;
+    payload?: TooltipPayload[];
+    label?: string;
+  }
+
+  const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-md shadow-lg max-w-xs">
           <p className="text-sm font-medium mb-2">{data.fullName}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {`${entry.name}: ${entry.value.toLocaleString()}`}
             </p>
