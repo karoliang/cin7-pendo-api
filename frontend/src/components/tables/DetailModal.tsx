@@ -28,15 +28,13 @@ export function DetailModal({ item, type, isOpen, onClose }: DetailModalProps) {
           <h4 className="text-sm font-medium text-gray-500">Status</h4>
           <p className="mt-1">
             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-              guide.state === 'published' || guide.state === 'public' || guide.state === 'active'
+              guide.state === 'published'
                 ? 'bg-green-100 text-green-800'
                 : guide.state === 'draft'
                 ? 'bg-yellow-100 text-yellow-800'
                 : guide.state === '_pendingReview_'
                 ? 'bg-orange-100 text-orange-800'
-                : guide.state === 'paused' || guide.state === 'inactive'
-                ? 'bg-red-100 text-red-800'
-                : guide.state === 'archived' || guide.state === 'private'
+                : guide.state === 'archived'
                 ? 'bg-gray-100 text-gray-800'
                 : 'bg-blue-100 text-blue-800'
             }`}>

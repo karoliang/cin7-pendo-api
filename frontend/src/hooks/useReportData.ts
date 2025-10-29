@@ -71,9 +71,6 @@ export const useGuideReport = (id: string) => {
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000,
     retry: 1,
-    onError: () => {
-      navigate('/tables');
-    }
   });
 };
 
@@ -150,9 +147,6 @@ export const useFeatureReport = (id: string) => {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 1,
-    onError: () => {
-      navigate('/tables');
-    }
   });
 };
 
@@ -249,9 +243,6 @@ export const usePageReport = (id: string) => {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 1,
-    onError: () => {
-      navigate('/tables');
-    }
   });
 };
 
@@ -325,8 +316,5 @@ export const useReportReport = (id: string) => {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 1,
-    onError: () => {
-      navigate('/tables');
-    }
   });
 };

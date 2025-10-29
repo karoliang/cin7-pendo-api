@@ -166,7 +166,7 @@ class PendoAPIClient {
     {
       id: '3',
       name: 'Welcome Campaign',
-      state: 'active',
+      state: 'published',
       lastShownCount: 2100,
       viewedCount: 1543,
       completedCount: 890,
@@ -179,7 +179,7 @@ class PendoAPIClient {
     {
       id: '4',
       name: 'Public Feature Launch',
-      state: 'public',
+      state: 'published',
       lastShownCount: 3450,
       viewedCount: 2890,
       completedCount: 1234,
@@ -204,7 +204,7 @@ class PendoAPIClient {
     {
       id: '6',
       name: 'Paused Campaign',
-      state: 'paused',
+      state: 'archived',
       lastShownCount: 567,
       viewedCount: 234,
       completedCount: 89,

@@ -5,6 +5,81 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// Enhanced report data types
+interface EnhancedGuideData {
+  id: string;
+  name: string;
+  state: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  viewedCount: number;
+  completedCount: number;
+  completionRate: number;
+  engagementRate: number;
+  averageTimeToComplete: number;
+  dailyStats: Array<{ date: string; views: number; completions: number; uniqueVisitors: number }>;
+  segmentPerformance: Array<{ segment: string; views: number; completions: number; completionRate: number }>;
+  deviceBreakdown: Array<{ device: string; users: number; percentage: number }>;
+  stepAnalytics?: Array<{ step: number; stepName: string; views: number; completions: number; dropoffRate: number }>;
+}
+
+interface EnhancedFeatureData {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  usageCount: number;
+  visitorCount: number;
+  adoptionRate: number;
+  usageFrequency: number;
+  retentionRate: number;
+  dailyUsage: Array<{ date: string; usageCount: number; uniqueUsers: number; avgUsagePerUser: number }>;
+  cohortAnalysis: Array<{ cohort: string; totalUsers: number; activeUsers: number; retentionRate: number }>;
+  geographicDistribution: Array<{ region: string; visitors: number; percentage: number }>;
+  usageByTimeOfDay?: Array<{ hour: number; usageCount: number }>;
+  relatedFeatures?: Array<{ name: string; usageCount: number; correlation: number }>;
+  elementId?: string;
+  eventType?: string;
+}
+
+interface EnhancedPageData {
+  id: string;
+  name: string; // Added name property
+  url: string;
+  title?: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  viewedCount: number;
+  visitorCount: number;
+  avgTimeOnPage: number;
+  bounceRate: number;
+  dailyTraffic: Array<{ date: string; pageViews: number; uniqueVisitors: number; avgTimeOnPage: number }>;
+  trafficSources: Array<{ source: string; visitors: number; percentage: number }>;
+  navigationPaths: Array<{ path: string[]; users: number; conversionRate: number }>;
+  devicePerformance: Array<{ device: string; pageViews: number; avgTimeOnPage: number }>;
+}
+
+interface EnhancedReportData {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  totalViews: number;
+  uniqueViewers: number;
+  shares: number;
+  averageRating: number;
+  dailyEngagement: Array<{ date: string; views: number; uniqueViewers: number; avgRating: number }>;
+  userEngagement: Array<{ segment: string; percentage: number }>;
+  popularSections: Array<{ section: string; views: number }>;
+  userFeedback: Array<{ rating: number; count: number; percentage: number }>;
+}
+
+type ReportDataType = EnhancedGuideData | EnhancedFeatureData | EnhancedPageData | EnhancedReportData;
 import {
   ArrowLeftIcon,
   ArrowDownTrayIcon,
@@ -62,7 +137,7 @@ export const ReportDetails: React.FC = () => {
 
   // Get the appropriate data and loading state
   const currentReport = guideReport || featureReport || pageReport || reportReport;
-  const data = currentReport?.data;
+  const data = currentReport?.data as ReportDataType;
   const isLoading = currentReport?.isLoading ?? false;
   const error = currentReport?.error;
 
@@ -125,32 +200,36 @@ export const ReportDetails: React.FC = () => {
   const getPrimaryKPIs = () => {
     switch (type) {
       case 'guide':
+        const guideData = data as EnhancedGuideData;
         return [
-          { label: 'Total Views', value: data.viewedCount.toLocaleString(), icon: EyeIcon, change: '+12%' },
-          { label: 'Completions', value: data.completedCount.toLocaleString(), icon: CheckCircleIcon, change: '+8%' },
-          { label: 'Completion Rate', value: `${data.completionRate.toFixed(1)}%`, icon: ChartBarIcon, change: '+2.1%' },
-          { label: 'Engagement Rate', value: `${data.engagementRate.toFixed(1)}%`, icon: UserGroupIcon, change: '+5.3%' },
+          { label: 'Total Views', value: guideData.viewedCount.toLocaleString(), icon: EyeIcon, change: '+12%' },
+          { label: 'Completions', value: guideData.completedCount.toLocaleString(), icon: CheckCircleIcon, change: '+8%' },
+          { label: 'Completion Rate', value: `${guideData.completionRate.toFixed(1)}%`, icon: ChartBarIcon, change: '+2.1%' },
+          { label: 'Engagement Rate', value: `${guideData.engagementRate.toFixed(1)}%`, icon: UserGroupIcon, change: '+5.3%' },
         ];
       case 'feature':
+        const featureData = data as EnhancedFeatureData;
         return [
-          { label: 'Usage Count', value: data.usageCount.toLocaleString(), icon: CubeIcon, change: '+18%' },
-          { label: 'Unique Users', value: data.visitorCount.toLocaleString(), icon: UserGroupIcon, change: '+15%' },
-          { label: 'Adoption Rate', value: `${data.adoptionRate}%`, icon: ChartBarIcon, change: '+3.2%' },
-          { label: 'Usage Frequency', value: `${data.usageFrequency}x/day`, icon: ClockIcon, change: '+0.8x' },
+          { label: 'Usage Count', value: featureData.usageCount.toLocaleString(), icon: CubeIcon, change: '+18%' },
+          { label: 'Unique Users', value: featureData.visitorCount.toLocaleString(), icon: UserGroupIcon, change: '+15%' },
+          { label: 'Adoption Rate', value: `${featureData.adoptionRate}%`, icon: ChartBarIcon, change: '+3.2%' },
+          { label: 'Usage Frequency', value: `${featureData.usageFrequency}x/day`, icon: ClockIcon, change: '+0.8x' },
         ];
       case 'page':
+        const pageData = data as EnhancedPageData;
         return [
-          { label: 'Page Views', value: data.viewedCount.toLocaleString(), icon: EyeIcon, change: '+22%' },
-          { label: 'Unique Visitors', value: data.visitorCount.toLocaleString(), icon: UserGroupIcon, change: '+19%' },
-          { label: 'Avg Time on Page', value: `${data.avgTimeOnPage}s`, icon: ClockIcon, change: '+15s' },
-          { label: 'Bounce Rate', value: `${data.bounceRate}%`, icon: ChartBarIcon, change: '-3.1%' },
+          { label: 'Page Views', value: pageData.viewedCount.toLocaleString(), icon: EyeIcon, change: '+22%' },
+          { label: 'Unique Visitors', value: pageData.visitorCount.toLocaleString(), icon: UserGroupIcon, change: '+19%' },
+          { label: 'Avg Time on Page', value: `${pageData.avgTimeOnPage}s`, icon: ClockIcon, change: '+15s' },
+          { label: 'Bounce Rate', value: `${pageData.bounceRate}%`, icon: ChartBarIcon, change: '-3.1%' },
         ];
       case 'report':
+        const reportData = data as EnhancedReportData;
         return [
-          { label: 'Total Views', value: data.totalViews.toLocaleString(), icon: EyeIcon, change: '+28%' },
-          { label: 'Unique Viewers', value: data.uniqueViewers.toLocaleString(), icon: UserGroupIcon, change: '+24%' },
-          { label: 'Shares', value: data.shares.toLocaleString(), icon: ShareIcon, change: '+12%' },
-          { label: 'Rating', value: `⭐ ${data.averageRating}`, icon: StarIcon, change: '+0.3' },
+          { label: 'Total Views', value: reportData.totalViews.toLocaleString(), icon: EyeIcon, change: '+28%' },
+          { label: 'Unique Viewers', value: reportData.uniqueViewers.toLocaleString(), icon: UserGroupIcon, change: '+24%' },
+          { label: 'Shares', value: reportData.shares.toLocaleString(), icon: ShareIcon, change: '+12%' },
+          { label: 'Rating', value: `⭐ ${reportData.averageRating}`, icon: StarIcon, change: '+0.3' },
         ];
       default:
         return [];
@@ -191,7 +270,7 @@ export const ReportDetails: React.FC = () => {
           </div>
           <div className="flex items-center space-x-3">
             <Badge variant="secondary" className="capitalize">
-              {data.state || 'Active'}
+              {(data as any).state || 'Active'}
             </Badge>
             <div className="flex items-center text-sm text-gray-500">
               <CalendarIcon className="h-4 w-4 mr-1" />
@@ -259,13 +338,13 @@ export const ReportDetails: React.FC = () => {
 
           <TabsContent value="overview" className="space-y-6">
             {/* Description */}
-            {data.description && (
+            {(data as any).description && (
               <Card>
                 <CardHeader>
                   <CardTitle>Description</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700">{data.description}</p>
+                  <p className="text-gray-700">{(data as any).description}</p>
                 </CardContent>
               </Card>
             )}
@@ -280,10 +359,10 @@ export const ReportDetails: React.FC = () => {
                 <CardContent>
                   <ReportLineChart
                     data={
-                      type === 'guide' ? data.dailyStats :
-                      type === 'feature' ? data.dailyUsage :
-                      type === 'page' ? data.dailyTraffic :
-                      data.dailyEngagement
+                      type === 'guide' ? (data as EnhancedGuideData).dailyStats :
+                      type === 'feature' ? (data as EnhancedFeatureData).dailyUsage :
+                      type === 'page' ? (data as EnhancedPageData).dailyTraffic :
+                      (data as EnhancedReportData).dailyEngagement
                     }
                     dataKey={
                       type === 'guide' ? 'views' :
@@ -308,10 +387,10 @@ export const ReportDetails: React.FC = () => {
                 <CardContent>
                   <ReportPieChart
                     data={
-                      type === 'guide' ? data.deviceBreakdown :
-                      type === 'feature' ? data.geographicDistribution :
-                      type === 'page' ? data.trafficSources :
-                      data.userEngagement
+                      type === 'guide' ? (data as EnhancedGuideData).deviceBreakdown :
+                      type === 'feature' ? (data as EnhancedFeatureData).geographicDistribution :
+                      type === 'page' ? (data as EnhancedPageData).trafficSources :
+                      (data as EnhancedReportData).userEngagement
                     }
                     dataKey={
                       type === 'guide' ? 'users' :
@@ -334,10 +413,16 @@ export const ReportDetails: React.FC = () => {
               <CardContent>
                 <ReportLineChart
                   data={
-                    type === 'guide' ? data.dailyStats :
-                    type === 'feature' ? data.dailyUsage :
-                    type === 'page' ? data.dailyTraffic :
-                    data.dailyEngagement
+                    type === 'guide' ? (data as EnhancedGuideData).dailyStats :
+                    type === 'feature' ? (data as EnhancedFeatureData).dailyUsage :
+                    type === 'page' ? (data as EnhancedPageData).dailyTraffic :
+                    (data as EnhancedReportData).dailyEngagement
+                  }
+                  dataKey={
+                    type === 'guide' ? 'views' :
+                    type === 'feature' ? 'usageCount' :
+                    type === 'page' ? 'pageViews' :
+                    'views'
                   }
                   multiLine={true}
                 />
@@ -345,14 +430,14 @@ export const ReportDetails: React.FC = () => {
             </Card>
 
             {/* Usage patterns */}
-            {(type === 'feature' && data.usageByTimeOfDay) && (
+            {(type === 'feature' && (data as any).usageByTimeOfDay) && (
               <Card>
                 <CardHeader>
                   <CardTitle>Usage Patterns by Time of Day</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ReportBarChart
-                    data={data.usageByTimeOfDay}
+                    data={(data as any).usageByTimeOfDay}
                     dataKey="usageCount"
                     xAxisKey="hour"
                   />
@@ -371,21 +456,21 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <ReportBarChart
-                      data={data.segmentPerformance}
+                      data={(data as any).segmentPerformance}
                       dataKey="completionRate"
                       xAxisKey="segment"
                     />
                   </CardContent>
                 </Card>
 
-                {data.stepAnalytics && (
+                {(data as any).stepAnalytics && (
                   <Card>
                     <CardHeader>
                       <CardTitle>Step-by-Step Analytics</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {data.stepAnalytics.map((step: any, index: number) => (
+                        {(data as any).stepAnalytics.map((step: any, index: number) => (
                           <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                             <div>
                               <h4 className="font-medium">{step.stepName}</h4>
@@ -414,7 +499,7 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <ReportBarChart
-                      data={data.cohortAnalysis}
+                      data={(data as any).cohortAnalysis}
                       dataKey="retentionRate"
                       xAxisKey="cohort"
                     />
@@ -427,7 +512,7 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {data.relatedFeatures.map((feature: any, index: number) => (
+                      {(data as any).relatedFeatures.map((feature: any, index: number) => (
                         <div key={index} className="flex items-center justify-between">
                           <span className="font-medium">{feature.name}</span>
                           <div className="flex items-center space-x-4">
@@ -454,7 +539,7 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {data.navigationPaths.map((path: any, index: number) => (
+                      {(data as any).navigationPaths.map((path: any, index: number) => (
                         <div key={index} className="p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-medium">
@@ -479,7 +564,7 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <ReportBarChart
-                      data={data.devicePerformance}
+                      data={(data as any).devicePerformance}
                       dataKey="pageViews"
                       xAxisKey="device"
                     />
@@ -496,7 +581,7 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <ReportBarChart
-                      data={data.popularSections}
+                      data={(data as any).popularSections}
                       dataKey="views"
                       xAxisKey="section"
                     />
@@ -509,7 +594,7 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {data.userFeedback.map((feedback: any, index: number) => (
+                      {(data as any).userFeedback.map((feedback: any, index: number) => (
                         <div key={index} className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <span className="text-yellow-500">{'★'.repeat(feedback.rating)}{'☆'.repeat(5 - feedback.rating)}</span>
@@ -551,7 +636,7 @@ export const ReportDetails: React.FC = () => {
                   </div>
                   <div>
                     <span className="font-medium text-gray-700">Status:</span>
-                    <p className="text-gray-600 capitalize">{data.state || 'Active'}</p>
+                    <p className="text-gray-600 capitalize">{(data as any).state || 'Active'}</p>
                   </div>
                   {(data as any).type && (
                     <div>
