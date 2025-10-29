@@ -256,49 +256,9 @@ export const ReportDetails: React.FC = () => {
           </div>
         </div>
 
-        {/* AI Summary Placeholder */}
-        <Card className="border-dashed border-blue-200 bg-blue-50">
-          <CardHeader>
-            <CardTitle className="text-blue-900 flex items-center">
-              <StarIcon className="h-5 w-5 mr-2" />
-              AI Insights (Coming Soon)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-blue-800">
-              AI-powered insights and recommendations will be available here.
-              This section will provide automated analysis of key trends,
-              performance indicators, and actionable insights based on the data.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Primary KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {primaryKPIs.map((kpi, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{kpi.label}</p>
-                    <p className="text-2xl font-bold text-gray-900">{kpi.value}</p>
-                  </div>
-                  <div className={`p-3 bg-gray-100 rounded-lg`}>
-                    <kpi.icon className="h-6 w-6 text-gray-600" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center text-sm">
-                  <span className="text-green-600 font-medium">{kpi.change}</span>
-                  <span className="text-gray-500 ml-2">vs last period</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
         {/* Tabs for Different Views */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6 overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-7 overflow-x-auto">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="trends">Trends</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -308,9 +268,32 @@ export const ReportDetails: React.FC = () => {
             {type === 'reports' && <TabsTrigger value="feedback">Feedback</TabsTrigger>}
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="insights">Insights</TabsTrigger>
+            <TabsTrigger value="details">Details</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Primary KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {primaryKPIs.map((kpi, index) => (
+                <Card key={index}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">{kpi.label}</p>
+                        <p className="text-2xl font-bold text-gray-900">{kpi.value}</p>
+                      </div>
+                      <div className={`p-3 bg-gray-100 rounded-lg`}>
+                        <kpi.icon className="h-6 w-6 text-gray-600" />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-center text-sm">
+                      <span className="text-green-600 font-medium">{kpi.change}</span>
+                      <span className="text-gray-500 ml-2">vs last period</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
             {/* Description */}
             {(data as any).description && (
               <Card>
@@ -937,6 +920,23 @@ export const ReportDetails: React.FC = () => {
 
           {/* Insights Tab */}
           <TabsContent value="insights" className="space-y-6">
+            {/* AI Summary Placeholder */}
+            <Card className="border-dashed border-blue-200 bg-blue-50">
+              <CardHeader>
+                <CardTitle className="text-blue-900 flex items-center">
+                  <StarIcon className="h-5 w-5 mr-2" />
+                  AI Insights (Coming Soon)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-blue-800">
+                  AI-powered insights and recommendations will be available here.
+                  This section will provide automated analysis of key trends,
+                  performance indicators, and actionable insights based on the data.
+                </p>
+              </CardContent>
+            </Card>
+
             {/* AI Insights */}
             <Card>
               <CardHeader>

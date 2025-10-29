@@ -212,8 +212,9 @@ export const useFeatureReport = (id: string) => {
             date.setDate(date.getDate() - (29 - i));
             return {
               date: date.toISOString().split('T')[0],
-              usageCount: Math.floor(Math.random() * 150) + 50,
-              uniqueUsers: Math.floor(Math.random() * 80) + 20,
+              views: Math.floor(Math.random() * 150) + 50,
+              completions: Math.floor(Math.random() * 100) + 30,
+              uniqueVisitors: Math.floor(Math.random() * 80) + 20,
               averageTimeSpent: Math.floor(Math.random() * 60) + 30,
               dropOffRate: Math.floor(Math.random() * 25) + 10,
             };
@@ -222,8 +223,9 @@ export const useFeatureReport = (id: string) => {
           hourlyUsage: Array.from({ length: 24 }, (_, i) => ({
             date: new Date().toISOString().split('T')[0],
             hour: i,
-            usageCount: i >= 8 && i <= 18 ? Math.floor(Math.random() * 120) + 80 : Math.floor(Math.random() * 40) + 10,
-            uniqueUsers: i >= 8 && i <= 18 ? Math.floor(Math.random() * 60) + 30 : Math.floor(Math.random() * 20) + 5,
+            views: i >= 8 && i <= 18 ? Math.floor(Math.random() * 120) + 80 : Math.floor(Math.random() * 40) + 10,
+            completions: i >= 8 && i <= 18 ? Math.floor(Math.random() * 80) + 40 : Math.floor(Math.random() * 25) + 5,
+            uniqueVisitors: i >= 8 && i <= 18 ? Math.floor(Math.random() * 60) + 30 : Math.floor(Math.random() * 20) + 5,
             averageTimeSpent: Math.floor(Math.random() * 40) + 25,
             dropOffRate: Math.floor(Math.random() * 20) + 10,
           })),
@@ -582,7 +584,8 @@ export const usePageReport = (id: string) => {
             date: new Date().toISOString().split('T')[0],
             hour: i,
             views: i >= 9 && i <= 17 ? Math.floor(Math.random() * 200) + 150 : Math.floor(Math.random() * 80) + 30,
-            uniqueUsers: i >= 9 && i <= 17 ? Math.floor(Math.random() * 100) + 60 : Math.floor(Math.random() * 40) + 15,
+            completions: Math.floor(Math.random() * 50) + 20,
+            uniqueVisitors: i >= 9 && i <= 17 ? Math.floor(Math.random() * 100) + 60 : Math.floor(Math.random() * 40) + 15,
             averageTimeSpent: Math.floor(Math.random() * 60) + 100,
             dropOffRate: Math.floor(Math.random() * 25) + 15,
           })),
@@ -992,6 +995,8 @@ export const useReportReport = (id: string) => {
             return {
               date: date.toISOString().split('T')[0],
               views: Math.floor(Math.random() * 50) + 20,
+              completions: Math.floor(Math.random() * 30) + 10,
+              uniqueVisitors: Math.floor(Math.random() * 40) + 15,
               shares: Math.floor(Math.random() * 10) + 2,
               downloads: Math.floor(Math.random() * 15) + 3,
               averageTimeSpent: Math.floor(Math.random() * 100) + 120,
