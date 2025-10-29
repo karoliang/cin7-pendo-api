@@ -1,39 +1,140 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { KPICard } from '@/components/dashboard/KPICard';
+import { FilterPanel } from '@/components/filters/FilterPanel';
+import { AdvancedSearch } from '@/components/filters/AdvancedSearch';
+import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
+import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
+import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useDashboardOverview } from '@/hooks/usePendoData';
+import { useFilterStore } from '@/stores/filterStore';
 
 export const Dashboard: React.FC = () => {
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
+  const { filters, updateFilters, resetFilters } = useFilterStore();
 
-  // Calculate KPI data from real data
+  const handleAdvancedSearch = (query: string, searchFilters?: Record<string, any>) => {
+    // Update the search query in filters
+    updateFilters({
+      ...filters,
+      searchQuery: query,
+      ...(searchFilters?.type && searchFilters.type !== 'all' && {
+        // If searching within a specific type, add additional filters
+        [`${searchFilters.type}Types`]: ['true'] // This would be implemented based on actual data structure
+      })
+    });
+  };
+
+  // Apply filters to data
+  const filteredData = useMemo(() => {
+    const filterArray = (array: any[], filterFn: (item: any) => boolean) => {
+      return array.filter(filterFn);
+    };
+
+    const createFilterFn = (item: any) => {
+      // Search filter
+      if (filters.searchQuery) {
+        const searchLower = filters.searchQuery.toLowerCase();
+        if (!item.name?.toLowerCase().includes(searchLower) &&
+            !item.description?.toLowerCase().includes(searchLower) &&
+            !item.title?.toLowerCase().includes(searchLower) &&
+            !item.url?.toLowerCase().includes(searchLower)) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (filters.status && filters.status.length > 0) {
+        if (!filters.status.includes(item.state)) {
+          return false;
+        }
+      }
+
+      // Guide types filter
+      if (filters.guideTypes && filters.guideTypes.length > 0) {
+        if (!filters.guideTypes.includes(item.type)) {
+          return false;
+        }
+      }
+
+      // Date range filter
+      if (filters.dateRange?.start || filters.dateRange?.end) {
+        const itemDate = new Date(item.createdAt || item.updatedAt);
+        if (filters.dateRange.start && itemDate < filters.dateRange.start) {
+          return false;
+        }
+        if (filters.dateRange.end && itemDate > filters.dateRange.end) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    return {
+      guides: filterArray(guides || [], createFilterFn),
+      features: filterArray(features || [], createFilterFn),
+      pages: filterArray(pages || [], createFilterFn),
+      reports: filterArray(reports || [], createFilterFn)
+    };
+  }, [guides, features, pages, reports, filters]);
+
+  // Apply sorting
+  const sortedData = useMemo(() => {
+    if (!filters.sortBy) return filteredData;
+
+    const sortFn = (a: any, b: any) => {
+      let aValue = a[filters.sortBy!];
+      let bValue = b[filters.sortBy!];
+
+      // Handle string comparison
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (filters.sortOrder === 'desc') {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    };
+
+    return {
+      guides: [...filteredData.guides].sort(sortFn),
+      features: [...filteredData.features].sort(sortFn),
+      pages: [...filteredData.pages].sort(sortFn),
+      reports: [...filteredData.reports].sort(sortFn)
+    };
+  }, [filteredData, filters.sortBy, filters.sortOrder]);
+
+  // Calculate KPI data from filtered data
   const kpiData = [
     {
       title: 'Total Guides',
-      value: guides.length.toString(),
+      value: sortedData.guides.length.toString(),
       change: 12,
       changeType: 'increase' as const,
-      description: `${guides.filter(g => g.state === 'published').length} published`
+      description: `${sortedData.guides.filter(g => g.state === 'published').length} published`
     },
     {
       title: 'Features',
-      value: features.length.toString(),
+      value: sortedData.features.length.toString(),
       change: 8,
       changeType: 'increase' as const,
       description: 'Tracked features'
     },
     {
       title: 'Pages',
-      value: pages.length.toString(),
+      value: sortedData.pages.length.toString(),
       change: -2,
       changeType: 'decrease' as const,
       description: 'Monitored pages'
     },
     {
       title: 'Reports',
-      value: reports.length.toString(),
+      value: sortedData.reports.length.toString(),
       change: 15,
       changeType: 'increase' as const,
       description: 'Generated reports'
@@ -61,8 +162,24 @@ export const Dashboard: React.FC = () => {
           </h2>
           <p className="mt-1 text-sm text-gray-600">
             Real-time insights from your Pendo data
+            {Object.keys(filters).length > 0 && (
+              <span className="ml-2 text-blue-600">
+                ({Object.keys(filters).length} filter{Object.keys(filters).length > 1 ? 's' : ''} applied)
+              </span>
+            )}
           </p>
         </div>
+
+        {/* Advanced Search */}
+        <AdvancedSearch
+          onSearch={handleAdvancedSearch}
+        />
+
+        {/* Filter Panel */}
+        <FilterPanel
+          filters={filters}
+          onFiltersChange={updateFilters}
+        />
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -81,24 +198,33 @@ export const Dashboard: React.FC = () => {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Guide Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-gray-500">
-                Chart placeholder - Guide views and completions over time
-              </div>
-            </CardContent>
-          </Card>
+          <GuidePerformanceChart
+            guides={sortedData.guides}
+          />
 
+          <FeatureAdoptionChart
+            features={sortedData.features}
+          />
+        </div>
+
+        {/* Additional Chart */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <PageAnalyticsChart
+            pages={sortedData.pages}
+          />
+
+          {/* Placeholder for future charts */}
           <Card>
             <CardHeader>
-              <CardTitle>Feature Adoption</CardTitle>
+              <CardTitle>User Engagement Timeline</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-64 flex items-center justify-center text-gray-500">
-                Chart placeholder - Feature usage trends
+                <div className="text-center">
+                  <p className="mb-2">📊</p>
+                  <p>Coming Soon: User engagement patterns</p>
+                  <p className="text-sm">Time-based activity analysis</p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -107,11 +233,18 @@ export const Dashboard: React.FC = () => {
         {/* Recent Activity */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle>
+              Recent Activity
+              {Object.keys(filters).length > 0 && (
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  (Filtered Results)
+                </span>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {guides.slice(0, 2).map((guide) => (
+              {sortedData.guides.slice(0, 2).map((guide) => (
                 <div key={guide.id} className="flex items-center justify-between py-2 border-b">
                   <div>
                     <p className="font-medium">Guide "{guide.name}" {guide.state}</p>
@@ -130,7 +263,7 @@ export const Dashboard: React.FC = () => {
                   </span>
                 </div>
               ))}
-              {features.slice(0, 1).map((feature) => (
+              {sortedData.features.slice(0, 1).map((feature) => (
                 <div key={feature.id} className="flex items-center justify-between py-2 border-b">
                   <div>
                     <p className="font-medium">Feature "{feature.name}" used</p>
@@ -143,7 +276,7 @@ export const Dashboard: React.FC = () => {
                   </span>
                 </div>
               ))}
-              {reports.slice(0, 1).map((report) => (
+              {sortedData.reports.slice(0, 1).map((report) => (
                 <div key={report.id} className="flex items-center justify-between py-2">
                   <div>
                     <p className="font-medium">{report.name}</p>
@@ -159,6 +292,19 @@ export const Dashboard: React.FC = () => {
                   </span>
                 </div>
               ))}
+              {sortedData.guides.length === 0 && sortedData.features.length === 0 && sortedData.reports.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No data matches the current filters.</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={resetFilters}
+                    className="mt-2"
+                  >
+                    Clear filters
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

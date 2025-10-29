@@ -1,4 +1,4 @@
-import { Guide, Feature, Page, Report, ApiResponse } from '@/types/pendo';
+import type { Guide, Feature, Page, Report } from '@/types/pendo';
 
 const PENDO_BASE_URL = 'https://app.pendo.io';
 const PENDO_API_KEY = 'f4acdb2c-038c-4de1-a88b-ab90423037bf.us';

@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { pendoAPI } from '@/lib/pendo-api';
-import { Guide, Feature, Page, Report } from '@/types/pendo';
 
 // Hook for fetching guides
 export const useGuides = (params?: {
@@ -12,7 +11,7 @@ export const useGuides = (params?: {
     queryKey: ['guides', params],
     queryFn: () => pendoAPI.getGuides(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime)
   });
 };
 
@@ -25,7 +24,7 @@ export const useFeatures = (params?: {
     queryKey: ['features', params],
     queryFn: () => pendoAPI.getFeatures(params),
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -38,7 +37,7 @@ export const usePages = (params?: {
     queryKey: ['pages', params],
     queryFn: () => pendoAPI.getPages(params),
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -51,7 +50,7 @@ export const useReports = (params?: {
     queryKey: ['reports', params],
     queryFn: () => pendoAPI.getReports(params),
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
