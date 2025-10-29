@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -44,8 +44,13 @@ export const ReportDetails: React.FC = () => {
   const isValidType = (t: string): t is ReportType =>
     ['guide', 'feature', 'page', 'report'].includes(t);
 
+  useEffect(() => {
+    if (!type || !id || !isValidType(type)) {
+      navigate('/tables');
+    }
+  }, [type, id, navigate]);
+
   if (!type || !id || !isValidType(type)) {
-    navigate('/tables');
     return null;
   }
 
@@ -307,6 +312,12 @@ export const ReportDetails: React.FC = () => {
                       type === 'feature' ? data.geographicDistribution :
                       type === 'page' ? data.trafficSources :
                       data.userEngagement
+                    }
+                    dataKey={
+                      type === 'guide' ? 'users' :
+                      type === 'feature' ? 'visitors' :
+                      type === 'page' ? 'visitors' :
+                      'percentage'
                     }
                   />
                 </CardContent>

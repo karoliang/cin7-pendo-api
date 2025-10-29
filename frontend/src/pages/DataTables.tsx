@@ -128,46 +128,63 @@ export const DataTables: React.FC = () => {
 
   // Update pagination state when filtered data changes
   React.useEffect(() => {
-    setTableState(prev => ({
-      ...prev,
-      guides: {
-        ...prev.guides,
-        pagination: {
-          ...prev.guides.pagination,
-          total: filteredData.guides.length,
-          hasPrevious: prev.guides.pagination.page > 1,
-          hasNext: prev.guides.pagination.page * prev.guides.pagination.limit < filteredData.guides.length
-        }
-      },
-      features: {
-        ...prev.features,
-        pagination: {
-          ...prev.features.pagination,
-          total: filteredData.features.length,
-          hasPrevious: prev.features.pagination.page > 1,
-          hasNext: prev.features.pagination.page * prev.features.pagination.limit < filteredData.features.length
-        }
-      },
-      pages: {
-        ...prev.pages,
-        pagination: {
-          ...prev.pages.pagination,
-          total: filteredData.pages.length,
-          hasPrevious: prev.pages.pagination.page > 1,
-          hasNext: prev.pages.pagination.page * prev.pages.pagination.limit < filteredData.pages.length
-        }
-      },
-      reports: {
-        ...prev.reports,
-        pagination: {
-          ...prev.reports.pagination,
-          total: filteredData.reports.length,
-          hasPrevious: prev.reports.pagination.page > 1,
-          hasNext: prev.reports.pagination.page * prev.reports.pagination.limit < filteredData.reports.length
-        }
+    const guidesTotal = filteredData.guides.length;
+    const featuresTotal = filteredData.features.length;
+    const pagesTotal = filteredData.pages.length;
+    const reportsTotal = filteredData.reports.length;
+
+    setTableState(prev => {
+      const newGuidesTotal = prev.guides.pagination.total !== guidesTotal;
+      const newFeaturesTotal = prev.features.pagination.total !== featuresTotal;
+      const newPagesTotal = prev.pages.pagination.total !== pagesTotal;
+      const newReportsTotal = prev.reports.pagination.total !== reportsTotal;
+
+      // Only update if totals actually changed
+      if (!newGuidesTotal && !newFeaturesTotal && !newPagesTotal && !newReportsTotal) {
+        return prev;
       }
-    }));
-  }, [filteredData]);
+
+      return {
+        ...prev,
+        guides: {
+          ...prev.guides,
+          pagination: {
+            ...prev.guides.pagination,
+            total: guidesTotal,
+            hasPrevious: prev.guides.pagination.page > 1,
+            hasNext: prev.guides.pagination.page * prev.guides.pagination.limit < guidesTotal
+          }
+        },
+        features: {
+          ...prev.features,
+          pagination: {
+            ...prev.features.pagination,
+            total: featuresTotal,
+            hasPrevious: prev.features.pagination.page > 1,
+            hasNext: prev.features.pagination.page * prev.features.pagination.limit < featuresTotal
+          }
+        },
+        pages: {
+          ...prev.pages,
+          pagination: {
+            ...prev.pages.pagination,
+            total: pagesTotal,
+            hasPrevious: prev.pages.pagination.page > 1,
+            hasNext: prev.pages.pagination.page * prev.pages.pagination.limit < pagesTotal
+          }
+        },
+        reports: {
+          ...prev.reports,
+          pagination: {
+            ...prev.reports.pagination,
+            total: reportsTotal,
+            hasPrevious: prev.reports.pagination.page > 1,
+            hasNext: prev.reports.pagination.page * prev.reports.pagination.limit < reportsTotal
+          }
+        }
+      };
+    });
+  }, [filteredData.guides.length, filteredData.features.length, filteredData.pages.length, filteredData.reports.length]);
 
   const tabs = [
     {

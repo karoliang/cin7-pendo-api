@@ -11,6 +11,7 @@ import {
 interface ReportPieChartProps {
   data: any[];
   height?: number;
+  dataKey?: string;
 }
 
 const COLORS = [
@@ -26,7 +27,8 @@ const COLORS = [
 
 export const ReportPieChart: React.FC<ReportPieChartProps> = ({
   data,
-  height = 300
+  height = 300,
+  dataKey = 'users'
 }) => {
   if (!data || data.length === 0) {
     return (
@@ -95,7 +97,7 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
             label={CustomLabel}
             outerRadius={80}
             fill="#8884d8"
-            dataKey="users"
+            dataKey={dataKey}
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
