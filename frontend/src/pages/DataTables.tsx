@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { DataTable } from '@/components/tables/DataTable';
 import { DetailModal } from '@/components/tables/DetailModal';
@@ -57,6 +58,7 @@ interface TableState {
 }
 
 export const DataTables: React.FC = () => {
+  const navigate = useNavigate();
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters, resetFilters } = useFilterStore();
 
@@ -273,8 +275,8 @@ export const DataTables: React.FC = () => {
   };
 
   const handleRowClick = (item: Guide | Feature | Page | Report) => {
-    setSelectedItem(item);
-    setDetailModalType(activeTab);
+    // Navigate to detailed report page instead of showing modal
+    navigate(`/report/${activeTab}/${item.id}`);
   };
 
   const handlePaginationChange = (pagination: any) => {
