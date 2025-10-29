@@ -19,16 +19,11 @@ import {
   GlobeAltIcon,
   ShareIcon,
   StarIcon,
-  FunnelIcon,
   UsersIcon,
   MapPinIcon,
-  DevicePhoneMobileIcon,
-  ComputerDesktopIcon,
-  AcademicCapIcon,
   ArrowTrendingUpIcon,
   ChatBubbleLeftRightIcon,
   ExclamationTriangleIcon,
-  InformationCircleIcon,
   ArrowPathIcon,
   SparklesIcon,
 } from '@heroicons/react/24/outline';
@@ -43,7 +38,6 @@ import { useReportReport } from '@/hooks/useReportData';
 import { ReportLineChart } from '@/components/reports/ReportLineChart';
 import { ReportBarChart } from '@/components/reports/ReportBarChart';
 import { ReportPieChart } from '@/components/reports/ReportPieChart';
-import { ReportHeatmap } from '@/components/reports/ReportHeatmap';
 
 // Import comprehensive types
 import type {
@@ -56,6 +50,15 @@ import type {
 type ReportDataType = ComprehensiveGuideData | ComprehensiveFeatureData | ComprehensivePageData | ComprehensiveReportData;
 type ReportType = 'guides' | 'features' | 'pages' | 'reports';
 
+// Type helper to extract common properties across all report types
+interface ReportDataWithState {
+  state?: string;
+  description?: string;
+  type?: string;
+  eventType?: string;
+  url?: string;
+}
+
 export const ReportDetails: React.FC = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const navigate = useNavigate();
@@ -65,6 +68,16 @@ export const ReportDetails: React.FC = () => {
   const isValidType = (t: string): t is ReportType =>
     ['guides', 'features', 'pages', 'reports'].includes(t);
 
+  // CRITICAL: All hooks MUST be called unconditionally before any early returns
+  // Call hooks with safe defaults when type/id are invalid
+  const safeId = id || '';
+
+  // Fetch data based on type - hooks MUST be called unconditionally
+  const guideReport = useGuideReport(safeId);
+  const featureReport = useFeatureReport(safeId);
+  const pageReport = usePageReport(safeId);
+  const reportReport = useReportReport(safeId);
+
   useEffect(() => {
     console.log('ReportDetails route accessed:', { type, id, isValid: type ? isValidType(type) : false });
     if (!type || !id || !isValidType(type)) {
@@ -73,18 +86,18 @@ export const ReportDetails: React.FC = () => {
     }
   }, [type, id, navigate]);
 
+  // Now safe to do early return - all hooks have been called
   if (!type || !id || !isValidType(type)) {
     return null;
   }
 
-  // Fetch data based on type
-  const guideReport = type === 'guides' ? useGuideReport(id) : null;
-  const featureReport = type === 'features' ? useFeatureReport(id) : null;
-  const pageReport = type === 'pages' ? usePageReport(id) : null;
-  const reportReport = type === 'reports' ? useReportReport(id) : null;
+  // Get the appropriate data and loading state based on validated type
+  const currentReport =
+    type === 'guides' ? guideReport :
+    type === 'features' ? featureReport :
+    type === 'pages' ? pageReport :
+    reportReport;
 
-  // Get the appropriate data and loading state
-  const currentReport = guideReport || featureReport || pageReport || reportReport;
   const data = currentReport?.data as ReportDataType;
   const isLoading = currentReport?.isLoading ?? false;
   const error = currentReport?.error;
@@ -168,7 +181,7 @@ export const ReportDetails: React.FC = () => {
   // Calculate primary KPIs based on type
   const getPrimaryKPIs = () => {
     switch (type) {
-      case 'guides':
+      case 'guides': {
         const guideData = data as ComprehensiveGuideData;
         return [
           { label: 'Total Views', value: guideData.viewedCount.toLocaleString(), icon: EyeIcon, change: '+12%' },
@@ -176,7 +189,8 @@ export const ReportDetails: React.FC = () => {
           { label: 'Completion Rate', value: `${guideData.completionRate.toFixed(1)}%`, icon: ChartBarIcon, change: '+2.1%' },
           { label: 'Engagement Rate', value: `${guideData.engagementRate.toFixed(1)}%`, icon: UserGroupIcon, change: '+5.3%' },
         ];
-      case 'features':
+      }
+      case 'features': {
         const featureData = data as ComprehensiveFeatureData;
         return [
           { label: 'Usage Count', value: featureData.usageCount.toLocaleString(), icon: CubeIcon, change: '+18%' },
@@ -184,7 +198,8 @@ export const ReportDetails: React.FC = () => {
           { label: 'Adoption Rate', value: `${featureData.adoptionRate}%`, icon: ChartBarIcon, change: '+3.2%' },
           { label: 'Usage Frequency', value: `${featureData.usageFrequency}x/day`, icon: ClockIcon, change: '+0.8x' },
         ];
-      case 'pages':
+      }
+      case 'pages': {
         const pageData = data as ComprehensivePageData;
         return [
           { label: 'Page Views', value: pageData.viewedCount.toLocaleString(), icon: EyeIcon, change: '+22%' },
@@ -192,7 +207,8 @@ export const ReportDetails: React.FC = () => {
           { label: 'Avg Time on Page', value: `${pageData.avgTimeOnPage}s`, icon: ClockIcon, change: '+15s' },
           { label: 'Bounce Rate', value: `${pageData.bounceRate}%`, icon: ChartBarIcon, change: '-3.1%' },
         ];
-      case 'reports':
+      }
+      case 'reports': {
         const reportData = data as ComprehensiveReportData;
         return [
           { label: 'Total Views', value: reportData.totalViews.toLocaleString(), icon: EyeIcon, change: '+28%' },
@@ -200,6 +216,7 @@ export const ReportDetails: React.FC = () => {
           { label: 'Shares', value: reportData.shares.toLocaleString(), icon: ShareIcon, change: '+12%' },
           { label: 'Rating', value: `⭐ ${reportData.averageRating}`, icon: StarIcon, change: '+0.3' },
         ];
+      }
       default:
         return [];
     }
@@ -239,7 +256,7 @@ export const ReportDetails: React.FC = () => {
           </div>
           <div className="flex items-center space-x-3">
             <Badge variant="secondary" className="capitalize">
-              {(data as any).state || 'Active'}
+              {(data as ReportDataWithState).state || 'Active'}
             </Badge>
             <div className="flex items-center text-sm text-gray-500">
               <CalendarIcon className="h-4 w-4 mr-1" />
@@ -295,13 +312,13 @@ export const ReportDetails: React.FC = () => {
               ))}
             </div>
             {/* Description */}
-            {(data as any).description && (
+            {(data as ReportDataWithState).description && (
               <Card>
                 <CardHeader>
                   <CardTitle>Description</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700">{(data as any).description}</p>
+                  <p className="text-gray-700">{(data as ReportDataWithState).description}</p>
                 </CardContent>
               </Card>
             )}
@@ -548,7 +565,7 @@ export const ReportDetails: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {(data as ComprehensiveGuideData).steps.map((step, index) => (
+                    {(data as ComprehensiveGuideData).steps.map((step) => (
                       <div key={step.id} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center space-x-3">
@@ -1134,24 +1151,24 @@ export const ReportDetails: React.FC = () => {
                   </div>
                   <div>
                     <span className="font-medium text-gray-700">Status:</span>
-                    <p className="text-gray-600 capitalize">{(data as any).state || 'Active'}</p>
+                    <p className="text-gray-600 capitalize">{(data as ReportDataWithState).state || 'Active'}</p>
                   </div>
-                  {(data as any).type && (
+                  {(data as ReportDataWithState).type && (
                     <div>
                       <span className="font-medium text-gray-700">Type:</span>
-                      <p className="text-gray-600 capitalize">{(data as any).type}</p>
+                      <p className="text-gray-600 capitalize">{(data as ReportDataWithState).type}</p>
                     </div>
                   )}
-                  {(data as any).eventType && (
+                  {(data as ReportDataWithState).eventType && (
                     <div>
                       <span className="font-medium text-gray-700">Event Type:</span>
-                      <p className="text-gray-600">{(data as any).eventType}</p>
+                      <p className="text-gray-600">{(data as ReportDataWithState).eventType}</p>
                     </div>
                   )}
-                  {(data as any).url && (
+                  {(data as ReportDataWithState).url && (
                     <div className="col-span-2">
                       <span className="font-medium text-gray-700">URL:</span>
-                      <p className="text-gray-600">{(data as any).url}</p>
+                      <p className="text-gray-600">{(data as ReportDataWithState).url}</p>
                     </div>
                   )}
                 </div>
