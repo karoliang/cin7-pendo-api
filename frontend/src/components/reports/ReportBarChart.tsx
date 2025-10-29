@@ -9,9 +9,15 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
+import { TooltipProps } from 'recharts';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+
+interface ChartDataPoint {
+  [key: string]: string | number | undefined;
+}
 
 interface ReportBarChartProps {
-  data: any[];
+  data: ChartDataPoint[];
   dataKey: string;
   xAxisKey: string;
   height?: number;
@@ -48,15 +54,15 @@ export const ReportBarChart: React.FC<ReportBarChartProps> = ({
     return [value.toLocaleString(), name];
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
-              {entry.name.includes('Rate') || entry.name.includes('rate') ? '%' : ''}
+              {entry.name && (entry.name.includes('Rate') || entry.name.includes('rate')) ? '%' : ''}
             </p>
           ))}
         </div>
@@ -98,7 +104,7 @@ export const ReportBarChart: React.FC<ReportBarChartProps> = ({
           <Tooltip content={<CustomTooltip />} formatter={formatTooltipValue} />
 
           <Bar dataKey={dataKey} radius={[8, 8, 0, 0]}>
-            {data.map((entry, index) => (
+            {data.map((_entry, index) => (
               <Cell key={`cell-${index}`} fill={color || COLORS[index % COLORS.length]} />
             ))}
           </Bar>

@@ -7,11 +7,28 @@ import {
   Tooltip,
   Legend
 } from 'recharts';
+import { TooltipProps } from 'recharts';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { PieLabelRenderProps } from 'recharts';
+
+interface PieChartDataPoint {
+  name?: string;
+  segment?: string;
+  source?: string;
+  device?: string;
+  users?: number;
+  value?: number | string;
+  percentage?: number;
+}
 
 interface ReportPieChartProps {
-  data: any[];
+  data: PieChartDataPoint[];
   height?: number;
   dataKey?: string;
+}
+
+interface LegendPayload {
+  payload: PieChartDataPoint;
 }
 
 const COLORS = [
@@ -38,15 +55,20 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
     );
   }
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const dataPoint = payload[0].payload as PieChartDataPoint;
+      const displayName = dataPoint.name ?? dataPoint.segment ?? dataPoint.source ?? dataPoint.device ?? 'Unknown';
+      const displayValue = typeof dataPoint.users === 'number'
+        ? dataPoint.users.toLocaleString()
+        : dataPoint.value ?? dataPoint.percentage ?? 0;
+
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{data.name || data.segment || data.source || data.device}</p>
+          <p className="font-medium text-gray-900">{displayName}</p>
           <p className="text-sm text-gray-600">
-            {typeof data.users === 'number' ? data.users.toLocaleString() : data.value || data.percentage}
-            {data.percentage && ` (${data.percentage}%)`}
+            {displayValue}
+            {dataPoint.percentage ? ` (${dataPoint.percentage}%)` : ''}
           </p>
         </div>
       );
@@ -54,7 +76,21 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
     return null;
   };
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  const CustomLabel = (props: PieLabelRenderProps) => {
+    const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props;
+
+    // Type guards for required properties
+    if (
+      typeof cx !== 'number' ||
+      typeof cy !== 'number' ||
+      typeof midAngle !== 'number' ||
+      typeof innerRadius !== 'number' ||
+      typeof outerRadius !== 'number' ||
+      typeof percent !== 'number'
+    ) {
+      return null;
+    }
+
     if (percent < 0.05) return null; // Don't show label for slices less than 5%
 
     const RADIAN = Math.PI / 180;
@@ -76,15 +112,6 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
     );
   };
 
-  const renderCustomizedLabel = (props: any) => {
-    const { x, y, width, value } = props;
-    return (
-      <text x={x + width / 2} y={y - 5} fill="#fff" textAnchor="middle" className="text-xs font-medium">
-        {value}
-      </text>
-    );
-  };
-
   return (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer width="100%" height={height}>
@@ -99,17 +126,23 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
             fill="#8884d8"
             dataKey={dataKey}
           >
-            {data.map((entry, index) => (
+            {data.map((_entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
           <Legend
-            formatter={(value, entry: any) => (
-              <span className="text-xs">
-                {entry.payload.name || entry.payload.segment || entry.payload.source || entry.payload.device}
-              </span>
-            )}
+            formatter={(_value, entry) => {
+              const legendEntry = entry as unknown as LegendPayload;
+              const displayName =
+                legendEntry.payload.name ??
+                legendEntry.payload.segment ??
+                legendEntry.payload.source ??
+                legendEntry.payload.device ??
+                'Unknown';
+
+              return <span className="text-xs">{displayName}</span>;
+            }}
           />
         </PieChart>
       </ResponsiveContainer>

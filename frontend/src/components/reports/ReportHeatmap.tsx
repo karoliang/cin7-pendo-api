@@ -9,9 +9,17 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
+import { TooltipProps } from 'recharts';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+
+interface HeatmapDataPoint {
+  hour: number;
+  usageCount?: number;
+  value?: number;
+}
 
 interface ReportHeatmapProps {
-  data: any[];
+  data: HeatmapDataPoint[];
   height?: number;
 }
 
@@ -39,15 +47,18 @@ export const ReportHeatmap: React.FC<ReportHeatmapProps> = ({
 
   const maxValue = Math.max(...data.map(d => d.usageCount || d.value || 0));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
     if (active && payload && payload.length) {
+      const value = payload[0].value;
+      const hour = typeof label === 'number' ? label : parseInt(String(label), 10);
+
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900 mb-1">
-            {label}:00 {label < 12 ? 'AM' : 'PM'}
+            {hour}:00 {hour < 12 ? 'AM' : 'PM'}
           </p>
           <p className="text-sm text-gray-600">
-            Usage: {payload[0].value.toLocaleString()}
+            Usage: {typeof value === 'number' ? value.toLocaleString() : value}
           </p>
         </div>
       );
@@ -77,12 +88,15 @@ export const ReportHeatmap: React.FC<ReportHeatmapProps> = ({
           <Tooltip content={<CustomTooltip />} />
 
           <Bar dataKey="usageCount" radius={[0, 0, 0, 0]}>
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={getHeatmapColor(entry.usageCount || entry.value || 0, maxValue)}
-              />
-            ))}
+            {data.map((entry, index) => {
+              const usageValue = entry.usageCount ?? entry.value ?? 0;
+              return (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={getHeatmapColor(usageValue, maxValue)}
+                />
+              );
+            })}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

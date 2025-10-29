@@ -9,9 +9,19 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
+import { TooltipProps } from 'recharts';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+
+interface LineChartDataPoint {
+  date: string;
+  views?: number;
+  completions?: number;
+  uniqueVisitors?: number;
+  [key: string]: string | number | undefined;
+}
 
 interface ReportLineChartProps {
-  data: any[];
+  data: LineChartDataPoint[];
   dataKey: string;
   multiLine?: boolean;
   height?: number;
@@ -36,16 +46,18 @@ export const ReportLineChart: React.FC<ReportLineChartProps> = ({
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
     if (active && payload && payload.length) {
+      const dateLabel = typeof label === 'string' ? label : String(label);
+
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900 mb-2">
-            {new Date(label).toLocaleDateString()}
+            {new Date(dateLabel).toLocaleDateString()}
           </p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {entry.value.toLocaleString()}
+              {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
             </p>
           ))}
         </div>
