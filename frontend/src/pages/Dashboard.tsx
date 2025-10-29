@@ -153,7 +153,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <Layout>
+    <Layout showNavigation={true}>
       <div className="space-y-8">
         {/* Page Header */}
         <div>

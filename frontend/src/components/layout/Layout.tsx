@@ -1,10 +1,12 @@
+import { Navigation } from '@/components/layout/Navigation';
 import { Button } from '@/components/ui/button';
 
 interface LayoutProps {
   children: React.ReactNode;
+  showNavigation?: boolean;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, showNavigation = false }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -23,6 +25,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </header>
+
+      {/* Navigation */}
+      {showNavigation && <Navigation />}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

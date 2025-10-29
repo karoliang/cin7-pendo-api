@@ -64,8 +64,8 @@ export const FeatureAdoptionChart: React.FC<FeatureAdoptionChartProps> = ({
         <CardTitle>Top Feature Adoption</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-64 min-h-[256px]">
+          <ResponsiveContainer width="100%" height={256}>
             <BarChart
               data={chartData}
               margin={{

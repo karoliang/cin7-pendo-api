@@ -93,8 +93,8 @@ export const PageAnalyticsChart: React.FC<PageAnalyticsChartProps> = ({
         <CardTitle>Page Views Distribution</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-64 min-h-[256px]">
+          <ResponsiveContainer width="100%" height={256}>
             <PieChart>
               <Pie
                 data={chartData}

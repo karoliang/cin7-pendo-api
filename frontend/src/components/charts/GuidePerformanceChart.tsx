@@ -65,8 +65,8 @@ export const GuidePerformanceChart: React.FC<GuidePerformanceChartProps> = ({
         <CardTitle>Guide Performance - Last 30 Days</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-64 min-h-[256px]">
+          <ResponsiveContainer width="100%" height={256}>
             <LineChart
               data={chartData}
               margin={{
