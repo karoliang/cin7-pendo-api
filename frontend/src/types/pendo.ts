@@ -38,21 +38,27 @@ export interface Page {
   applicationId?: string;
 }
 
+export interface ReportConfiguration {
+  [key: string]: string | number | boolean | null | ReportConfiguration | ReportConfiguration[];
+}
+
 export interface Report {
   id: string;
   name: string;
   description?: string;
   lastSuccessRunAt?: string;
-  configuration?: Record<string, any>;
+  configuration?: ReportConfiguration;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface DateRange {
+  start?: Date;
+  end?: Date;
+}
+
 export interface FilterState {
-  dateRange?: {
-    start: Date;
-    end: Date;
-  };
+  dateRange?: DateRange;
   guideTypes?: string[];
   featureCategories?: string[];
   pageTypes?: string[];

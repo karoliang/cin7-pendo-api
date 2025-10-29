@@ -1,27 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Clock, Bookmark, X } from 'lucide-react';
 
+type SearchType = 'all' | 'guide' | 'feature' | 'page' | 'report';
+type SearchItemType = 'guide' | 'feature' | 'page' | 'report';
+
+interface SearchFilters {
+  type: SearchType;
+}
+
 interface SearchSuggestion {
   id: string;
   text: string;
-  type: 'guide' | 'feature' | 'page' | 'report';
-  data?: any;
+  type: SearchItemType;
 }
 
 interface SavedSearch {
   id: string;
   name: string;
   query: string;
-  filters: Record<string, any>;
+  filters: SearchFilters;
   createdAt: string;
 }
 
 interface AdvancedSearchProps {
-  onSearch: (query: string, filters?: Record<string, any>) => void;
+  onSearch: (query: string, filters?: SearchFilters) => void;
   className?: string;
 }
 
@@ -34,24 +40,24 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
-  const [searchType, setSearchType] = useState<'all' | 'guide' | 'feature' | 'page' | 'report'>('all');
+  const [searchType, setSearchType] = useState<SearchType>('all');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Mock suggestions based on current data
-  const generateMockSuggestions = (searchText: string): SearchSuggestion[] => {
+  const generateMockSuggestions = useCallback((searchText: string): SearchSuggestion[] => {
     if (!searchText || searchText.length < 2) return [];
 
-    const mockData = [
-      { text: 'Getting Started Guide', type: 'guide' as const },
-      { text: 'Dashboard Analytics', type: 'feature' as const },
-      { text: 'Advanced Features', type: 'guide' as const },
-      { text: 'Weekly Usage Report', type: 'report' as const },
-      { text: 'Export Reports', type: 'feature' as const },
-      { text: 'Cloud Dashboard', type: 'page' as const },
-      { text: 'User Onboarding', type: 'guide' as const },
+    const mockData: Array<{ text: string; type: SearchItemType }> = [
+      { text: 'Getting Started Guide', type: 'guide' },
+      { text: 'Dashboard Analytics', type: 'feature' },
+      { text: 'Advanced Features', type: 'guide' },
+      { text: 'Weekly Usage Report', type: 'report' },
+      { text: 'Export Reports', type: 'feature' },
+      { text: 'Cloud Dashboard', type: 'page' },
+      { text: 'User Onboarding', type: 'guide' },
     ];
 
     return mockData
@@ -65,7 +71,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
         text: item.text,
         type: item.type
       }));
-  };
+  }, [searchType]);
 
   useEffect(() => {
     const delayedSuggestions = setTimeout(() => {
@@ -80,7 +86,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
     }, 300);
 
     return () => clearTimeout(delayedSuggestions);
-  }, [query, searchType]);
+  }, [query, generateMockSuggestions]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -140,7 +146,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
 
   const loadSavedSearch = (savedSearch: SavedSearch) => {
     setQuery(savedSearch.query);
-    setSearchType(savedSearch.filters.type as any);
+    setSearchType(savedSearch.filters.type);
     onSearch(savedSearch.query, savedSearch.filters);
   };
 
@@ -202,7 +208,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
               )}
             </div>
 
-            <Select value={searchType} onValueChange={(value: any) => setSearchType(value)}>
+            <Select value={searchType} onValueChange={(value) => setSearchType(value as SearchType)}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>

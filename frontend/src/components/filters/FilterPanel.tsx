@@ -19,7 +19,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const updateFilter = (key: keyof FilterState, value: any) => {
+  const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     onFiltersChange({
       ...filters,
       [key]: value
@@ -308,18 +308,34 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 <Input
                   type="date"
                   placeholder="Start date"
+                  value={filters.dateRange?.start ? filters.dateRange.start.toISOString().split('T')[0] : ''}
                   onChange={(e) => {
-                    const start = e.target.value ? new Date(e.target.value) : undefined;
-                    const currentRange = filters.dateRange || { start: undefined, end: undefined };
+                    if (!e.target.value) {
+                      const currentRange = filters.dateRange;
+                      if (currentRange) {
+                        updateFilter('dateRange', { ...currentRange, start: undefined });
+                      }
+                      return;
+                    }
+                    const start = new Date(e.target.value);
+                    const currentRange = filters.dateRange || {};
                     updateFilter('dateRange', { ...currentRange, start });
                   }}
                 />
                 <Input
                   type="date"
                   placeholder="End date"
+                  value={filters.dateRange?.end ? filters.dateRange.end.toISOString().split('T')[0] : ''}
                   onChange={(e) => {
-                    const end = e.target.value ? new Date(e.target.value) : undefined;
-                    const currentRange = filters.dateRange || { start: undefined, end: undefined };
+                    if (!e.target.value) {
+                      const currentRange = filters.dateRange;
+                      if (currentRange) {
+                        updateFilter('dateRange', { ...currentRange, end: undefined });
+                      }
+                      return;
+                    }
+                    const end = new Date(e.target.value);
+                    const currentRange = filters.dateRange || {};
                     updateFilter('dateRange', { ...currentRange, end });
                   }}
                 />
