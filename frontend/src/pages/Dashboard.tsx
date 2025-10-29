@@ -253,13 +253,19 @@ export const Dashboard: React.FC = () => {
                     </p>
                   </div>
                   <span className={`px-2 py-1 text-xs font-medium rounded ${
-                    guide.state === 'published'
+                    guide.state === 'published' || guide.state === 'public' || guide.state === 'active'
                       ? 'bg-green-100 text-green-800'
                       : guide.state === 'draft'
                       ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
+                      : guide.state === '_pendingReview_'
+                      ? 'bg-orange-100 text-orange-800'
+                      : guide.state === 'paused' || guide.state === 'inactive'
+                      ? 'bg-red-100 text-red-800'
+                      : guide.state === 'archived' || guide.state === 'private'
+                      ? 'bg-gray-100 text-gray-800'
+                      : 'bg-blue-100 text-blue-800'
                   }`}>
-                    {guide.state}
+                    {guide.state.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   </span>
                 </div>
               ))}

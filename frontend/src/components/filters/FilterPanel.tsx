@@ -42,7 +42,18 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   const guideTypes = ['onboarding', 'tutorial', 'announcement', 'training'];
   const featureCategories = ['Core - Ecommerce', '3PL', 'Reporting / Insights', 'Core - Trial Workflow'];
   const pageTypes = ['Dashboard', 'Reports', 'Settings', 'Integration'];
-  const statusOptions = ['published', 'draft', 'archived', '_pendingReview_'];
+  const statusOptions = [
+    'published',
+    'draft',
+    'archived',
+    '_pendingReview_',
+    'active',
+    'public',
+    'inactive',
+    'private',
+    'scheduled',
+    'paused'
+  ];
   const sortOptions = [
     { value: 'createdAt', label: 'Created Date' },
     { value: 'name', label: 'Name' },

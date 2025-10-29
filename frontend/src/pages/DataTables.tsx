@@ -211,15 +211,19 @@ export const DataTables: React.FC = () => {
           { key: 'name' as keyof Guide, header: 'Name', sortable: true },
           { key: 'state' as keyof Guide, header: 'Status', sortable: true, render: (value: string) => (
             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-              value === 'published'
+              value === 'published' || value === 'public' || value === 'active'
                 ? 'bg-green-100 text-green-800'
                 : value === 'draft'
                 ? 'bg-yellow-100 text-yellow-800'
                 : value === '_pendingReview_'
                 ? 'bg-orange-100 text-orange-800'
-                : 'bg-gray-100 text-gray-800'
+                : value === 'paused' || value === 'inactive'
+                ? 'bg-red-100 text-red-800'
+                : value === 'archived' || value === 'private'
+                ? 'bg-gray-100 text-gray-800'
+                : 'bg-blue-100 text-blue-800'
             }`}>
-              {value.replace('_', ' ')}
+              {value.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
             </span>
           )},
           { key: 'viewedCount' as keyof Guide, header: 'Views', sortable: true },
