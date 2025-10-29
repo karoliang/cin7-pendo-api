@@ -13,7 +13,6 @@ import {
   CubeIcon,
   GlobeAltIcon,
   ChartBarIcon,
-  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
 type TabType = 'guides' | 'features' | 'pages' | 'reports';
@@ -60,7 +59,7 @@ interface TableState {
 export const DataTables: React.FC = () => {
   const navigate = useNavigate();
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
-  const { filters, updateFilters, resetFilters } = useFilterStore();
+  const { filters, updateFilters } = useFilterStore();
 
   const [activeTab, setActiveTab] = useState<TabType>('guides');
   const [selectedItem, setSelectedItem] = useState<Guide | Feature | Page | Report | null>(null);
@@ -74,11 +73,13 @@ export const DataTables: React.FC = () => {
 
   // Apply filters to data (same logic as Dashboard)
   const filteredData = React.useMemo(() => {
-    const filterArray = (array: any[], filterFn: (item: any) => boolean) => {
+    type FilterableItem = Guide | Feature | Page | Report;
+
+    const filterArray = <T extends FilterableItem>(array: T[], filterFn: (item: T) => boolean): T[] => {
       return array.filter(filterFn);
     };
 
-    const createFilterFn = (item: any) => {
+    const createFilterFn = (item: FilterableItem): boolean => {
       // Search filter
       if (filters.searchQuery) {
         const searchLower = filters.searchQuery.toLowerCase();
@@ -301,7 +302,7 @@ export const DataTables: React.FC = () => {
     navigate(`/report/${activeTab}/${item.id}`);
   };
 
-  const handlePaginationChange = (pagination: any) => {
+  const handlePaginationChange = (pagination: { page?: number; limit?: number }) => {
     setTableState(prev => ({
       ...prev,
       [activeTab]: {
@@ -314,7 +315,7 @@ export const DataTables: React.FC = () => {
     }));
   };
 
-  const handleSort = (sortBy: any, sortOrder: 'asc' | 'desc') => {
+  const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
     // This would typically trigger an API call with sort parameters
     console.log(`Sort by ${sortBy} in ${sortOrder} order`);
   };

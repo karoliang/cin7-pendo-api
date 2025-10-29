@@ -10,12 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useDashboardOverview } from '@/hooks/usePendoData';
 import { useFilterStore } from '@/stores/filterStore';
+import type { Guide, Feature, Page, Report } from '@/types/pendo';
 
 export const Dashboard: React.FC = () => {
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters, resetFilters } = useFilterStore();
 
-  const handleAdvancedSearch = (query: string, searchFilters?: Record<string, any>) => {
+  const handleAdvancedSearch = (query: string, searchFilters?: Record<string, string | string[]>) => {
     // Update the search query in filters
     updateFilters({
       ...filters,
@@ -29,11 +30,13 @@ export const Dashboard: React.FC = () => {
 
   // Apply filters to data
   const filteredData = useMemo(() => {
-    const filterArray = (array: any[], filterFn: (item: any) => boolean) => {
+    type FilterableItem = Guide | Feature | Page | Report;
+
+    const filterArray = <T extends FilterableItem>(array: T[], filterFn: (item: T) => boolean): T[] => {
       return array.filter(filterFn);
     };
 
-    const createFilterFn = (item: any) => {
+    const createFilterFn = (item: FilterableItem): boolean => {
       // Search filter
       if (filters.searchQuery) {
         const searchLower = filters.searchQuery.toLowerCase();
@@ -85,20 +88,32 @@ export const Dashboard: React.FC = () => {
   const sortedData = useMemo(() => {
     if (!filters.sortBy) return filteredData;
 
-    const sortFn = (a: any, b: any) => {
-      let aValue = a[filters.sortBy!];
-      let bValue = b[filters.sortBy!];
+    type SortableValue = string | number | undefined;
+
+    const sortFn = (a: Guide | Feature | Page | Report, b: Guide | Feature | Page | Report): number => {
+      const aValue = a[filters.sortBy! as keyof typeof a] as SortableValue;
+      const bValue = b[filters.sortBy! as keyof typeof b] as SortableValue;
+
+      // Handle undefined values
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
 
       // Handle string comparison
-      if (typeof aValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const aLower = aValue.toLowerCase();
+        const bLower = bValue.toLowerCase();
+        if (filters.sortOrder === 'desc') {
+          return aLower > bLower ? -1 : aLower < bLower ? 1 : 0;
+        }
+        return aLower < bLower ? -1 : aLower > bLower ? 1 : 0;
       }
 
+      // Handle numeric comparison
       if (filters.sortOrder === 'desc') {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        return (aValue as number) > (bValue as number) ? -1 : (aValue as number) < (bValue as number) ? 1 : 0;
       }
-      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      return (aValue as number) < (bValue as number) ? -1 : (aValue as number) > (bValue as number) ? 1 : 0;
     };
 
     return {

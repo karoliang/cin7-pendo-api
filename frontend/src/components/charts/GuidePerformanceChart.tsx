@@ -10,15 +10,12 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Guide } from '@/types/pendo';
-
 interface GuidePerformanceChartProps {
-  guides: Guide[];
+  guides?: unknown[]; // Not used, kept for backwards compatibility
   className?: string;
 }
 
 export const GuidePerformanceChart: React.FC<GuidePerformanceChartProps> = ({
-  guides,
   className
 }) => {
   // Transform guides data for chart

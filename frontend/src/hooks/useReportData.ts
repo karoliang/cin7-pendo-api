@@ -1,9 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams, useNavigate } from 'react-router-dom';
 import { pendoAPI } from '@/lib/pendo-api';
-import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import type {
-  ComprehensiveGuideData,
   ComprehensiveFeatureData,
   ComprehensivePageData,
   ComprehensiveReportData
@@ -11,8 +8,6 @@ import type {
 
 // Hook for fetching comprehensive guide data with REAL Pendo API analytics
 export const useGuideReport = (id: string) => {
-  const navigate = useNavigate();
-
   return useQuery({
     queryKey: ['guide-report', id],
     queryFn: async () => {
@@ -86,8 +81,6 @@ export const useGuideReport = (id: string) => {
 
 // Hook for fetching comprehensive feature data with all analytics
 export const useFeatureReport = (id: string) => {
-  const navigate = useNavigate();
-
   return useQuery({
     queryKey: ['feature-report', id],
     queryFn: async () => {
@@ -409,8 +402,6 @@ export const useFeatureReport = (id: string) => {
 
 // Hook for fetching comprehensive page data with all analytics
 export const usePageReport = (id: string) => {
-  const navigate = useNavigate();
-
   return useQuery({
     queryKey: ['page-report', id],
     queryFn: async () => {
@@ -812,8 +803,6 @@ export const usePageReport = (id: string) => {
 
 // Hook for fetching comprehensive report data with all analytics
 export const useReportReport = (id: string) => {
-  const navigate = useNavigate();
-
   return useQuery({
     queryKey: ['report-report', id],
     queryFn: async () => {

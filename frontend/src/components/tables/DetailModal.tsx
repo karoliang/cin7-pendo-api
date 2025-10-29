@@ -1,13 +1,11 @@
 import React from 'react';
 import {
   XMarkIcon,
-  CalendarIcon,
   EyeIcon,
   CheckCircleIcon,
   UserGroupIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 

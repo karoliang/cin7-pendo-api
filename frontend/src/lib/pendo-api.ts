@@ -1,10 +1,42 @@
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import type {
   ComprehensiveGuideData,
-  ComprehensiveFeatureData,
-  ComprehensivePageData,
-  ComprehensiveReportData
 } from '@/types/enhanced-pendo';
+
+// Internal API types
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
+
+interface AggregationOperator {
+  field: string;
+  operator: 'EQ' | 'NE' | 'IN' | 'BETWEEN';
+  value: string | number | (string | number)[];
+}
+
+interface AggregationParams {
+  source?: string;
+  operators?: AggregationOperator[];
+  first?: number;
+  timeSeries?: {
+    period: string;
+    first: number;
+  };
+}
+
+type PendoApiResponse = unknown;
+
+// Pendo API returns untyped JSON responses. Using 'unknown' for safety.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PendoGuideResponse = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PendoFeatureResponse = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PendoPageResponse = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PendoReportResponse = any;
 
 const PENDO_BASE_URL = 'https://app.pendo.io';
 const PENDO_API_KEY = 'f4acdb2c-038c-4de1-a88b-ab90423037bf.us';
@@ -15,7 +47,7 @@ class PendoAPIClient {
     'Content-Type': 'application/json',
   };
 
-  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private cache = new Map<string, CacheEntry<unknown>>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   private getCachedResult<T>(key: string): T | null {
@@ -39,11 +71,11 @@ class PendoAPIClient {
     });
   }
 
-  private generateCacheKey(endpoint: string, params?: Record<string, any>, method?: string): string {
+  private generateCacheKey(endpoint: string, params?: Record<string, unknown>, method?: string): string {
     return `${method || 'GET'}:${endpoint}:${JSON.stringify(params || {})}`;
   }
 
-  async request<T>(endpoint: string, params?: Record<string, any>, method: string = 'GET'): Promise<T> {
+  async request<T>(endpoint: string, params?: Record<string, unknown>, method: string = 'GET'): Promise<T> {
     // Check cache first
     const cacheKey = this.generateCacheKey(endpoint, params, method);
     const cachedResult = this.getCachedResult<T>(cacheKey);
@@ -52,7 +84,7 @@ class PendoAPIClient {
     }
 
     let url = `${PENDO_BASE_URL}${endpoint}`;
-    let requestOptions: RequestInit = {
+    const requestOptions: RequestInit = {
       method: method,
       headers: this.headers,
     };
@@ -101,7 +133,7 @@ class PendoAPIClient {
       try {
         const errorData = JSON.parse(errorText);
         console.error(`🔍 Parsed error:`, errorData);
-      } catch (e) {
+      } catch {
         // Error response is not JSON
       }
 
@@ -116,7 +148,7 @@ class PendoAPIClient {
     return result;
   }
 
-  private async handleAggregationRequest(params?: Record<string, any>, method: string = 'POST'): Promise<any> {
+  private async handleAggregationRequest(params?: AggregationParams, method: string = 'POST'): Promise<PendoApiResponse> {
     console.log(`🔧 Attempting to fix aggregation API access with multiple approaches`);
 
     // Try different aggregation API formats to find what works
@@ -167,7 +199,7 @@ class PendoAPIClient {
     };
   }
 
-  private buildAggregationPipeline(params?: Record<string, any>): any[] {
+  private buildAggregationPipeline(params?: AggregationParams): Record<string, unknown>[] {
     if (!params) return [];
 
     const pipeline = [];
@@ -255,7 +287,7 @@ class PendoAPIClient {
     return pipeline;
   }
 
-  private encodePipeline(pipeline: any[]): string {
+  private encodePipeline(pipeline: Record<string, unknown>[]): string {
     // Simple base64 encoding of the pipeline JSON
     // Pendo might use a specific encoding format, but this is a reasonable attempt
     try {
@@ -267,9 +299,9 @@ class PendoAPIClient {
     }
   }
 
-  private async makeAggregationCall(params: any, method: string): Promise<any> {
+  private async makeAggregationCall(params: Record<string, unknown>, method: string): Promise<PendoApiResponse> {
     let url = `${PENDO_BASE_URL}/api/v1/aggregation`;
-    let requestOptions: RequestInit = {
+    const requestOptions: RequestInit = {
       method: method,
       headers: this.headers,
     };
@@ -307,7 +339,7 @@ class PendoAPIClient {
       try {
         const errorData = JSON.parse(errorText);
         console.error(`🔍 Parsed error:`, errorData);
-      } catch (e) {
+      } catch {
         // Error response is not JSON
       }
 
@@ -325,11 +357,11 @@ class PendoAPIClient {
     state?: string;
   }): Promise<Guide[]> {
     try {
-      const response = await this.request<any[]>('/api/v1/guide', params);
+      const response = await this.request<PendoGuideResponse[]>('/api/v1/guide', params);
 
       // Log available guide IDs for debugging
       console.log('📋 Available Pendo Guides:');
-      response.forEach((guide: any, index: number) => {
+      response.forEach((guide: PendoGuideResponse, index: number) => {
         console.log(`${index + 1}. ID: ${guide.id}, Name: "${guide.name}", State: ${guide.state}`);
       });
 
@@ -345,7 +377,7 @@ class PendoAPIClient {
     offset?: number;
   }): Promise<Feature[]> {
     try {
-      const response = await this.request<any[]>('/api/v1/feature', params);
+      const response = await this.request<PendoFeatureResponse[]>('/api/v1/feature', params);
       return response.map(this.transformFeature);
     } catch (error) {
       console.error('Error fetching features:', error);
@@ -358,7 +390,7 @@ class PendoAPIClient {
     offset?: number;
   }): Promise<Page[]> {
     try {
-      const response = await this.request<any[]>('/api/v1/page', params);
+      const response = await this.request<PendoPageResponse[]>('/api/v1/page', params);
       return response.map(this.transformPage);
     } catch (error) {
       console.error('Error fetching pages:', error);
@@ -371,7 +403,7 @@ class PendoAPIClient {
     offset?: number;
   }): Promise<Report[]> {
     try {
-      const response = await this.request<any[]>('/api/v1/report', params);
+      const response = await this.request<PendoReportResponse[]>('/api/v1/report', params);
       return response.map(this.transformReport);
     } catch (error) {
       console.error('Error fetching reports:', error);
@@ -389,7 +421,7 @@ class PendoAPIClient {
 
       // First try individual guide endpoint
       try {
-        const response = await this.request<any>(`/api/v1/guide/${id}`);
+        const response = await this.request<PendoGuideResponse>(`/api/v1/guide/${id}`);
         console.log(`✅ Successfully fetched guide: ${response.name || 'No name'}`);
         return this.transformGuide(response);
       } catch (individualError) {
@@ -407,13 +439,13 @@ class PendoAPIClient {
         for (const strategy of fallbackStrategies) {
           try {
             console.log(`🔄 Trying fallback strategy: ${strategy.name}`);
-            const guides = await this.request<any[]>('/api/v1/guide', strategy.params);
+            const guides = await this.request<PendoGuideResponse[]>('/api/v1/guide', strategy.params);
             console.log(`📊 Retrieved ${guides.length} guides from list`);
 
             // Log available guides for debugging
             if (guides.length > 0) {
               console.log('📋 Available guides (first 10):');
-              guides.slice(0, 10).forEach((guide: any, index: number) => {
+              guides.slice(0, 10).forEach((guide: PendoGuideResponse, index: number) => {
                 console.log(`  ${index + 1}. ID: ${guide.id}, Name: "${guide.name}", State: ${guide.state}`);
               });
 
@@ -433,7 +465,7 @@ class PendoAPIClient {
 
         // If all strategies fail, try to find similar guide IDs
         console.log(`🔍 Trying to find similar guide IDs...`);
-        const allGuides = await this.request<any[]>('/api/v1/guide', { limit: 100 });
+        const allGuides = await this.request<PendoGuideResponse[]>('/api/v1/guide', { limit: 100 });
         const similarGuides = allGuides.filter(g =>
           g.id.includes(id.substring(0, 10)) ||
           id.includes(g.id.substring(0, 10))
@@ -441,7 +473,7 @@ class PendoAPIClient {
 
         if (similarGuides.length > 0) {
           console.log(`💡 Found similar guide IDs that might be relevant:`);
-          similarGuides.forEach((guide: any) => {
+          similarGuides.forEach((guide: PendoGuideResponse) => {
             console.log(`   Similar: ${guide.id} - "${guide.name}"`);
           });
         }
@@ -462,7 +494,7 @@ class PendoAPIClient {
     }
   }
 
-  async getGuideAnalytics(id: string, period: { start: string; end: string }): Promise<ComprehensiveGuideData> {
+  async getGuideAnalytics(id: string, _period: { start: string; end: string }): Promise<ComprehensiveGuideData> {
     try {
       console.log(`🚀 Starting analytics fetch for guide ID: ${id}`);
       console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
@@ -544,7 +576,7 @@ class PendoAPIClient {
         id: guide.id,
         name: guide.name,
         description: guide.description,
-        state: guide.state as any,
+        state: guide.state as 'published' | 'draft' | 'archived' | '_pendingReview_',
         type: guide.type || 'onboarding',
         kind: 'lightbox',
 
@@ -638,7 +670,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideTimeSeries(id: string, period: { start: string; end: string }) {
+  private async getGuideTimeSeries(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating time series analytics for guide ${id} using real API data`);
 
@@ -655,7 +687,7 @@ class PendoAPIClient {
       // Distribute the guide's actual metrics across the time period
       const totalViews = guide.viewedCount || 0;
       const totalCompletions = guide.completedCount || 0;
-      const totalShown = guide.lastShownCount || Math.max(totalViews * 1.2, 100);
+      // const totalShown = guide.lastShownCount || Math.max(totalViews * 1.2, 100);
 
       for (let i = 0; i < days; i++) {
         const date = new Date(period.start);
@@ -667,7 +699,6 @@ class PendoAPIClient {
 
         const dailyViews = Math.floor((totalViews / days) * recencyFactor * randomFactor);
         const dailyCompletions = Math.floor((totalCompletions / days) * recencyFactor * randomFactor);
-        const dailyShown = Math.floor((totalShown / days) * recencyFactor * randomFactor);
 
         timeSeriesData.push({
           date: date.toISOString().split('T')[0],
@@ -690,6 +721,8 @@ class PendoAPIClient {
     }
   }
 
+  // Pendo API returns untyped time series data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private transformTimeSeriesData(response: any[]): any[] {
     return response.map(item => ({
       date: new Date(item.eventTime || item.serverTime || item.firstResponseTime || item._id).toISOString().split('T')[0],
@@ -701,7 +734,7 @@ class PendoAPIClient {
     }));
   }
 
-  private async getGuideStepAnalytics(id: string, period: { start: string; end: string }) {
+  private async getGuideStepAnalytics(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating step analytics for guide ${id} using real API data`);
 
@@ -764,7 +797,7 @@ class PendoAPIClient {
     }
   }
 
-  private generateStepName(stepNum: number, guideName: string, guideType?: string): string {
+  private generateStepName(stepNum: number, guideName: string, _guideType?: string): string {
     const stepNames = [
       'Welcome & Introduction',
       'Feature Overview',
@@ -797,7 +830,10 @@ class PendoAPIClient {
     return 'tooltip';
   }
 
+  // Pendo API returns untyped step data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private transformStepData(response: any[]): any[] {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stepData: any[] = [];
     const maxStep = Math.max(...response.map(r => r.stepNumber || r.guideStepNum || 0));
 
@@ -833,7 +869,7 @@ class PendoAPIClient {
     return stepData.length > 0 ? stepData : this.generateFallbackStepData();
   }
 
-  private async getGuideSegmentPerformance(id: string, period: { start: string; end: string }) {
+  private async getGuideSegmentPerformance(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating segment performance for guide ${id} using alternative approach`);
 
@@ -902,7 +938,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideDeviceBreakdown(id: string, period: { start: string; end: string }) {
+  private async getGuideDeviceBreakdown(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating device breakdown for guide ${id} using realistic data`);
 
@@ -968,7 +1004,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideGeographicData(id: string, period: { start: string; end: string }) {
+  private async getGuideGeographicData(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating geographic data for guide ${id} using realistic distributions`);
 
@@ -1061,7 +1097,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuidePollData(id: string, period: { start: string; end: string }) {
+  private async getGuidePollData(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating poll data for guide ${id} using alternative approach`);
 
@@ -1110,7 +1146,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideUserBehavior(id: string, period: { start: string; end: string }) {
+  private async getGuideUserBehavior(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating user behavior data for guide ${id} using alternative approach`);
 
@@ -1145,7 +1181,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideHourlyAnalytics(id: string, period: { start: string; end: string }) {
+  private async getGuideHourlyAnalytics(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating hourly analytics for guide ${id} using alternative approach`);
 
@@ -1181,7 +1217,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideWeeklyAnalytics(id: string, period: { start: string; end: string }) {
+  private async getGuideWeeklyAnalytics(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating weekly analytics for guide ${id} using alternative approach`);
 
@@ -1221,7 +1257,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideVariantPerformance(id: string, period: { start: string; end: string }) {
+  private async getGuideVariantPerformance(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating variant performance for guide ${id} using alternative approach`);
 
@@ -1254,6 +1290,8 @@ class PendoAPIClient {
     }
   }
 
+  // Transform methods for Pendo API responses (untyped JSON)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private transformGuide = (guide: any): Guide => ({
     id: guide.id || '',
     name: guide.name || '',
@@ -1269,6 +1307,7 @@ class PendoAPIClient {
     type: guide.type,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private transformFeature = (feature: any): Feature => ({
     id: feature.id || '',
     name: feature.name || '',
@@ -1283,6 +1322,7 @@ class PendoAPIClient {
     elementId: feature.elementId,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private transformPage = (page: any): Page => ({
     id: page.id || '',
     url: page.url || '',
@@ -1294,6 +1334,7 @@ class PendoAPIClient {
     applicationId: page.applicationId,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private transformReport = (report: any): Report => ({
     id: report.id || '',
     name: report.name || '',
@@ -1622,14 +1663,14 @@ class PendoAPIClient {
     }
 
     const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    // const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // Unused
 
     return {
       // Core Identity
       id: guide.id,
       name: guide.name,
       description: guide.description || 'Mock guide for demonstration',
-      state: guide.state as any,
+      state: guide.state as 'published' | 'draft' | 'archived' | '_pendingReview_',
       type: guide.type || 'onboarding',
       kind: 'lightbox',
 
@@ -1918,6 +1959,8 @@ export async function testSingleAggregationCall(guideId: string) {
   };
 
   try {
+    // Pendo aggregation API returns untyped JSON
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await pendoAPI.request<any[]>('/api/v1/aggregation', {
       source: 'guideEvent',
       timeSeries: 'daily',
