@@ -5,6 +5,33 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  ArrowLeftIcon,
+  ArrowDownTrayIcon,
+  CalendarIcon,
+  EyeIcon,
+  CheckCircleIcon,
+  UserGroupIcon,
+  ClockIcon,
+  ChartBarIcon,
+  DocumentTextIcon,
+  CubeIcon,
+  GlobeAltIcon,
+  ShareIcon,
+  StarIcon,
+} from '@heroicons/react/24/outline';
+
+// Import report hooks
+import { useGuideReport } from '@/hooks/useReportData';
+import { useFeatureReport } from '@/hooks/useReportData';
+import { usePageReport } from '@/hooks/useReportData';
+import { useReportReport } from '@/hooks/useReportData';
+
+// Import chart components
+import { ReportLineChart } from '@/components/reports/ReportLineChart';
+import { ReportBarChart } from '@/components/reports/ReportBarChart';
+import { ReportPieChart } from '@/components/reports/ReportPieChart';
+import { ReportHeatmap } from '@/components/reports/ReportHeatmap';
 
 // Enhanced report data types
 interface EnhancedGuideData {
@@ -47,7 +74,7 @@ interface EnhancedFeatureData {
 
 interface EnhancedPageData {
   id: string;
-  name: string; // Added name property
+  name: string;
   url: string;
   title?: string;
   description?: string;
@@ -80,34 +107,6 @@ interface EnhancedReportData {
 }
 
 type ReportDataType = EnhancedGuideData | EnhancedFeatureData | EnhancedPageData | EnhancedReportData;
-import {
-  ArrowLeftIcon,
-  ArrowDownTrayIcon,
-  CalendarIcon,
-  EyeIcon,
-  CheckCircleIcon,
-  UserGroupIcon,
-  ClockIcon,
-  ChartBarIcon,
-  DocumentTextIcon,
-  CubeIcon,
-  GlobeAltIcon,
-  ShareIcon,
-  StarIcon,
-} from '@heroicons/react/24/outline';
-
-// Import report hooks
-import { useGuideReport } from '@/hooks/useReportData';
-import { useFeatureReport } from '@/hooks/useReportData';
-import { usePageReport } from '@/hooks/useReportData';
-import { useReportReport } from '@/hooks/useReportData';
-
-// Import chart components
-import { ReportLineChart } from '@/components/reports/ReportLineChart';
-import { ReportBarChart } from '@/components/reports/ReportBarChart';
-import { ReportPieChart } from '@/components/reports/ReportPieChart';
-import { ReportHeatmap } from '@/components/reports/ReportHeatmap';
-
 type ReportType = 'guide' | 'feature' | 'page' | 'report';
 
 export const ReportDetails: React.FC = () => {
@@ -402,216 +401,6 @@ export const ReportDetails: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-
-          <TabsContent value="trends" className="space-y-6">
-            {/* Detailed trend analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle>30-Day Trend Analysis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ReportLineChart
-                  data={
-                    type === 'guide' ? (data as EnhancedGuideData).dailyStats :
-                    type === 'feature' ? (data as EnhancedFeatureData).dailyUsage :
-                    type === 'page' ? (data as EnhancedPageData).dailyTraffic :
-                    (data as EnhancedReportData).dailyEngagement
-                  }
-                  dataKey={
-                    type === 'guide' ? 'views' :
-                    type === 'feature' ? 'usageCount' :
-                    type === 'page' ? 'pageViews' :
-                    'views'
-                  }
-                  multiLine={true}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Usage patterns */}
-            {(type === 'feature' && (data as any).usageByTimeOfDay) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Usage Patterns by Time of Day</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ReportBarChart
-                    data={(data as any).usageByTimeOfDay}
-                    dataKey="usageCount"
-                    xAxisKey="hour"
-                  />
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-6">
-            {/* Advanced analytics based on type */}
-            {type === 'guide' && (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Segment Performance</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ReportBarChart
-                      data={(data as any).segmentPerformance}
-                      dataKey="completionRate"
-                      xAxisKey="segment"
-                    />
-                  </CardContent>
-                </Card>
-
-                {(data as any).stepAnalytics && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Step-by-Step Analytics</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {(data as any).stepAnalytics.map((step: any, index: number) => (
-                          <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div>
-                              <h4 className="font-medium">{step.stepName}</h4>
-                              <p className="text-sm text-gray-600">
-                                {step.views.toLocaleString()} views → {step.completions.toLocaleString()} completions
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium">{step.dropoffRate}%</p>
-                              <p className="text-sm text-gray-600">dropoff</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
-
-            {type === 'feature' && (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Cohort Analysis</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ReportBarChart
-                      data={(data as any).cohortAnalysis}
-                      dataKey="retentionRate"
-                      xAxisKey="cohort"
-                    />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Related Features</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {(data as any).relatedFeatures.map((feature: any, index: number) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <span className="font-medium">{feature.name}</span>
-                          <div className="flex items-center space-x-4">
-                            <span className="text-sm text-gray-600">
-                              {feature.usageCount.toLocaleString()} uses
-                            </span>
-                            <Badge variant="secondary">
-                              {(feature.correlation * 100).toFixed(0)}% correlation
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-
-            {type === 'page' && (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Navigation Paths</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {(data as any).navigationPaths.map((path: any, index: number) => (
-                        <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium">
-                              {path.path.join(' → ')}
-                            </h4>
-                            <Badge variant="secondary">
-                              {path.conversionRate}% conversion
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            {path.users.toLocaleString()} users followed this path
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Device Performance</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ReportBarChart
-                      data={(data as any).devicePerformance}
-                      dataKey="pageViews"
-                      xAxisKey="device"
-                    />
-                  </CardContent>
-                </Card>
-              </>
-            )}
-
-            {type === 'report' && (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Popular Sections</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ReportBarChart
-                      data={(data as any).popularSections}
-                      dataKey="views"
-                      xAxisKey="section"
-                    />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>User Feedback</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {(data as any).userFeedback.map((feedback: any, index: number) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-yellow-500">{'★'.repeat(feedback.rating)}{'☆'.repeat(5 - feedback.rating)}</span>
-                            <span className="text-sm text-gray-600">
-                              {feedback.count} reviews
-                            </span>
-                          </div>
-                          <Badge variant="secondary">
-                            {feedback.percentage}%
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
           </TabsContent>
 
           <TabsContent value="details" className="space-y-6">
