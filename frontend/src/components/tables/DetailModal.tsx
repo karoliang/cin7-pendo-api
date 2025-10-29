@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Guide, Feature, Page, Report } from '@/types/pendo';
+import type { Guide, Feature, Page, Report } from '@/types/pendo';
 
 interface DetailModalProps {
   item: Guide | Feature | Page | Report | null;
