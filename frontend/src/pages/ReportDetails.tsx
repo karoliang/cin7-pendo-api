@@ -862,6 +862,233 @@ export const ReportDetails: React.FC = () => {
                   />
                 </CardContent>
               </Card>
+
+              {/* Top Visitors and Top Accounts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Top Visitors */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="flex items-center">
+                        <UsersIcon className="h-5 w-5 mr-2 text-blue-600" />
+                        Top Visitors (10)
+                      </span>
+                      <Button variant="ghost" size="sm" className="text-blue-600">
+                        View all Visitors →
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-1">
+                      <div className="grid grid-cols-2 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
+                        <div>Visitor</div>
+                        <div className="text-right">Number of views</div>
+                      </div>
+                      {/* Placeholder data - will be replaced with real API data */}
+                      {Array.from({ length: 10 }).map((_, index) => (
+                        <div key={index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
+                          <div className="text-blue-600 hover:underline cursor-pointer">
+                            visitor{index + 1}@example.com
+                          </div>
+                          <div className="text-right font-medium">
+                            {Math.floor(Math.random() * 5000) + 1000}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Top Accounts */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="flex items-center">
+                        <UserGroupIcon className="h-5 w-5 mr-2 text-purple-600" />
+                        Top Accounts (10)
+                      </span>
+                      <Button variant="ghost" size="sm" className="text-purple-600">
+                        View all Accounts →
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-1">
+                      <div className="grid grid-cols-2 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
+                        <div>Account</div>
+                        <div className="text-right">Number of views</div>
+                      </div>
+                      {/* Placeholder data - will be replaced with real API data */}
+                      {Array.from({ length: 10 }).map((_, index) => (
+                        <div key={index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
+                          <div className="text-purple-600 hover:underline cursor-pointer">
+                            Company {index + 1}
+                          </div>
+                          <div className="text-right font-medium">
+                            {Math.floor(Math.random() * 10000) + 2000}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Features targeting this Page */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <CubeIcon className="h-5 w-5 mr-2 text-green-600" />
+                      Features targeting this Page (7)
+                    </span>
+                    <Button variant="ghost" size="sm" className="text-green-600">
+                      View in Data Explorer →
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-gray-600">
+                          <th className="text-left py-2 font-medium">Feature name</th>
+                          <th className="text-right py-2 font-medium">Number of events</th>
+                          <th className="text-right py-2 font-medium">Dead clicks</th>
+                          <th className="text-right py-2 font-medium">Error clicks</th>
+                          <th className="text-right py-2 font-medium">Rage clicks</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Placeholder data - will be replaced with real API data */}
+                        {Array.from({ length: 7 }).map((_, index) => (
+                          <tr key={index} className="border-b border-gray-100">
+                            <td className="py-2 text-blue-600 hover:underline cursor-pointer">
+                              Feature {index + 1}
+                            </td>
+                            <td className="text-right py-2">{Math.floor(Math.random() * 100000)}</td>
+                            <td className="text-right py-2">{Math.floor(Math.random() * 10)}</td>
+                            <td className="text-right py-2">{Math.floor(Math.random() * 100)}</td>
+                            <td className="text-right py-2">{Math.floor(Math.random() * 1000)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Guides targeting this Page */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <DocumentTextIcon className="h-5 w-5 mr-2 text-orange-600" />
+                      Guides targeting this Page (175)
+                    </span>
+                    <Button variant="ghost" size="sm" className="text-orange-600">
+                      View in Data Explorer →
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-gray-600">
+                          <th className="text-left py-2 font-medium">Guide Name</th>
+                          <th className="text-left py-2 font-medium">Product Area</th>
+                          <th className="text-left py-2 font-medium">Segment</th>
+                          <th className="text-left py-2 font-medium">Guide Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Placeholder data - will be replaced with real API data */}
+                        {Array.from({ length: 10 }).map((_, index) => (
+                          <tr key={index} className="border-b border-gray-100">
+                            <td className="py-2 text-blue-600 hover:underline cursor-pointer">
+                              Guide {index + 1}
+                            </td>
+                            <td className="py-2">
+                              <Badge variant={index % 3 === 0 ? 'default' : index % 3 === 1 ? 'secondary' : 'outline'}>
+                                Product Area {index % 3 + 1}
+                              </Badge>
+                            </td>
+                            <td className="py-2">Custom Segment</td>
+                            <td className="py-2">
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                index % 3 === 0 ? 'bg-green-100 text-green-800' :
+                                index % 3 === 1 ? 'bg-gray-100 text-gray-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {index % 3 === 0 ? 'Public' : index % 3 === 1 ? 'Disabled' : 'Draft'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Event Breakdown */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <ChartBarIcon className="h-5 w-5 mr-2 text-indigo-600" />
+                      Event breakdown (5000)
+                    </span>
+                    <div className="text-xs text-gray-500">
+                      This table reflects the date range and segment filters above (up to 5,000 values).
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b text-gray-600 bg-gray-50">
+                          <th className="text-left py-2 px-2 font-medium">Visitor</th>
+                          <th className="text-left py-2 px-2 font-medium">Account</th>
+                          <th className="text-left py-2 px-2 font-medium">Date</th>
+                          <th className="text-right py-2 px-2 font-medium">Total Views</th>
+                          <th className="text-right py-2 px-2 font-medium">U-turns</th>
+                          <th className="text-right py-2 px-2 font-medium">Dead clicks</th>
+                          <th className="text-right py-2 px-2 font-medium">Error clicks</th>
+                          <th className="text-right py-2 px-2 font-medium">Rage clicks</th>
+                          <th className="text-left py-2 px-2 font-medium">Page parameter</th>
+                          <th className="text-left py-2 px-2 font-medium">Server name</th>
+                          <th className="text-left py-2 px-2 font-medium">Browser Name</th>
+                          <th className="text-left py-2 px-2 font-medium">Browser Version</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Placeholder data - will be replaced with real API data */}
+                        {Array.from({ length: 20 }).map((_, index) => (
+                          <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="py-2 px-2 text-blue-600 hover:underline cursor-pointer">
+                              {Math.random().toString(36).substring(7)}@{index % 3 === 0 ? 'mon' : index % 3 === 1 ? 'foremi' : 'jabane'}
+                            </td>
+                            <td className="py-2 px-2">{`${['B480CA45', 'B33F0290', '92B99F89'][index % 3]}-...`}</td>
+                            <td className="py-2 px-2">Oct {29 - index}</td>
+                            <td className="text-right py-2 px-2">{Math.floor(Math.random() * 5) + 1}</td>
+                            <td className="text-right py-2 px-2">0</td>
+                            <td className="text-right py-2 px-2">0</td>
+                            <td className="text-right py-2 px-2">0</td>
+                            <td className="text-right py-2 px-2">0</td>
+                            <td className="py-2 px-2 text-gray-400">--</td>
+                            <td className="py-2 px-2">inventory.deals...</td>
+                            <td className="py-2 px-2">{['Chrome', 'Edge', 'Safari'][index % 3]}</td>
+                            <td className="py-2 px-2">{['141.0.0', '141.0.0', '109.0.0'][index % 3]}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 
