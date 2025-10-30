@@ -1592,13 +1592,22 @@ class PendoAPIClient {
       console.log(`📊 Fetching total analytics for page ${id} from aggregation API`);
 
       // Use pipeline format (required by Pendo Aggregation API)
+      // Note: pageEvents source requires timeSeries configuration
+      const endTime = Date.now();
+      const startTime = endTime - (_daysBack * 24 * 60 * 60 * 1000);
+
       const aggregationRequest = {
         response: { mimeType: "application/json" },
         request: {
           pipeline: [
             {
               source: {
-                pageEvents: null
+                pageEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: _daysBack,
+                  period: "dayRange"
+                }
               }
             },
             {
@@ -2857,13 +2866,22 @@ class PendoAPIClient {
 
       try {
         // Query featureEvents to get click counts
+        // Note: featureEvents source requires timeSeries configuration
+        const endTime = Date.now();
+        const startTime = endTime - (90 * 24 * 60 * 60 * 1000); // Last 90 days
+
         const aggregationRequest = {
           response: { mimeType: "application/json" },
           request: {
             pipeline: [
               {
                 source: {
-                  featureEvents: null
+                  featureEvents: null,
+                  timeSeries: {
+                    first: startTime,
+                    count: 90,
+                    period: "dayRange"
+                  }
                 }
               }
             ],
