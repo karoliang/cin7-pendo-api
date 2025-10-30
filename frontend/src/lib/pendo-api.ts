@@ -1718,7 +1718,7 @@ class PendoAPIClient {
                 pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
                   first: "now()",  // Use "now()" string format - works with Pendo API
-                  count: days,  // Positive count (not negative)
+                  count: -days,  // NEGATIVE count to look backward in time
                   period: "dayRange"
                 }
               }
@@ -1924,7 +1924,7 @@ class PendoAPIClient {
         const results = await Promise.allSettled([
           this.getTopVisitorsForPage(id, 10),
           this.getTopAccountsForPage(id, 10),
-          this.getPageEventBreakdown(id, 5000), // Fetch more events for accurate aggregations (display will slice to 20)
+          this.getPageEventBreakdown(id, 1000), // Fetch 1000 events for aggregations (balance between data quality and performance)
           this.getFeaturesTargetingPage(id, 7),
           this.getGuidesTargetingPage(id, 10), // Limit to 10 for initial display
         ]);
@@ -2492,7 +2492,7 @@ class PendoAPIClient {
                 pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
                   first: "now()",  // Use "now()" string format - works with Pendo API
-                  count: days,  // Positive count (not negative)
+                  count: -30,  // NEGATIVE count to look backward 30 days
                   period: "dayRange"
                 }
               }
@@ -2504,7 +2504,7 @@ class PendoAPIClient {
               identified: "visitorId"  // Required by Pendo API to filter out anonymous visitors
             },
             {
-              sort: ["-day"]
+              sort: ["-day"]  // Sort by day descending
             }
           ],
           requestId: `page_event_breakdown_${Date.now()}`
