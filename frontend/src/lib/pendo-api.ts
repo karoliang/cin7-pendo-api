@@ -2833,7 +2833,7 @@ class PendoAPIClient {
 
       console.log(`✅ Returning ${guidesForPage.length} guides (all guides, not filtered by page)`);
       console.warn(`⚠️ API LIMITATION: Cannot accurately filter guides by page - guide targeting rules not fully accessible via API`);
-      console.warn(`⚠️ API LIMITATION: productArea and segment fields may not be available in standard Pendo API`);
+      console.warn(`⚠️ API LIMITATION: segment field may not be accurately represented - using audience as approximation`);
 
       return guidesForPage;
 
