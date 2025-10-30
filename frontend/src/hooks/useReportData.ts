@@ -7,9 +7,10 @@ import type {
 } from '@/types/enhanced-pendo';
 
 // Hook for fetching comprehensive guide data with REAL Pendo API analytics
-export const useGuideReport = (id: string) => {
+export const useGuideReport = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['guide-report', id],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       try {
         console.log(`🚀 useGuideReport: Fetching analytics for guide ${id}`);
@@ -80,9 +81,10 @@ export const useGuideReport = (id: string) => {
 };
 
 // Hook for fetching comprehensive feature data with all analytics
-export const useFeatureReport = (id: string) => {
+export const useFeatureReport = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['feature-report', id],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       try {
         const features = await pendoAPI.getFeatures();
@@ -391,19 +393,37 @@ export const useFeatureReport = (id: string) => {
         return analyticsData;
       } catch (error) {
         console.error('Error fetching feature report:', error);
+
+        // Enhanced error handling with user-friendly messages
+        if (error instanceof Error) {
+          if (error.message.includes('not found')) {
+            throw new Error(`Feature "${id}" not found. Please verify the feature ID or select a different feature.`);
+          }
+        }
+
         throw error;
       }
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: 1,
+    retry: (failureCount, error) => {
+      // Only retry on network errors, not on 404s
+      if (error instanceof Error && error.message.includes('not found')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 };
 
 // Hook for fetching comprehensive page data with all analytics
-export const usePageReport = (id: string) => {
+export const usePageReport = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['page-report', id],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       try {
         const pages = await pendoAPI.getPages();
@@ -792,19 +812,37 @@ export const usePageReport = (id: string) => {
         return analyticsData;
       } catch (error) {
         console.error('Error fetching page report:', error);
+
+        // Enhanced error handling with user-friendly messages
+        if (error instanceof Error) {
+          if (error.message.includes('not found')) {
+            throw new Error(`Page "${id}" not found. Please verify the page ID or select a different page.`);
+          }
+        }
+
         throw error;
       }
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: 1,
+    retry: (failureCount, error) => {
+      // Only retry on network errors, not on 404s
+      if (error instanceof Error && error.message.includes('not found')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 };
 
 // Hook for fetching comprehensive report data with all analytics
-export const useReportReport = (id: string) => {
+export const useReportReport = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['report-report', id],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       try {
         const reports = await pendoAPI.getReports();
@@ -1233,11 +1271,28 @@ export const useReportReport = (id: string) => {
         return analyticsData;
       } catch (error) {
         console.error('Error fetching report analytics:', error);
+
+        // Enhanced error handling with user-friendly messages
+        if (error instanceof Error) {
+          if (error.message.includes('not found')) {
+            throw new Error(`Report "${id}" not found. Please verify the report ID or select a different report.`);
+          }
+        }
+
         throw error;
       }
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: 1,
+    retry: (failureCount, error) => {
+      // Only retry on network errors, not on 404s
+      if (error instanceof Error && error.message.includes('not found')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 };

@@ -71,12 +71,14 @@ export const ReportDetails: React.FC = () => {
   // CRITICAL: All hooks MUST be called unconditionally before any early returns
   // Call hooks with safe defaults when type/id are invalid
   const safeId = id || '';
+  const validatedType = type && isValidType(type) ? type : 'guides';
 
   // Fetch data based on type - hooks MUST be called unconditionally
-  const guideReport = useGuideReport(safeId);
-  const featureReport = useFeatureReport(safeId);
-  const pageReport = usePageReport(safeId);
-  const reportReport = useReportReport(safeId);
+  // BUT we enable/disable them based on the actual type needed
+  const guideReport = useGuideReport(safeId, { enabled: validatedType === 'guides' && !!id });
+  const featureReport = useFeatureReport(safeId, { enabled: validatedType === 'features' && !!id });
+  const pageReport = usePageReport(safeId, { enabled: validatedType === 'pages' && !!id });
+  const reportReport = useReportReport(safeId, { enabled: validatedType === 'reports' && !!id });
 
   useEffect(() => {
     console.log('ReportDetails route accessed:', { type, id, isValid: type ? isValidType(type) : false });
@@ -102,6 +104,11 @@ export const ReportDetails: React.FC = () => {
   const isLoading = currentReport?.isLoading ?? false;
   const error = currentReport?.error;
 
+  // Check if this is a "no data" scenario vs "not found"
+  const hasZeroData = data &&
+    type === 'guides' &&
+    (data as ComprehensiveGuideData).viewedCount === 0;
+
   if (isLoading) {
     return (
       <Layout showNavigation={true}>
@@ -121,28 +128,36 @@ export const ReportDetails: React.FC = () => {
     );
   }
 
+  // Handle errors - but distinguish between "not found" and actual errors
   if (error || !data) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isNotFoundError = errorMessage.includes('not found') || errorMessage.includes('404');
+
     return (
       <Layout showNavigation={true}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <ExclamationTriangleIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Pendo Data Not Available</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              {isNotFoundError ? 'Pendo Data Not Found' : 'Pendo Data Not Available'}
+            </h2>
             <p className="text-gray-600 mb-6">
-              {error?.message?.includes('not found')
-                ? `The ${type} with ID "${id}" was not found in your Pendo system. This dashboard only displays real Pendo data.`
-                : 'Unable to load data from Pendo. Please check your API connection.'}
+              {isNotFoundError
+                ? `The ${type.slice(0, -1)} with ID "${id}" was not found in your Pendo system. This dashboard only displays real Pendo data.`
+                : `Unable to load data from Pendo. ${errorMessage}`}
             </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
-              <h3 className="font-semibold text-blue-900 mb-2">📋 To Get Real Pendo Guide IDs:</h3>
-              <ol className="list-decimal list-inside text-blue-800 space-y-1">
-                <li>Open your browser's Developer Tools (F12)</li>
-                <li>Go to the Console tab</li>
-                <li>Navigate to the Data Tables page</li>
-                <li>Look for the "📋 Available Pendo Guides:" message</li>
-                <li>Copy any real guide ID and use it in the URL: /report/guides/{`{REAL_ID}`}</li>
-              </ol>
-            </div>
+            {type === 'guides' && isNotFoundError && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+                <h3 className="font-semibold text-blue-900 mb-2">To Get Real Pendo Guide IDs:</h3>
+                <ol className="list-decimal list-inside text-blue-800 space-y-1">
+                  <li>Open your browser's Developer Tools (F12)</li>
+                  <li>Go to the Console tab</li>
+                  <li>Navigate to the Data Tables page</li>
+                  <li>Look for the "Available Pendo Guides:" message</li>
+                  <li>Copy any real guide ID and use it in the URL: /report/guides/REAL_ID</li>
+                </ol>
+              </div>
+            )}
             <div className="space-x-4">
               <Button onClick={() => navigate('/tables')}>
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
@@ -151,6 +166,100 @@ export const ReportDetails: React.FC = () => {
               <Button variant="outline" onClick={() => window.location.reload()}>
                 <ArrowPathIcon className="h-4 w-4 mr-2" />
                 Retry
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Handle zero-data scenario for guides (guide exists but has no views)
+  if (hasZeroData) {
+    return (
+      <Layout showNavigation={true}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/tables')}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <ArrowLeftIcon className="h-4 w-4 mr-2" />
+              Back to Tables
+            </Button>
+          </div>
+
+          <div className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+              <DocumentTextIcon className="h-8 w-8 text-blue-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{data.name}</h2>
+            <p className="text-gray-600 mb-8">This guide has not been viewed yet</p>
+
+            <Card className="max-w-2xl mx-auto text-left">
+              <CardHeader>
+                <CardTitle>No Analytics Data Available</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-gray-700">
+                    This guide exists in your Pendo system but has not received any views during the selected time period (last 30 days).
+                  </p>
+
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-yellow-900 mb-2">Possible Reasons:</h4>
+                    <ul className="list-disc list-inside text-yellow-800 space-y-1 text-sm">
+                      <li>The guide is disabled or not published</li>
+                      <li>The guide targeting rules are not matching any users</li>
+                      <li>The guide was recently created and hasn't been triggered yet</li>
+                      <li>The selected time period doesn't include any guide activity</li>
+                    </ul>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-4">
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Views</p>
+                      <p className="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Completion Rate</p>
+                      <p className="text-2xl font-bold text-gray-900">0%</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <h4 className="font-semibold text-gray-900 mb-2">Guide Details:</h4>
+                    <div className="text-sm space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">ID:</span>
+                        <span className="text-gray-900 font-mono">{data.id}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">State:</span>
+                        <Badge variant="secondary" className="capitalize">
+                          {(data as ComprehensiveGuideData).state || 'Unknown'}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Last Updated:</span>
+                        <span className="text-gray-900">{new Date(data.updatedAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="mt-8 space-x-4">
+              <Button onClick={() => navigate('/tables')}>
+                <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                Back to Data Tables
+              </Button>
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                <ArrowPathIcon className="h-4 w-4 mr-2" />
+                Refresh Data
               </Button>
             </div>
           </div>
