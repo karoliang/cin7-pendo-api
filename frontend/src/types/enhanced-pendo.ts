@@ -405,6 +405,12 @@ export interface ComprehensivePageData {
   eventBreakdown?: PageEventRow[];
   featuresTargeting?: PageFeature[];
   guidesTargeting?: PageGuide[];
+
+  // New calculated summaries from event data
+  frustrationMetrics?: FrustrationMetricsSummary;
+  geographicDistribution?: GeographicDistribution[];
+  deviceBrowserBreakdown?: DeviceBrowserBreakdown[];
+  dailyTimeSeries?: DailyTimeSeries[];
 }
 
 // Page-specific interfaces for new data
@@ -424,6 +430,7 @@ export interface PageAccount {
 }
 
 export interface PageEventRow {
+  // Existing fields
   visitorId: string;
   accountId?: string;
   date: string;
@@ -435,6 +442,29 @@ export interface PageEventRow {
   serverName?: string;
   browserName?: string;
   browserVersion?: string;
+
+  // Extended fields from Pendo API
+  numMinutes?: number;
+  firstTime?: number;
+  lastTime?: number;
+
+  // Geographic data
+  latitude?: number;
+  longitude?: number;
+  region?: string;
+  country?: string;
+
+  // Device/Browser (raw)
+  userAgent?: string;
+
+  // Recording data
+  recordingId?: string;
+  recordingSessionId?: string;
+
+  // Time dimensions
+  week?: number;
+  month?: number;
+  quarter?: number;
 }
 
 export interface PageFeature {
@@ -448,6 +478,54 @@ export interface PageGuide {
   name: string;
   segment?: string;
   status: string;
+}
+
+// New summary interfaces for aggregated data
+export interface FrustrationMetricsSummary {
+  totalRageClicks: number;
+  totalDeadClicks: number;
+  totalUTurns: number;
+  totalErrorClicks: number;
+  frustrationRate: number; // Percentage of sessions with frustration
+  avgFrustrationPerSession: number;
+  topFrustratedVisitors: Array<{
+    visitorId: string;
+    email?: string;
+    rageClicks: number;
+    deadClicks: number;
+    uTurns: number;
+    errorClicks: number;
+    totalFrustration: number;
+  }>;
+}
+
+export interface GeographicDistribution {
+  region: string;
+  country: string;
+  visitors: number;
+  views: number;
+  avgTimeOnPage: number;
+  percentage: number;
+}
+
+export interface DeviceBrowserBreakdown {
+  device: string; // Desktop, Mobile, Tablet
+  deviceType?: string; // Specific model if available
+  os: string; // Windows, macOS, iOS, Android
+  osVersion?: string;
+  browser: string; // Chrome, Safari, Firefox, Edge
+  browserVersion?: string;
+  users: number;
+  percentage: number;
+}
+
+export interface DailyTimeSeries {
+  date: string; // YYYY-MM-DD
+  views: number;
+  visitors: number;
+  avgTimeOnPage: number;
+  frustrationCount: number;
+  [key: string]: string | number; // Index signature for chart compatibility
 }
 
 // ===== COMPREHENSIVE REPORT INTERFACES =====

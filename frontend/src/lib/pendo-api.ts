@@ -5,6 +5,9 @@ import type {
   PageVisitor,
   PageAccount,
   PageEventRow,
+  FrustrationMetricsSummary,
+  GeographicDistribution,
+  DailyTimeSeries,
 } from '@/types/enhanced-pendo';
 
 // Internal API types
@@ -1945,6 +1948,19 @@ class PendoAPIClient {
         comprehensiveData.featuresTargeting = featuresTargeting.status === 'fulfilled' ? featuresTargeting.value : [];
         comprehensiveData.guidesTargeting = guidesTargeting.status === 'fulfilled' ? guidesTargeting.value : [];
 
+        // Calculate aggregated summaries from event breakdown data
+        if (comprehensiveData.eventBreakdown && comprehensiveData.eventBreakdown.length > 0) {
+          console.log(`📊 Calculating aggregated summaries from ${comprehensiveData.eventBreakdown.length} event records...`);
+
+          comprehensiveData.frustrationMetrics = this.calculateFrustrationMetrics(comprehensiveData.eventBreakdown);
+          comprehensiveData.geographicDistribution = this.aggregateGeographicData(comprehensiveData.eventBreakdown);
+          comprehensiveData.dailyTimeSeries = this.aggregateDailyTimeSeries(comprehensiveData.eventBreakdown);
+
+          console.log(`   ✓ Frustration metrics: ${comprehensiveData.frustrationMetrics.frustrationRate.toFixed(1)}% frustration rate`);
+          console.log(`   ✓ Geographic: ${comprehensiveData.geographicDistribution.length} regions`);
+          console.log(`   ✓ Daily time series: ${comprehensiveData.dailyTimeSeries.length} days`);
+        }
+
         console.log(`   ✓ Completed in ${Date.now() - additionalDataStart}ms - ${successfulCalls.length}/5 successful`);
         console.log(`   Data summary:`, {
           visitors: comprehensiveData.topVisitors?.length || 0,
@@ -2197,6 +2213,139 @@ class PendoAPIClient {
   }
 
   /**
+   * Calculate frustration metrics summary from page events
+   * @private
+   */
+  private calculateFrustrationMetrics(events: PageEventRow[]): FrustrationMetricsSummary {
+    const totalRageClicks = events.reduce((sum, e) => sum + (e.rageClicks || 0), 0);
+    const totalDeadClicks = events.reduce((sum, e) => sum + (e.deadClicks || 0), 0);
+    const totalUTurns = events.reduce((sum, e) => sum + (e.uTurns || 0), 0);
+    const totalErrorClicks = events.reduce((sum, e) => sum + (e.errorClicks || 0), 0);
+
+    const sessionsWithFrustration = events.filter(e =>
+      (e.rageClicks || 0) > 0 || (e.deadClicks || 0) > 0 ||
+      (e.uTurns || 0) > 0 || (e.errorClicks || 0) > 0
+    ).length;
+
+    const frustrationRate = events.length > 0 ? (sessionsWithFrustration / events.length) * 100 : 0;
+    const totalFrustrationEvents = totalRageClicks + totalDeadClicks + totalUTurns + totalErrorClicks;
+
+    // Group by visitor and sum frustration
+    const visitorFrustration = new Map();
+    events.forEach(event => {
+      const existing = visitorFrustration.get(event.visitorId) || {
+        visitorId: event.visitorId,
+        rageClicks: 0,
+        deadClicks: 0,
+        uTurns: 0,
+        errorClicks: 0,
+        totalFrustration: 0
+      };
+
+      existing.rageClicks += (event.rageClicks || 0);
+      existing.deadClicks += (event.deadClicks || 0);
+      existing.uTurns += (event.uTurns || 0);
+      existing.errorClicks += (event.errorClicks || 0);
+      existing.totalFrustration = existing.rageClicks + existing.deadClicks + existing.uTurns + existing.errorClicks;
+
+      visitorFrustration.set(event.visitorId, existing);
+    });
+
+    const topFrustratedVisitors = Array.from(visitorFrustration.values())
+      .sort((a, b) => b.totalFrustration - a.totalFrustration)
+      .slice(0, 10);
+
+    return {
+      totalRageClicks,
+      totalDeadClicks,
+      totalUTurns,
+      totalErrorClicks,
+      frustrationRate,
+      avgFrustrationPerSession: events.length > 0 ? totalFrustrationEvents / events.length : 0,
+      topFrustratedVisitors
+    };
+  }
+
+  /**
+   * Aggregate geographic data from page events
+   * @private
+   */
+  private aggregateGeographicData(events: PageEventRow[]): GeographicDistribution[] {
+    const geoMap = new Map();
+
+    events.forEach(event => {
+      if (!event.region || !event.country) return;
+
+      const key = `${event.region}|${event.country}`;
+      const existing = geoMap.get(key) || {
+        region: event.region,
+        country: event.country,
+        visitors: new Set(),
+        views: 0,
+        totalMinutes: 0
+      };
+
+      existing.visitors.add(event.visitorId);
+      existing.views += event.totalViews;
+      existing.totalMinutes += (event.numMinutes || 0);
+
+      geoMap.set(key, existing);
+    });
+
+    const totalVisitors = new Set(events.map(e => e.visitorId)).size;
+
+    return Array.from(geoMap.values())
+      .map(geo => ({
+        region: geo.region,
+        country: geo.country,
+        visitors: geo.visitors.size,
+        views: geo.views,
+        avgTimeOnPage: geo.views > 0 ? (geo.totalMinutes * 60) / geo.views : 0, // Convert to seconds
+        percentage: totalVisitors > 0 ? (geo.visitors.size / totalVisitors) * 100 : 0
+      }))
+      .sort((a, b) => b.visitors - a.visitors);
+  }
+
+  /**
+   * Aggregate daily time series from page events
+   * @private
+   */
+  private aggregateDailyTimeSeries(events: PageEventRow[]): DailyTimeSeries[] {
+    const dailyMap = new Map();
+
+    events.forEach(event => {
+      const existing = dailyMap.get(event.date) || {
+        date: event.date,
+        views: 0,
+        visitors: new Set(),
+        totalMinutes: 0,
+        frustrationCount: 0
+      };
+
+      existing.views += event.totalViews;
+      existing.visitors.add(event.visitorId);
+      existing.totalMinutes += (event.numMinutes || 0);
+
+      if ((event.rageClicks || 0) > 0 || (event.deadClicks || 0) > 0 ||
+          (event.uTurns || 0) > 0 || (event.errorClicks || 0) > 0) {
+        existing.frustrationCount++;
+      }
+
+      dailyMap.set(event.date, existing);
+    });
+
+    return Array.from(dailyMap.values())
+      .map(day => ({
+        date: day.date,
+        views: day.views,
+        visitors: day.visitors.size,
+        avgTimeOnPage: day.views > 0 ? (day.totalMinutes * 60) / day.views : 0, // Convert to seconds
+        frustrationCount: day.frustrationCount
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }
+
+  /**
    * Get page event breakdown with visitor-level details
    * @param pageId - The page ID to analyze
    * @param limit - Maximum number of rows to return (default: 5000)
@@ -2292,6 +2441,24 @@ class PendoAPIClient {
               browserName: browserInfo.name,
               browserVersion: browserInfo.version,
               serverName: event.server ? String(event.server) : undefined,
+              // Extended fields from Pendo API
+              numMinutes: Number(event.numMinutes || 0),
+              firstTime: event.firstTime ? Number(event.firstTime) : undefined,
+              lastTime: event.lastTime ? Number(event.lastTime) : undefined,
+              // Geographic data
+              latitude: event.latitude ? Number(event.latitude) : undefined,
+              longitude: event.longitude ? Number(event.longitude) : undefined,
+              region: event.region ? String(event.region) : undefined,
+              country: event.country ? String(event.country) : undefined,
+              // Device/Browser (raw)
+              userAgent,
+              // Recording data
+              recordingId: event.recordingId ? String(event.recordingId) : undefined,
+              recordingSessionId: event.recordingSessionId ? String(event.recordingSessionId) : undefined,
+              // Time dimensions
+              week: event.week ? Number(event.week) : undefined,
+              month: event.month ? Number(event.month) : undefined,
+              quarter: event.quarter ? Number(event.quarter) : undefined,
             };
             visitorDateMap.set(key, row);
           }
@@ -2305,6 +2472,9 @@ class PendoAPIClient {
           row.deadClicks = (row.deadClicks || 0) + Number(event.deadClickCount || 0);
           row.errorClicks = (row.errorClicks || 0) + Number(event.errorClickCount || 0);
           row.rageClicks = (row.rageClicks || 0) + Number(event.rageClickCount || 0);
+
+          // Accumulate time spent
+          row.numMinutes = (row.numMinutes || 0) + Number(event.numMinutes || 0);
         }
 
         // Convert to array and sort by date (desc), then by views

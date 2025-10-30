@@ -1178,6 +1178,204 @@ export const ReportDetails: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* NEW: Frustration Metrics Section */}
+              {(data as ComprehensivePageData).frustrationMetrics && (
+                <div className="space-y-6 mt-12">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-bold text-gray-900">Frustration Metrics</h2>
+                    <DataQualityBadge type="real" tooltip="Real frustration metrics from Pendo page events (rage clicks, dead clicks, U-turns, error clicks)" />
+                  </div>
+
+                  {/* Summary KPI Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Rage Clicks</p>
+                            <p className="text-2xl font-bold text-red-900">
+                              {(data as ComprehensivePageData).frustrationMetrics!.totalRageClicks.toLocaleString()}
+                            </p>
+                          </div>
+                          <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Dead Clicks</p>
+                            <p className="text-2xl font-bold text-orange-900">
+                              {(data as ComprehensivePageData).frustrationMetrics!.totalDeadClicks.toLocaleString()}
+                            </p>
+                          </div>
+                          <ExclamationTriangleIcon className="h-8 w-8 text-orange-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">U-Turns</p>
+                            <p className="text-2xl font-bold text-yellow-900">
+                              {(data as ComprehensivePageData).frustrationMetrics!.totalUTurns.toLocaleString()}
+                            </p>
+                          </div>
+                          <ArrowPathIcon className="h-8 w-8 text-yellow-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Frustration Rate</p>
+                            <p className="text-2xl font-bold text-purple-900">
+                              {(data as ComprehensivePageData).frustrationMetrics!.frustrationRate.toFixed(1)}%
+                            </p>
+                          </div>
+                          <ChartBarIcon className="h-8 w-8 text-purple-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Top Frustrated Visitors */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Top Frustrated Visitors</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b text-gray-600">
+                              <th className="text-left py-2">Visitor</th>
+                              <th className="text-right py-2">Rage Clicks</th>
+                              <th className="text-right py-2">Dead Clicks</th>
+                              <th className="text-right py-2">U-Turns</th>
+                              <th className="text-right py-2">Error Clicks</th>
+                              <th className="text-right py-2">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(data as ComprehensivePageData).frustrationMetrics!.topFrustratedVisitors.map((visitor, idx) => (
+                              <tr key={visitor.visitorId} className="border-b border-gray-100">
+                                <td className="py-2 text-blue-600 hover:underline cursor-pointer">{visitor.email || visitor.visitorId}</td>
+                                <td className="text-right py-2">{visitor.rageClicks.toLocaleString()}</td>
+                                <td className="text-right py-2">{visitor.deadClicks.toLocaleString()}</td>
+                                <td className="text-right py-2">{visitor.uTurns.toLocaleString()}</td>
+                                <td className="text-right py-2">{visitor.errorClicks.toLocaleString()}</td>
+                                <td className="text-right py-2 font-bold">{visitor.totalFrustration.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* NEW: Geographic Distribution Section */}
+              {(data as ComprehensivePageData).geographicDistribution && (data as ComprehensivePageData).geographicDistribution!.length > 0 && (
+                <div className="space-y-6 mt-12">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-bold text-gray-900">Geographic Distribution (Real Data)</h2>
+                    <DataQualityBadge type="real" tooltip="Real geographic data aggregated from Pendo page events" />
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Pie Chart */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Visitors by Region</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ReportPieChart
+                          data={(data as ComprehensivePageData).geographicDistribution!.slice(0, 8).map(geo => ({
+                            name: `${geo.region}, ${geo.country}`,
+                            users: geo.visitors,
+                            percentage: geo.percentage
+                          }))}
+                          dataKey="users"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    {/* Table */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Top Regions by Engagement</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b text-gray-600">
+                                <th className="text-left py-2">Location</th>
+                                <th className="text-right py-2">Visitors</th>
+                                <th className="text-right py-2">Views</th>
+                                <th className="text-right py-2">Avg Time</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(data as ComprehensivePageData).geographicDistribution!.slice(0, 10).map((geo, idx) => (
+                                <tr key={idx} className="border-b border-gray-100">
+                                  <td className="py-2">{geo.region}, {geo.country}</td>
+                                  <td className="text-right py-2">{geo.visitors.toLocaleString()}</td>
+                                  <td className="text-right py-2">{geo.views.toLocaleString()}</td>
+                                  <td className="text-right py-2">{geo.avgTimeOnPage.toFixed(0)}s</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
+
+              {/* NEW: Improved Daily Time Series */}
+              {(data as ComprehensivePageData).dailyTimeSeries && (data as ComprehensivePageData).dailyTimeSeries!.length > 0 && (
+                <div className="space-y-6 mt-12">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-bold text-gray-900">Daily Trends (Real Data)</h2>
+                    <DataQualityBadge type="real" tooltip="Daily aggregated data from all page events" />
+                  </div>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Daily Page Views & Visitors</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ReportLineChart
+                        data={(data as ComprehensivePageData).dailyTimeSeries!}
+                        dataKey="views"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Daily Frustration Events</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ReportLineChart
+                        data={(data as ComprehensivePageData).dailyTimeSeries!}
+                        dataKey="frustrationCount"
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </div>
           )}
 
