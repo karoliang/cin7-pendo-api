@@ -430,22 +430,24 @@ class PendoAPIClient {
       const endTime = Date.now();
       const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
 
-      // Build proper MongoDB-style aggregation pipeline
+      // Build proper Pendo aggregation request (per official docs)
+      // https://engageapi.pendo.io/
       const aggregationRequest = {
-        pipeline: [
-          {
-            source: {
-              guideEvents: null
+        response: {
+          mimeType: "application/json"
+        },
+        request: {
+          pipeline: [
+            {
+              source: {
+                guideEvents: null
+              }
+            },
+            {
+              filter: `guideId == "${id}"`
             }
-          },
-          {
-            filter: `guideId == "${id}"`
-          },
-          {
-            sort: ["eventTime"]
-          }
-        ],
-        requestId: `guide_totals_${id}_${Date.now()}`
+          ]
+        }
       };
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
@@ -709,40 +711,29 @@ class PendoAPIClient {
       const endTime = new Date(period.end).getTime();
       const days = Math.ceil((endTime - startTime) / (24 * 60 * 60 * 1000));
 
-      // Build proper MongoDB-style aggregation pipeline for time series
+      // Build proper Pendo aggregation request for time series (per official docs)
+      // https://engageapi.pendo.io/
       const aggregationRequest = {
-        pipeline: [
-          {
-            source: {
-              guideEvents: null,
-              timeSeries: {
-                first: startTime,
-                count: days,
-                period: "dayRange"
-              }
-            }
-          },
-          {
-            filter: `guideId == "${id}"`
-          },
-          {
-            group: {
-              keys: ["day"],
-              accumulator: {
-                views: { count: "visitorId" },
-                completions: {
-                  count: {
-                    $if: {
-                      "==": ["$type", "guideActivity"],
-                      then: { "==": ["$action", "completed"] }
-                    }
-                  }
+        response: {
+          mimeType: "application/json"
+        },
+        request: {
+          pipeline: [
+            {
+              source: {
+                guideEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: days,
+                  period: "dayRange"
                 }
               }
+            },
+            {
+              filter: `guideId == "${id}"`
             }
-          }
-        ],
-        requestId: `guide_timeseries_${id}_${Date.now()}`
+          ]
+        }
       };
 
       console.log(`🔍 Aggregation request:`, JSON.stringify(aggregationRequest, null, 2));
