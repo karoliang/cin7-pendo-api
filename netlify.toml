@@ -1,0 +1,110 @@
+# Netlify Configuration for Vite + React + React Router v7
+# Documentation: https://docs.netlify.com/configure-builds/file-based-configuration/
+
+# Build configuration
+[build]
+  # Build command - TypeScript compilation + Vite build
+  command = "cd frontend && npm run build"
+
+  # Publish directory - where Vite outputs built files
+  publish = "frontend/dist"
+
+  # Node version (18.14.0 or later recommended)
+  node_version = "20"
+
+# Build environment variables
+[build.environment]
+  # Enable newer npm features if needed
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# SPA routing - redirect all requests to index.html (status 200 = rewrite)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  # This is a rewrite, not a redirect, so React Router can handle routing
+
+# Security Headers - Modern security best practices
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Prevent clickjacking attacks
+    X-Frame-Options = "DENY"
+
+    # Prevent MIME type sniffing
+    X-Content-Type-Options = "nosniff"
+
+    # Enable XSS protection (legacy browsers)
+    X-XSS-Protection = "1; mode=block"
+
+    # Referrer policy for privacy
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+    # Permissions policy (restrict browser features)
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+    # Content Security Policy - Adjust based on your needs
+    # NOTE: Pendo CDN endpoints are included in connect-src and script-src
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.pendo.io;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https:;
+      font-src 'self' data:;
+      connect-src 'self' https://app.pendo.io https://data.pendo.io https://cdn.pendo.io;
+      frame-ancestors 'none';
+      base-uri 'self';
+      form-action 'self';
+    """
+
+# Cache control for static assets (JS/CSS with content hashes)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    # Long-term caching for hashed assets (1 year)
+    # Vite generates content-hashed filenames, so safe to cache forever
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache control for images
+[[headers]]
+  for = "/*.{jpg,jpeg,png,gif,svg,webp,ico}"
+  [headers.values]
+    # Cache images for 1 week
+    Cache-Control = "public, max-age=604800"
+
+# Cache control for fonts
+[[headers]]
+  for = "/*.{woff,woff2,ttf,eot}"
+  [headers.values]
+    # Cache fonts for 1 year (fonts rarely change)
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Don't cache HTML files (always get latest version)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Don't cache the main index.html
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Deploy Preview context (for pull requests)
+[context.deploy-preview]
+  command = "cd frontend && npm run build"
+
+# Branch deploy context (for branch deployments)
+[context.branch-deploy]
+  command = "cd frontend && npm run build"
+
+# Production context
+[context.production]
+  command = "cd frontend && npm run build"
+
+# Development configuration (for netlify dev)
+[dev]
+  command = "cd frontend && npm run dev"
+  targetPort = 5173
+  autoLaunch = false

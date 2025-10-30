@@ -1,0 +1,7 @@
+# Netlify _redirects file
+# Alternative to netlify.toml for SPA routing
+# Place this file in the public/ folder so Vite copies it to dist/ during build
+
+# SPA routing fallback - redirect all requests to index.html
+# Status 200 means this is a rewrite (not a redirect), preserving the URL
+/*    /index.html   200
