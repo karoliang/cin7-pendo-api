@@ -1583,7 +1583,7 @@ class PendoAPIClient {
 
   // Fetch page analytics totals from aggregation API
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async getPageTotals(id: string, _daysBack: number = 90): Promise<{ viewedCount: number; visitorCount: number; uniqueVisitors: number }> {
+  private async getPageTotals(id: string, _daysBack: number = 30): Promise<{ viewedCount: number; visitorCount: number; uniqueVisitors: number }> {
     try {
       console.log(`📊 Fetching total analytics for page ${id} from aggregation API`);
 
@@ -1607,8 +1607,10 @@ class PendoAPIClient {
                   period: "dayRange"
                 }
               }
+            },
+            {
+              identified: "visitorId"  // Required by Pendo API to filter out anonymous visitors
             }
-            // No filter step needed - already filtered at source
           ],
           requestId: `page_totals_${Date.now()}`
         }
@@ -1617,6 +1619,12 @@ class PendoAPIClient {
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
+        if (response.results.length === 0) {
+          console.warn(`⚠️ Page ${id} returned empty results array - no pageEvents data in last ${_daysBack} days`);
+          console.warn(`   This could mean: (1) Page has no identified visitors, (2) No events in time range, or (3) Page not tagged`);
+          return { viewedCount: 0, visitorCount: 0, uniqueVisitors: 0 };
+        }
+
         // Count unique visitors and total page views
         const uniqueVisitorIds = new Set();
         let viewedCount = 0;
@@ -1634,10 +1642,13 @@ class PendoAPIClient {
         return { viewedCount, visitorCount, uniqueVisitors: visitorCount };
       }
 
-      console.warn(`⚠️ No aggregation results for page ${id}`);
+      console.error(`❌ Invalid response structure for page ${id} - missing or invalid 'results' array:`, response);
       return { viewedCount: 0, visitorCount: 0, uniqueVisitors: 0 };
     } catch (error) {
-      console.warn(`⚠️ Failed to fetch page totals from aggregation API:`, error);
+      console.error(`❌ API error fetching page totals for ${id}:`, error);
+      if (error instanceof Error) {
+        console.error(`   Error message: ${error.message}`);
+      }
       return { viewedCount: 0, visitorCount: 0, uniqueVisitors: 0 };
     }
   }
@@ -1668,8 +1679,10 @@ class PendoAPIClient {
                   period: "dayRange"
                 }
               }
+            },
+            {
+              identified: "visitorId"  // Required by Pendo API to filter out anonymous visitors
             }
-            // No filter needed - already filtered at source
           ],
           requestId: `page_timeseries_${Date.now()}`
         }
@@ -1915,7 +1928,7 @@ class PendoAPIClient {
                       },
                       timeSeries: {
                         first: "now()",
-                        count: -90,  // Negative count looks backward
+                        count: -30,  // Negative count looks backward (max 30 days per Pendo best practices)
                         period: "dayRange"
                       }
                     }
@@ -2024,7 +2037,7 @@ class PendoAPIClient {
                       },
                       timeSeries: {
                         first: "now()",
-                        count: -90,  // Negative count looks backward
+                        count: -30,  // Negative count looks backward (max 30 days per Pendo best practices)
                         period: "dayRange"
                       }
                     }
@@ -2139,6 +2152,9 @@ class PendoAPIClient {
                   period: "dayRange"
                 }
               }
+            },
+            {
+              identified: "visitorId"  // Required by Pendo API to filter out anonymous visitors
             },
             {
               sort: ["-day"]
