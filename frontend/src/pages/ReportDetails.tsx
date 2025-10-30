@@ -4,7 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// Tabs removed - showing all content on single page
 import {
   ArrowLeftIcon,
   ArrowDownTrayIcon,
@@ -62,7 +62,7 @@ interface ReportDataWithState {
 export const ReportDetails: React.FC = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  // Removed activeTab state - showing all content on single page
 
   // Type guards
   const isValidType = (t: string): t is ReportType =>
@@ -383,22 +383,10 @@ export const ReportDetails: React.FC = () => {
           </div>
         </div>
 
-        {/* Tabs for Different Views */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7 overflow-x-auto">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="trends">Trends</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            {type === 'guides' && <TabsTrigger value="steps">Steps</TabsTrigger>}
-            {type === 'features' && <TabsTrigger value="cohort">Cohort</TabsTrigger>}
-            {type === 'pages' && <TabsTrigger value="flow">User Flow</TabsTrigger>}
-            {type === 'reports' && <TabsTrigger value="feedback">Feedback</TabsTrigger>}
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="insights">Insights</TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
+        {/* All Analytics Sections - Single Page View */}
+        <div className="space-y-12">
+          {/* Overview Section */}
+          <div className="space-y-6">
             {/* Primary KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {primaryKPIs.map((kpi, index) => (
@@ -486,10 +474,11 @@ export const ReportDetails: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          </div>
 
-          {/* Trends Tab */}
-          <TabsContent value="trends" className="space-y-6">
+          {/* Trends Section */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Trends</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Trending Metrics */}
               <Card>
@@ -598,10 +587,11 @@ export const ReportDetails: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          </div>
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
+          {/* Analytics Section */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Analytics</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Conversion Funnel */}
               <Card>
@@ -661,11 +651,12 @@ export const ReportDetails: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          </div>
 
-          {/* Type-Specific Tabs */}
+          {/* Type-Specific Sections */}
           {type === 'guides' && (
-            <TabsContent value="steps" className="space-y-6">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">Guide Steps</h2>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -727,11 +718,12 @@ export const ReportDetails: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
           )}
 
           {type === 'features' && (
-            <TabsContent value="cohort" className="space-y-6">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">Cohort Analysis</h2>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -804,11 +796,12 @@ export const ReportDetails: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
           )}
 
           {type === 'pages' && (
-            <TabsContent value="flow" className="space-y-6">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">User Flow</h2>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -869,11 +862,12 @@ export const ReportDetails: React.FC = () => {
                   />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
           )}
 
           {type === 'reports' && (
-            <TabsContent value="feedback" className="space-y-6">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">User Feedback</h2>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -974,11 +968,12 @@ export const ReportDetails: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
           )}
 
-          {/* Performance Tab */}
-          <TabsContent value="performance" className="space-y-6">
+          {/* Performance Section */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Performance Metrics</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -1043,10 +1038,11 @@ export const ReportDetails: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          </div>
 
-          {/* Insights Tab */}
-          <TabsContent value="insights" className="space-y-6">
+          {/* Insights Section */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">AI-Powered Insights</h2>
             {/* AI Summary Placeholder */}
             <Card className="border-dashed border-blue-200 bg-blue-50">
               <CardHeader>
@@ -1237,10 +1233,11 @@ export const ReportDetails: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
 
-          {/* Technical Details */}
-          <TabsContent value="details" className="space-y-6">
+          {/* Technical Details Section */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Technical Details</h2>
             <Card>
               <CardHeader>
                 <CardTitle>Technical Details</CardTitle>
@@ -1284,8 +1281,8 @@ export const ReportDetails: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </Layout>
   );
