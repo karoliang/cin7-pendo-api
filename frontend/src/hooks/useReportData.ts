@@ -74,6 +74,7 @@ export const useGuideReport = (id: string, options?: { enabled?: boolean }) => {
       return failureCount < 2; // Retry other errors max 2 times
     },
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
+    refetchOnMount: false, // Don't refetch on component mount
     refetchOnWindowFocus: false, // Don't refetch on window focus to avoid unnecessary API calls
     refetchOnReconnect: true, // Do refetch on reconnect
   });
@@ -413,6 +414,7 @@ export const useFeatureReport = (id: string, options?: { enabled?: boolean }) =>
       return failureCount < 2;
     },
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000),
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
@@ -472,6 +474,7 @@ export const usePageReport = (id: string, options?: { enabled?: boolean }) => {
       return failureCount < 2;
     },
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000),
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
@@ -931,6 +934,7 @@ export const useReportReport = (id: string, options?: { enabled?: boolean }) => 
       return failureCount < 2;
     },
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000),
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
