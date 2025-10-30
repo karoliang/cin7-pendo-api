@@ -7,9 +7,9 @@ import {
   Tooltip,
   Legend
 } from 'recharts';
-import { TooltipProps } from 'recharts';
-import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
-import { PieLabelRenderProps } from 'recharts';
+import type { TooltipProps } from 'recharts';
+import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import type { PieLabelRenderProps } from 'recharts';
 
 interface PieChartDataPoint {
   name?: string;
@@ -19,6 +19,11 @@ interface PieChartDataPoint {
   users?: number;
   value?: number | string;
   percentage?: number;
+  visitors?: number;
+  region?: string;
+  country?: string;
+  completionRate?: number;
+  [key: string]: string | number | undefined; // Index signature for Recharts compatibility
 }
 
 interface ReportPieChartProps {
@@ -55,7 +60,10 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
     );
   }
 
-  const CustomTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
+  // Recharts v3 TooltipProps doesn't properly expose all properties in the type
+  // Using explicit any here with proper runtime checks
+  const CustomTooltip = (props: any) => {
+    const { active, payload } = props;
     if (active && payload && payload.length) {
       const dataPoint = payload[0].payload as PieChartDataPoint;
       const displayName = dataPoint.name ?? dataPoint.segment ?? dataPoint.source ?? dataPoint.device ?? 'Unknown';

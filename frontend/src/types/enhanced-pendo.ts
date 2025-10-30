@@ -35,6 +35,7 @@ export interface GuideDeviceAnalytics {
   percentage: number;
   completionRate: number;
   averageTimeSpent: number;
+  [key: string]: string | number;
 }
 
 export interface GuideTimeAnalytics {
@@ -45,6 +46,7 @@ export interface GuideTimeAnalytics {
   uniqueVisitors: number;
   averageTimeSpent: number;
   dropOffRate: number;
+  [key: string]: string | number | undefined;
 }
 
 export interface GuideGeographic {
@@ -55,6 +57,7 @@ export interface GuideGeographic {
   percentage: number;
   completionRate: number;
   language: string;
+  [key: string]: string | number | undefined;
 }
 
 export interface GuidePoll {
@@ -272,6 +275,7 @@ export interface TrafficSource {
   averageTimeOnPage: number;
   bounceRate: number;
   pagesPerSession: number;
+  [key: string]: string | number | undefined;
 }
 
 export interface EntryPoint {

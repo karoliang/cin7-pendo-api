@@ -75,6 +75,12 @@ export const DataTables: React.FC = () => {
   const filteredData = React.useMemo(() => {
     type FilterableItem = Guide | Feature | Page | Report;
 
+    // Type guards for union type
+    const isGuide = (item: FilterableItem): item is Guide => 'state' in item && 'viewedCount' in item && 'completedCount' in item;
+    const isFeature = (item: FilterableItem): item is Feature => 'eventType' in item && 'usageCount' in item;
+    const isPage = (item: FilterableItem): item is Page => 'url' in item && 'title' in item;
+    const isReport = (item: FilterableItem): item is Report => 'name' in item && !('state' in item) && !('url' in item);
+
     const filterArray = <T extends FilterableItem>(array: T[], filterFn: (item: T) => boolean): T[] => {
       return array.filter(filterFn);
     };
@@ -83,24 +89,26 @@ export const DataTables: React.FC = () => {
       // Search filter
       if (filters.searchQuery) {
         const searchLower = filters.searchQuery.toLowerCase();
-        if (!item.name?.toLowerCase().includes(searchLower) &&
-            !item.description?.toLowerCase().includes(searchLower) &&
-            !item.title?.toLowerCase().includes(searchLower) &&
-            !item.url?.toLowerCase().includes(searchLower)) {
+        const nameMatch = 'name' in item && item.name?.toLowerCase().includes(searchLower);
+        const descMatch = 'description' in item && item.description?.toLowerCase().includes(searchLower);
+        const titleMatch = isPage(item) && item.title?.toLowerCase().includes(searchLower);
+        const urlMatch = isPage(item) && item.url?.toLowerCase().includes(searchLower);
+
+        if (!nameMatch && !descMatch && !titleMatch && !urlMatch) {
           return false;
         }
       }
 
-      // Status filter
+      // Status filter (only applies to Guides)
       if (filters.status && filters.status.length > 0) {
-        if (!filters.status.includes(item.state)) {
+        if (isGuide(item) && !filters.status.includes(item.state)) {
           return false;
         }
       }
 
-      // Guide types filter
+      // Guide types filter (only applies to Guides)
       if (filters.guideTypes && filters.guideTypes.length > 0) {
-        if (!filters.guideTypes.includes(item.type)) {
+        if (isGuide(item) && item.type && !filters.guideTypes.includes(item.type)) {
           return false;
         }
       }
@@ -224,67 +232,82 @@ export const DataTables: React.FC = () => {
 
   const currentTab = tabs.find(tab => tab.id === activeTab)!;
 
-  const getColumns = () => {
+  type TableItem = Guide | Feature | Page | Report;
+  type CommonKeys = keyof Guide & keyof Feature & keyof Page & keyof Report;
+
+  const getColumns = (): Array<{
+    key: string;
+    header: string;
+    render?: (value: unknown, item: TableItem) => React.ReactNode;
+    sortable?: boolean;
+    width?: string;
+  }> => {
     switch (activeTab) {
       case 'guides':
         return [
-          { key: 'name' as keyof Guide, header: 'Name', sortable: true },
-          { key: 'state' as keyof Guide, header: 'Status', sortable: true, render: (value: string) => (
-            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-              value === 'published' || value === 'public' || value === 'active'
-                ? 'bg-green-100 text-green-800'
-                : value === 'draft'
-                ? 'bg-yellow-100 text-yellow-800'
-                : value === '_pendingReview_'
-                ? 'bg-orange-100 text-orange-800'
-                : value === 'paused' || value === 'inactive'
-                ? 'bg-red-100 text-red-800'
-                : value === 'archived' || value === 'private'
-                ? 'bg-gray-100 text-gray-800'
-                : 'bg-blue-100 text-blue-800'
-            }`}>
-              {value.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-            </span>
-          )},
-          { key: 'viewedCount' as keyof Guide, header: 'Views', sortable: true },
-          { key: 'completedCount' as keyof Guide, header: 'Completions', sortable: true },
-          { key: 'createdAt' as keyof Guide, header: 'Created', sortable: true, render: (value: string) => (
-            new Date(value).toLocaleDateString()
+          { key: 'name', header: 'Name', sortable: true },
+          { key: 'state', header: 'Status', sortable: true, render: (value: unknown) => {
+            const state = value as string;
+            return (
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                state === 'published' || state === 'public' || state === 'active'
+                  ? 'bg-green-100 text-green-800'
+                  : state === 'draft'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : state === '_pendingReview_'
+                  ? 'bg-orange-100 text-orange-800'
+                  : state === 'paused' || state === 'inactive'
+                  ? 'bg-red-100 text-red-800'
+                  : state === 'archived' || state === 'private'
+                  ? 'bg-gray-100 text-gray-800'
+                  : 'bg-blue-100 text-blue-800'
+              }`}>
+                {state.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </span>
+            );
+          }},
+          { key: 'viewedCount', header: 'Views', sortable: true },
+          { key: 'completedCount', header: 'Completions', sortable: true },
+          { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
+            new Date(value as string).toLocaleDateString()
           )},
         ];
       case 'features':
         return [
-          { key: 'name' as keyof Feature, header: 'Name', sortable: true },
-          { key: 'eventType' as keyof Feature, header: 'Type', sortable: true },
-          { key: 'visitorCount' as keyof Feature, header: 'Visitors', sortable: true },
-          { key: 'usageCount' as keyof Feature, header: 'Usage', sortable: true },
-          { key: 'createdAt' as keyof Feature, header: 'Created', sortable: true, render: (value: string) => (
-            new Date(value).toLocaleDateString()
+          { key: 'name', header: 'Name', sortable: true },
+          { key: 'eventType', header: 'Type', sortable: true },
+          { key: 'visitorCount', header: 'Visitors', sortable: true },
+          { key: 'usageCount', header: 'Usage', sortable: true },
+          { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
+            new Date(value as string).toLocaleDateString()
           )},
         ];
       case 'pages':
         return [
-          { key: 'title' as keyof Page, header: 'Title', sortable: true, render: (value: string, item: Page) => (
-            <div>
-              <div className="font-medium">{value || 'Untitled'}</div>
-              <div className="text-xs text-gray-500 font-mono">{item.url}</div>
-            </div>
-          )},
-          { key: 'viewedCount' as keyof Page, header: 'Views', sortable: true },
-          { key: 'visitorCount' as keyof Page, header: 'Visitors', sortable: true },
-          { key: 'createdAt' as keyof Page, header: 'Created', sortable: true, render: (value: string) => (
-            new Date(value).toLocaleDateString()
+          { key: 'title', header: 'Title', sortable: true, render: (value: unknown, item: TableItem) => {
+            const page = item as Page;
+            return (
+              <div>
+                <div className="font-medium">{(value as string) || 'Untitled'}</div>
+                <div className="text-xs text-gray-500 font-mono">{page.url}</div>
+              </div>
+            );
+          }},
+          { key: 'viewedCount', header: 'Views', sortable: true },
+          { key: 'visitorCount', header: 'Visitors', sortable: true },
+          { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
+            new Date(value as string).toLocaleDateString()
           )},
         ];
       case 'reports':
         return [
-          { key: 'name' as keyof Report, header: 'Name', sortable: true },
-          { key: 'description' as keyof Report, header: 'Description', sortable: false },
-          { key: 'lastSuccessRunAt' as keyof Report, header: 'Last Run', sortable: true, render: (value: string) => (
-            value ? new Date(value).toLocaleDateString() : 'Never'
+          { key: 'name', header: 'Name', sortable: true },
+          { key: 'description', header: 'Description', sortable: false },
+          { key: 'lastSuccessRunAt', header: 'Last Run', sortable: true, render: (value: unknown) => (
+            value ? new Date(value as string).toLocaleDateString() : 'Never'
           )},
-          { key: 'createdAt' as keyof Report, header: 'Created', sortable: true, render: (value: string) => (
-            new Date(value).toLocaleDateString()
+          { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
+            new Date(value as string).toLocaleDateString()
           )},
         ];
       default:

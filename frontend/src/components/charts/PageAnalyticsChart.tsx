@@ -5,7 +5,9 @@ import {
   Cell,
   ResponsiveContainer,
   Tooltip,
-  Legend
+  Legend,
+  type PieLabelRenderProps,
+  type LegendPayload
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Page } from '@/types/pendo';
@@ -80,16 +82,21 @@ export const PageAnalyticsChart: React.FC<PageAnalyticsChartProps> = ({
     return null;
   };
 
-  interface CustomLabelProps {
-    cx: number;
-    cy: number;
-    midAngle: number;
-    innerRadius: number;
-    outerRadius: number;
-    percent: number;
-  }
+  const CustomLabel = (props: PieLabelRenderProps) => {
+    const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props;
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: CustomLabelProps) => {
+    // Type guard to ensure all required properties exist
+    if (
+      typeof cx !== 'number' ||
+      typeof cy !== 'number' ||
+      typeof midAngle !== 'number' ||
+      typeof innerRadius !== 'number' ||
+      typeof outerRadius !== 'number' ||
+      typeof percent !== 'number'
+    ) {
+      return null;
+    }
+
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -142,11 +149,15 @@ export const PageAnalyticsChart: React.FC<PageAnalyticsChartProps> = ({
                 verticalAlign="middle"
                 align="right"
                 layout="vertical"
-                formatter={(value: number, entry: { color?: string; payload?: { name: string } }) => (
-                  <span style={{ color: entry.color }}>
-                    {entry.payload?.name} ({value.toLocaleString()})
-                  </span>
-                )}
+                formatter={(value: string | number, entry: LegendPayload) => {
+                  const payload = entry.payload as { name?: string };
+                  const name = payload?.name || 'Unknown';
+                  return (
+                    <span style={{ color: entry.color }}>
+                      {name} ({typeof value === 'number' ? value.toLocaleString() : value})
+                    </span>
+                  );
+                }}
               />
             </PieChart>
           </ResponsiveContainer>

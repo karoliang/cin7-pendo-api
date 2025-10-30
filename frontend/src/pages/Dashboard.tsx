@@ -12,11 +12,16 @@ import { useDashboardOverview } from '@/hooks/usePendoData';
 import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 
+// Define SearchFilters interface to match AdvancedSearch component
+interface SearchFilters {
+  type: 'all' | 'guide' | 'feature' | 'page' | 'report';
+}
+
 export const Dashboard: React.FC = () => {
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters, resetFilters } = useFilterStore();
 
-  const handleAdvancedSearch = (query: string, searchFilters?: Record<string, string | string[]>) => {
+  const handleAdvancedSearch = (query: string, searchFilters?: SearchFilters) => {
     // Update the search query in filters
     updateFilters({
       ...filters,
@@ -32,6 +37,12 @@ export const Dashboard: React.FC = () => {
   const filteredData = useMemo(() => {
     type FilterableItem = Guide | Feature | Page | Report;
 
+    // Type guards for union type
+    const isGuide = (item: FilterableItem): item is Guide => 'state' in item && 'viewedCount' in item && 'completedCount' in item;
+    const isFeature = (item: FilterableItem): item is Feature => 'eventType' in item && 'usageCount' in item;
+    const isPage = (item: FilterableItem): item is Page => 'url' in item && 'title' in item;
+    const isReport = (item: FilterableItem): item is Report => 'name' in item && !('state' in item) && !('url' in item);
+
     const filterArray = <T extends FilterableItem>(array: T[], filterFn: (item: T) => boolean): T[] => {
       return array.filter(filterFn);
     };
@@ -40,24 +51,26 @@ export const Dashboard: React.FC = () => {
       // Search filter
       if (filters.searchQuery) {
         const searchLower = filters.searchQuery.toLowerCase();
-        if (!item.name?.toLowerCase().includes(searchLower) &&
-            !item.description?.toLowerCase().includes(searchLower) &&
-            !item.title?.toLowerCase().includes(searchLower) &&
-            !item.url?.toLowerCase().includes(searchLower)) {
+        const nameMatch = 'name' in item && item.name?.toLowerCase().includes(searchLower);
+        const descMatch = 'description' in item && item.description?.toLowerCase().includes(searchLower);
+        const titleMatch = isPage(item) && item.title?.toLowerCase().includes(searchLower);
+        const urlMatch = isPage(item) && item.url?.toLowerCase().includes(searchLower);
+
+        if (!nameMatch && !descMatch && !titleMatch && !urlMatch) {
           return false;
         }
       }
 
-      // Status filter
+      // Status filter (only applies to Guides)
       if (filters.status && filters.status.length > 0) {
-        if (!filters.status.includes(item.state)) {
+        if (isGuide(item) && !filters.status.includes(item.state)) {
           return false;
         }
       }
 
-      // Guide types filter
+      // Guide types filter (only applies to Guides)
       if (filters.guideTypes && filters.guideTypes.length > 0) {
-        if (!filters.guideTypes.includes(item.type)) {
+        if (isGuide(item) && item.type && !filters.guideTypes.includes(item.type)) {
           return false;
         }
       }
@@ -84,43 +97,85 @@ export const Dashboard: React.FC = () => {
     };
   }, [guides, features, pages, reports, filters]);
 
-  // Apply sorting
+  // Apply sorting - maintaining proper types
   const sortedData = useMemo(() => {
     if (!filters.sortBy) return filteredData;
 
     type SortableValue = string | number | undefined;
 
-    const sortFn = (a: Guide | Feature | Page | Report, b: Guide | Feature | Page | Report): number => {
-      const aValue = a[filters.sortBy! as keyof typeof a] as SortableValue;
-      const bValue = b[filters.sortBy! as keyof typeof b] as SortableValue;
+    const sortGuides = (a: Guide, b: Guide): number => {
+      const aValue = a[filters.sortBy! as keyof Guide] as SortableValue;
+      const bValue = b[filters.sortBy! as keyof Guide] as SortableValue;
 
-      // Handle undefined values
       if (aValue === undefined && bValue === undefined) return 0;
       if (aValue === undefined) return 1;
       if (bValue === undefined) return -1;
 
-      // Handle string comparison
       if (typeof aValue === 'string' && typeof bValue === 'string') {
-        const aLower = aValue.toLowerCase();
-        const bLower = bValue.toLowerCase();
-        if (filters.sortOrder === 'desc') {
-          return aLower > bLower ? -1 : aLower < bLower ? 1 : 0;
-        }
-        return aLower < bLower ? -1 : aLower > bLower ? 1 : 0;
+        const comparison = aValue.toLowerCase().localeCompare(bValue.toLowerCase());
+        return filters.sortOrder === 'desc' ? -comparison : comparison;
       }
 
-      // Handle numeric comparison
-      if (filters.sortOrder === 'desc') {
-        return (aValue as number) > (bValue as number) ? -1 : (aValue as number) < (bValue as number) ? 1 : 0;
+      const numComparison = (aValue as number) - (bValue as number);
+      return filters.sortOrder === 'desc' ? -numComparison : numComparison;
+    };
+
+    const sortFeatures = (a: Feature, b: Feature): number => {
+      const aValue = a[filters.sortBy! as keyof Feature] as SortableValue;
+      const bValue = b[filters.sortBy! as keyof Feature] as SortableValue;
+
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const comparison = aValue.toLowerCase().localeCompare(bValue.toLowerCase());
+        return filters.sortOrder === 'desc' ? -comparison : comparison;
       }
-      return (aValue as number) < (bValue as number) ? -1 : (aValue as number) > (bValue as number) ? 1 : 0;
+
+      const numComparison = (aValue as number) - (bValue as number);
+      return filters.sortOrder === 'desc' ? -numComparison : numComparison;
+    };
+
+    const sortPages = (a: Page, b: Page): number => {
+      const aValue = a[filters.sortBy! as keyof Page] as SortableValue;
+      const bValue = b[filters.sortBy! as keyof Page] as SortableValue;
+
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const comparison = aValue.toLowerCase().localeCompare(bValue.toLowerCase());
+        return filters.sortOrder === 'desc' ? -comparison : comparison;
+      }
+
+      const numComparison = (aValue as number) - (bValue as number);
+      return filters.sortOrder === 'desc' ? -numComparison : numComparison;
+    };
+
+    const sortReports = (a: Report, b: Report): number => {
+      const aValue = a[filters.sortBy! as keyof Report] as SortableValue;
+      const bValue = b[filters.sortBy! as keyof Report] as SortableValue;
+
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const comparison = aValue.toLowerCase().localeCompare(bValue.toLowerCase());
+        return filters.sortOrder === 'desc' ? -comparison : comparison;
+      }
+
+      const numComparison = (aValue as number) - (bValue as number);
+      return filters.sortOrder === 'desc' ? -numComparison : numComparison;
     };
 
     return {
-      guides: [...filteredData.guides].sort(sortFn),
-      features: [...filteredData.features].sort(sortFn),
-      pages: [...filteredData.pages].sort(sortFn),
-      reports: [...filteredData.reports].sort(sortFn)
+      guides: [...filteredData.guides].sort(sortGuides),
+      features: [...filteredData.features].sort(sortFeatures),
+      pages: [...filteredData.pages].sort(sortPages),
+      reports: [...filteredData.reports].sort(sortReports)
     };
   }, [filteredData, filters.sortBy, filters.sortOrder]);
 
@@ -131,7 +186,7 @@ export const Dashboard: React.FC = () => {
       value: sortedData.guides.length.toString(),
       change: 12,
       changeType: 'increase' as const,
-      description: `${sortedData.guides.filter(g => g.state === 'published').length} published`
+      description: `${(sortedData.guides as Guide[]).filter(g => g.state === 'published').length} published`
     },
     {
       title: 'Features',
@@ -214,18 +269,18 @@ export const Dashboard: React.FC = () => {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <GuidePerformanceChart
-            guides={sortedData.guides}
+            guides={sortedData.guides as Guide[]}
           />
 
           <FeatureAdoptionChart
-            features={sortedData.features}
+            features={sortedData.features as Feature[]}
           />
         </div>
 
         {/* Additional Chart */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PageAnalyticsChart
-            pages={sortedData.pages}
+            pages={sortedData.pages as Page[]}
           />
 
           {/* Placeholder for future charts */}
@@ -259,7 +314,7 @@ export const Dashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {sortedData.guides.slice(0, 2).map((guide) => (
+              {(sortedData.guides as Guide[]).slice(0, 2).map((guide) => (
                 <div key={guide.id} className="flex items-center justify-between py-2 border-b">
                   <div>
                     <p className="font-medium">Guide "{guide.name}" {guide.state}</p>
@@ -268,15 +323,13 @@ export const Dashboard: React.FC = () => {
                     </p>
                   </div>
                   <span className={`px-2 py-1 text-xs font-medium rounded ${
-                    guide.state === 'published' || guide.state === 'public' || guide.state === 'active'
+                    guide.state === 'published'
                       ? 'bg-green-100 text-green-800'
                       : guide.state === 'draft'
                       ? 'bg-yellow-100 text-yellow-800'
                       : guide.state === '_pendingReview_'
                       ? 'bg-orange-100 text-orange-800'
-                      : guide.state === 'paused' || guide.state === 'inactive'
-                      ? 'bg-red-100 text-red-800'
-                      : guide.state === 'archived' || guide.state === 'private'
+                      : guide.state === 'archived'
                       ? 'bg-gray-100 text-gray-800'
                       : 'bg-blue-100 text-blue-800'
                   }`}>
@@ -284,7 +337,7 @@ export const Dashboard: React.FC = () => {
                   </span>
                 </div>
               ))}
-              {sortedData.features.slice(0, 1).map((feature) => (
+              {(sortedData.features as Feature[]).slice(0, 1).map((feature) => (
                 <div key={feature.id} className="flex items-center justify-between py-2 border-b">
                   <div>
                     <p className="font-medium">Feature "{feature.name}" used</p>
@@ -297,7 +350,7 @@ export const Dashboard: React.FC = () => {
                   </span>
                 </div>
               ))}
-              {sortedData.reports.slice(0, 1).map((report) => (
+              {(sortedData.reports as Report[]).slice(0, 1).map((report) => (
                 <div key={report.id} className="flex items-center justify-between py-2">
                   <div>
                     <p className="font-medium">{report.name}</p>

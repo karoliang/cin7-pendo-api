@@ -9,8 +9,8 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
-import { TooltipProps } from 'recharts';
-import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import type { TooltipProps } from 'recharts';
+import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface HeatmapDataPoint {
   hour: number;
@@ -47,10 +47,13 @@ export const ReportHeatmap: React.FC<ReportHeatmapProps> = ({
 
   const maxValue = Math.max(...data.map(d => d.usageCount || d.value || 0));
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+  // Recharts v3 TooltipProps doesn't properly expose all properties in the type
+  // Using explicit any here with proper runtime checks
+  const CustomTooltip = (props: any) => {
+    const { active, payload, label } = props;
     if (active && payload && payload.length) {
       const value = payload[0].value;
-      const hour = typeof label === 'number' ? label : parseInt(String(label), 10);
+      const hour = typeof label === 'number' ? label : parseInt(String(label || '0'), 10);
 
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">

@@ -12,9 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Column<T> {
-  key: keyof T;
+  key: keyof T | string;
   header: string;
-  render?: (value: T[keyof T], item: T) => React.ReactNode;
+  render?: (value: unknown, item: T) => React.ReactNode;
   sortable?: boolean;
   width?: string;
 }
@@ -59,7 +59,7 @@ export function DataTable<T>({
   paginationOptions = [10, 25, 50, 100],
 }: DataTableProps<T>) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortField, setSortField] = useState<keyof T | null>(null);
+  const [sortField, setSortField] = useState<keyof T | string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Filter and sort data
@@ -71,7 +71,7 @@ export function DataTable<T>({
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((item) =>
         columns.some((column) => {
-          const value = item[column.key];
+          const value = (item as Record<string, unknown>)[column.key as string];
           return value && String(value).toLowerCase().includes(query);
         })
       );
@@ -80,8 +80,8 @@ export function DataTable<T>({
     // Apply sorting
     if (sortField && columns.find(col => col.key === sortField)?.sortable !== false) {
       filtered = [...filtered].sort((a, b) => {
-        const aValue = a[sortField];
-        const bValue = b[sortField];
+        const aValue = (a as Record<string, unknown>)[sortField as string];
+        const bValue = (b as Record<string, unknown>)[sortField as string];
 
         // Handle string comparison
         if (typeof aValue === 'string' && typeof bValue === 'string') {
@@ -120,16 +120,16 @@ export function DataTable<T>({
     return processedData.slice(start, end);
   }, [processedData, pagination]);
 
-  const handleSort = (field: keyof T) => {
+  const handleSort = (field: keyof T | string) => {
     if (columns.find(col => col.key === field)?.sortable === false) return;
 
     const newOrder = field === sortField && sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortField(field);
+    setSortField(field as keyof T);
     setSortOrder(newOrder);
-    onSort?.(field, newOrder);
+    onSort?.(field as keyof T, newOrder);
   };
 
-  const renderSortIcon = (field: keyof T) => {
+  const renderSortIcon = (field: keyof T | string) => {
     if (sortField !== field) {
       return (
         <ChevronUpIcon className="h-4 w-4 text-gray-400" />
@@ -251,17 +251,20 @@ export function DataTable<T>({
                     `}
                     onClick={() => onRowClick?.(item)}
                   >
-                    {columns.map((column) => (
-                      <td key={String(column.key)} className="px-6 py-4 whitespace-nowrap">
-                        {column.render ? (
-                          column.render(item[column.key], item)
-                        ) : (
-                          <span className="text-sm text-gray-900">
-                            {String(item[column.key] || '-')}
-                          </span>
-                        )}
-                      </td>
-                    ))}
+                    {columns.map((column) => {
+                      const value = (item as Record<string, unknown>)[column.key as string];
+                      return (
+                        <td key={String(column.key)} className="px-6 py-4 whitespace-nowrap">
+                          {column.render ? (
+                            column.render(value, item)
+                          ) : (
+                            <span className="text-sm text-gray-900">
+                              {String(value || '-')}
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))
               )}

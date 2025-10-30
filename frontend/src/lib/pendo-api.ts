@@ -16,6 +16,11 @@ interface AggregationOperator {
   value: string | number | (string | number)[];
 }
 
+interface AggregationMetric {
+  name: string;
+  function: 'count' | 'avg' | 'sum' | 'max' | 'min';
+}
+
 interface AggregationParams {
   source?: string;
   operators?: AggregationOperator[];
@@ -23,7 +28,10 @@ interface AggregationParams {
   timeSeries?: {
     period: string;
     first: number;
-  };
+  } | string;
+  groupby?: string[];
+  metrics?: AggregationMetric[];
+  [key: string]: unknown; // Index signature for flexible params
 }
 
 type PendoApiResponse = unknown;
@@ -79,7 +87,7 @@ class PendoAPIClient {
     // Check cache first
     const cacheKey = this.generateCacheKey(endpoint, params, method);
     const cachedResult = this.getCachedResult<T>(cacheKey);
-    if (cachedResult) {
+    if (cachedResult !== null) {
       return cachedResult;
     }
 
@@ -91,7 +99,7 @@ class PendoAPIClient {
 
     // Special handling for aggregation endpoint
     if (endpoint === '/api/v1/aggregation') {
-      return this.handleAggregationRequest(params, method);
+      return this.handleAggregationRequest(params, method) as Promise<T>;
     }
 
     if (method === 'GET' && params) {
@@ -186,7 +194,8 @@ class PendoAPIClient {
         console.log(`✅ Success with approach: ${approach.name}`);
         return result;
       } catch (error) {
-        console.log(`❌ Approach failed: ${approach.name} - ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.log(`❌ Approach failed: ${approach.name} - ${errorMessage}`);
         continue;
       }
     }
@@ -266,7 +275,7 @@ class PendoAPIClient {
 
     // Add time series processing if specified
     if (params.timeSeries) {
-      if (params.timeSeries === 'daily') {
+      if (typeof params.timeSeries === 'string' && params.timeSeries === 'daily') {
         pipeline.push({
           $project: {
             eventTime: {
@@ -494,7 +503,7 @@ class PendoAPIClient {
     }
   }
 
-  async getGuideAnalytics(id: string, _period: { start: string; end: string }): Promise<ComprehensiveGuideData> {
+  async getGuideAnalytics(id: string, period: { start: string; end: string }): Promise<ComprehensiveGuideData> {
     try {
       console.log(`🚀 Starting analytics fetch for guide ID: ${id}`);
       console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
@@ -670,7 +679,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideTimeSeries(id: string, _period: { start: string; end: string }) {
+  private async getGuideTimeSeries(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating time series analytics for guide ${id} using real API data`);
 
@@ -734,7 +743,7 @@ class PendoAPIClient {
     }));
   }
 
-  private async getGuideStepAnalytics(id: string, _period: { start: string; end: string }) {
+  private async getGuideStepAnalytics(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating step analytics for guide ${id} using real API data`);
 
@@ -869,7 +878,7 @@ class PendoAPIClient {
     return stepData.length > 0 ? stepData : this.generateFallbackStepData();
   }
 
-  private async getGuideSegmentPerformance(id: string, _period: { start: string; end: string }) {
+  private async getGuideSegmentPerformance(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating segment performance for guide ${id} using alternative approach`);
 
@@ -938,7 +947,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideDeviceBreakdown(id: string, _period: { start: string; end: string }) {
+  private async getGuideDeviceBreakdown(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating device breakdown for guide ${id} using realistic data`);
 
@@ -1004,7 +1013,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideGeographicData(id: string, _period: { start: string; end: string }) {
+  private async getGuideGeographicData(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating geographic data for guide ${id} using realistic distributions`);
 
@@ -1097,7 +1106,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuidePollData(id: string, _period: { start: string; end: string }) {
+  private async getGuidePollData(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating poll data for guide ${id} using alternative approach`);
 
@@ -1146,7 +1155,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideUserBehavior(id: string, _period: { start: string; end: string }) {
+  private async getGuideUserBehavior(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating user behavior data for guide ${id} using alternative approach`);
 
@@ -1181,7 +1190,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideHourlyAnalytics(id: string, _period: { start: string; end: string }) {
+  private async getGuideHourlyAnalytics(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating hourly analytics for guide ${id} using alternative approach`);
 
@@ -1217,7 +1226,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideWeeklyAnalytics(id: string, _period: { start: string; end: string }) {
+  private async getGuideWeeklyAnalytics(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating weekly analytics for guide ${id} using alternative approach`);
 
@@ -1257,7 +1266,7 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideVariantPerformance(id: string, _period: { start: string; end: string }) {
+  private async getGuideVariantPerformance(id: string, period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating variant performance for guide ${id} using alternative approach`);
 
@@ -2021,7 +2030,8 @@ export async function testNewAggregationFixes(guideId?: string) {
           console.log(JSON.stringify(timeSeries.slice(0, 3), null, 2));
         }
       } catch (error) {
-        console.log(`❌ Time series aggregation failed:`, error.message);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.log(`❌ Time series aggregation failed:`, errorMessage);
       }
 
       // Test 2: Step analytics
@@ -2035,7 +2045,8 @@ export async function testNewAggregationFixes(guideId?: string) {
           console.log(JSON.stringify(stepAnalytics.slice(0, 2), null, 2));
         }
       } catch (error) {
-        console.log(`❌ Step analytics failed:`, error.message);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.log(`❌ Step analytics failed:`, errorMessage);
       }
 
       // Test 3: Raw aggregation pipeline test
@@ -2049,7 +2060,8 @@ export async function testNewAggregationFixes(guideId?: string) {
         }, 'POST');
         console.log(`✅ Raw pipeline successful:`, pipelineResponse);
       } catch (error) {
-        console.log(`❌ Raw pipeline failed:`, error.message);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.log(`❌ Raw pipeline failed:`, errorMessage);
       }
 
       // Test 4: Test the jzb encoding
@@ -2062,7 +2074,8 @@ export async function testNewAggregationFixes(guideId?: string) {
         }, 'POST');
         console.log(`✅ JZB approach successful:`, jzbResponse);
       } catch (error) {
-        console.log(`❌ JZB approach failed:`, error.message);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.log(`❌ JZB approach failed:`, errorMessage);
       }
 
       console.log('\n🎉 Comprehensive testing completed!');
@@ -2118,7 +2131,8 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
       const individualGuide = await pendoAPI.getGuideById(testGuideId);
       console.log(`✅ Individual guide access successful: ${individualGuide.name}`);
     } catch (error) {
-      console.log(`⚠️ Individual guide access failed, fallbacks tested: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log(`⚠️ Individual guide access failed, fallbacks tested: ${errorMessage}`);
     }
 
     // Test 3: Aggregation API multiple approaches
@@ -2129,9 +2143,10 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
         guideId: testGuideId,
         timeSeries: 'daily'
       }, 'POST');
-      console.log(`✅ Aggregation API result:`, aggregationResult.message || 'Success');
+      console.log(`✅ Aggregation API result:`, (aggregationResult as any)?.message || 'Success');
     } catch (error) {
-      console.log(`⚠️ Aggregation API test: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log(`⚠️ Aggregation API test: ${errorMessage}`);
     }
 
     // Test 4: Comprehensive analytics with real data
@@ -2157,7 +2172,8 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
       console.log(`   • Polls: ${analytics.polls.length}`);
       console.log(`   • Variants: ${analytics.variantPerformance.length}`);
     } catch (error) {
-      console.log(`❌ Comprehensive analytics failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log(`❌ Comprehensive analytics failed: ${errorMessage}`);
     }
 
     // Test 5: Error handling for invalid guide ID
@@ -2166,7 +2182,8 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
       await pendoAPI.getGuideById('invalid-guide-id-12345');
       console.log(`⚠️ Invalid guide ID should have failed`);
     } catch (error) {
-      console.log(`✅ Error handling works correctly: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log(`✅ Error handling works correctly: ${errorMessage}`);
     }
 
     // Test 6: Performance metrics
@@ -2230,7 +2247,8 @@ export async function testSpecificErrors() {
       metrics: [{"name":"visitorId","function":"count"}]
     }, 'POST');
   } catch (error) {
-    console.log(`❌ Original error (expected):`, error.message);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log(`❌ Original error (expected):`, errorMessage);
   }
 
   // Test with pipeline
@@ -2245,7 +2263,8 @@ export async function testSpecificErrors() {
     }, 'POST');
     console.log(`✅ Pipeline approach successful:`, response);
   } catch (error) {
-    console.log(`❌ Pipeline approach failed:`, error.message);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log(`❌ Pipeline approach failed:`, errorMessage);
   }
 
   // Test the enhanced aggregation handler
@@ -2256,9 +2275,10 @@ export async function testSpecificErrors() {
       guideId: "test-guide",
       timeSeries: 'daily'
     }, 'POST');
-    console.log(`✅ Enhanced handler result:`, result.message || 'Success');
+    console.log(`✅ Enhanced handler result:`, (result as any)?.message || 'Success');
   } catch (error) {
-    console.log(`❌ Enhanced handler failed:`, error.message);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log(`❌ Enhanced handler failed:`, errorMessage);
   }
 
   console.log('\n✅ Specific error testing completed');
@@ -2291,7 +2311,8 @@ export async function quickValidatePendoAPI(guideId?: string) {
 
     return { success: false, error: 'No guides found' };
   } catch (error) {
-    console.error(`❌ Validation failed: ${error.message}`);
-    return { success: false, error: error.message };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Validation failed: ${errorMessage}`);
+    return { success: false, error: errorMessage };
   }
 }

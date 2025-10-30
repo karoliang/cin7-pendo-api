@@ -9,8 +9,8 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
-import { TooltipProps } from 'recharts';
-import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import type { TooltipProps } from 'recharts';
+import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface ChartDataPoint {
   [key: string]: string | number | undefined;
@@ -54,15 +54,18 @@ export const ReportBarChart: React.FC<ReportBarChartProps> = ({
     return [value.toLocaleString(), name];
   };
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+  // Recharts v3 TooltipProps doesn't properly expose all properties in the type
+  // Using explicit any here with proper runtime checks
+  const CustomTooltip = (props: any) => {
+    const { active, payload, label } = props;
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
+          <p className="font-medium text-gray-900 mb-2">{String(label || '')}</p>
           {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
-              {entry.name && (entry.name.includes('Rate') || entry.name.includes('rate')) ? '%' : ''}
+              {entry.name && (String(entry.name).includes('Rate') || String(entry.name).includes('rate')) ? '%' : ''}
             </p>
           ))}
         </div>

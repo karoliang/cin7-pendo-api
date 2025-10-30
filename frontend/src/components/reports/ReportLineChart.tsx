@@ -9,15 +9,15 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
-import { TooltipProps } from 'recharts';
-import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import type { TooltipProps } from 'recharts';
+import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface LineChartDataPoint {
   date: string;
   views?: number;
   completions?: number;
   uniqueVisitors?: number;
-  [key: string]: string | number | undefined;
+  [key: string]: string | number | undefined; // Index signature for flexible data access
 }
 
 interface ReportLineChartProps {
@@ -46,9 +46,12 @@ export const ReportLineChart: React.FC<ReportLineChartProps> = ({
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+  // Recharts v3 TooltipProps doesn't properly expose all properties in the type
+  // Using explicit any here with proper runtime checks
+  const CustomTooltip = (props: any) => {
+    const { active, payload, label } = props;
     if (active && payload && payload.length) {
-      const dateLabel = typeof label === 'string' ? label : String(label);
+      const dateLabel = typeof label === 'string' ? label : String(label || '');
 
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
