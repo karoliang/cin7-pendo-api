@@ -91,10 +91,9 @@ export const DataTables: React.FC = () => {
         const searchLower = filters.searchQuery.toLowerCase();
         const nameMatch = 'name' in item && item.name?.toLowerCase().includes(searchLower);
         const descMatch = 'description' in item && item.description?.toLowerCase().includes(searchLower);
-        const titleMatch = isPage(item) && item.title?.toLowerCase().includes(searchLower);
         const urlMatch = isPage(item) && item.url?.toLowerCase().includes(searchLower);
 
-        if (!nameMatch && !descMatch && !titleMatch && !urlMatch) {
+        if (!nameMatch && !descMatch && !urlMatch) {
           return false;
         }
       }
@@ -284,11 +283,11 @@ export const DataTables: React.FC = () => {
         ];
       case 'pages':
         return [
-          { key: 'title', header: 'Title', sortable: true, render: (value: unknown, item: TableItem) => {
+          { key: 'name', header: 'Page Name', sortable: true, render: (value: unknown, item: TableItem) => {
             const page = item as Page;
             return (
               <div>
-                <div className="font-medium">{(value as string) || 'Untitled'}</div>
+                <div className="font-medium">{value as string}</div>
                 <div className="text-xs text-gray-500 font-mono">{page.url}</div>
               </div>
             );
@@ -320,7 +319,7 @@ export const DataTables: React.FC = () => {
     console.log('Navigating to:', `/report/${activeTab}/${item.id}`, {
       activeTab,
       itemId: item.id,
-      itemName: 'name' in item ? item.name : 'title' in item ? item.title : 'Unknown'
+      itemName: 'name' in item ? item.name : 'Unknown'
     });
     navigate(`/report/${activeTab}/${item.id}`);
   };

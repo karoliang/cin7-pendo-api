@@ -2243,7 +2243,7 @@ class PendoAPIClient {
     {
       id: '1',
       url: '/dashboard',
-      title: 'Dashboard',
+      name: 'Dashboard',
       viewedCount: 5678,
       visitorCount: 1234,
       createdAt: '2024-01-01T00:00:00Z',
@@ -2252,7 +2252,7 @@ class PendoAPIClient {
     {
       id: '2',
       url: '/reports',
-      title: 'Reports',
+      name: 'Reports',
       viewedCount: 2345,
       visitorCount: 890,
       createdAt: '2024-01-02T00:00:00Z',

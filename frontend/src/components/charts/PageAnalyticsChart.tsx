@@ -26,7 +26,7 @@ export const PageAnalyticsChart: React.FC<PageAnalyticsChartProps> = ({
     return pages
       .slice(0, 6)
       .map(page => ({
-        name: page.title || page.url.split('/').pop() || 'Unknown Page',
+        name: page.name || page.url.split('/').pop() || 'Unknown Page',
         views: page.viewedCount,
         visitors: page.visitorCount,
         avgTimePerPage: Math.floor(Math.random() * 300) + 60 // Mock data for demo

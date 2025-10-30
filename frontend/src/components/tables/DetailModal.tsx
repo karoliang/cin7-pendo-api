@@ -157,8 +157,8 @@ export function DetailModal({ item, type, isOpen, onClose }: DetailModalProps) {
       </div>
 
       <div>
-        <h4 className="text-sm font-medium text-gray-500">Title</h4>
-        <p className="mt-1 text-sm text-gray-900">{page.title || page.url}</p>
+        <h4 className="text-sm font-medium text-gray-500">Page Name</h4>
+        <p className="mt-1 text-sm text-gray-900">{page.name}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -266,7 +266,7 @@ export function DetailModal({ item, type, isOpen, onClose }: DetailModalProps) {
           <h2 className="text-xl font-semibold text-gray-900 capitalize">
             {type === 'guide' ? (item as Guide).name :
              type === 'feature' ? (item as Feature).name :
-             type === 'page' ? (item as Page).title || (item as Page).url :
+             type === 'page' ? (item as Page).name :
              (item as Report).name}
           </h2>
           <Button

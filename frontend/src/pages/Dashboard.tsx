@@ -53,10 +53,9 @@ export const Dashboard: React.FC = () => {
         const searchLower = filters.searchQuery.toLowerCase();
         const nameMatch = 'name' in item && item.name?.toLowerCase().includes(searchLower);
         const descMatch = 'description' in item && item.description?.toLowerCase().includes(searchLower);
-        const titleMatch = isPage(item) && item.title?.toLowerCase().includes(searchLower);
         const urlMatch = isPage(item) && item.url?.toLowerCase().includes(searchLower);
 
-        if (!nameMatch && !descMatch && !titleMatch && !urlMatch) {
+        if (!nameMatch && !descMatch && !urlMatch) {
           return false;
         }
       }
