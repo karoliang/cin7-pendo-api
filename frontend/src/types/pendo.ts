@@ -89,7 +89,6 @@ export interface PageFeature {
 export interface PageGuide {
   guideId: string;
   name: string;
-  productArea?: string;
   segment?: string;
   status: string;
 }

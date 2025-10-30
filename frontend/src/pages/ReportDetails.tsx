@@ -947,18 +947,21 @@ export const ReportDetails: React.FC = () => {
                 </Card>
               </div>
 
-              {/* Features targeting this Page */}
+              {/* Features - All (API Limitation) */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span className="flex items-center">
                       <CubeIcon className="h-5 w-5 mr-2 text-green-600" />
-                      Features targeting this Page (7)
+                      Top Features by Usage (7)
                     </span>
                     <Button variant="ghost" size="sm" className="text-green-600">
                       View in Data Explorer →
                     </Button>
                   </CardTitle>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Note: Pendo API does not support filtering features by page. Showing top features by usage across all pages.
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
@@ -967,9 +970,6 @@ export const ReportDetails: React.FC = () => {
                         <tr className="border-b text-gray-600">
                           <th className="text-left py-2 font-medium">Feature name</th>
                           <th className="text-right py-2 font-medium">Number of events</th>
-                          <th className="text-right py-2 font-medium">Dead clicks</th>
-                          <th className="text-right py-2 font-medium">Error clicks</th>
-                          <th className="text-right py-2 font-medium">Rage clicks</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -980,14 +980,11 @@ export const ReportDetails: React.FC = () => {
                                 {feature.name}
                               </td>
                               <td className="text-right py-2">{feature.eventCount.toLocaleString()}</td>
-                              <td className="text-right py-2">{feature.deadClicks?.toLocaleString() || 0}</td>
-                              <td className="text-right py-2">{feature.errorClicks?.toLocaleString() || 0}</td>
-                              <td className="text-right py-2">{feature.rageClicks?.toLocaleString() || 0}</td>
                             </tr>
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={5} className="py-4 text-center text-gray-500 text-sm">
+                            <td colSpan={2} className="py-4 text-center text-gray-500 text-sm">
                               No feature data available
                             </td>
                           </tr>
@@ -998,18 +995,21 @@ export const ReportDetails: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Guides targeting this Page */}
+              {/* Guides - All (API Limitation) */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span className="flex items-center">
                       <DocumentTextIcon className="h-5 w-5 mr-2 text-orange-600" />
-                      Guides targeting this Page (175)
+                      Active Guides (175)
                     </span>
                     <Button variant="ghost" size="sm" className="text-orange-600">
                       View in Data Explorer →
                     </Button>
                   </CardTitle>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Note: Pendo API does not support filtering guides by page. Showing all active guides across the system.
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
@@ -1017,7 +1017,6 @@ export const ReportDetails: React.FC = () => {
                       <thead>
                         <tr className="border-b text-gray-600">
                           <th className="text-left py-2 font-medium">Guide Name</th>
-                          <th className="text-left py-2 font-medium">Product Area</th>
                           <th className="text-left py-2 font-medium">Segment</th>
                           <th className="text-left py-2 font-medium">Guide Status</th>
                         </tr>
@@ -1028,15 +1027,6 @@ export const ReportDetails: React.FC = () => {
                             <tr key={guide.guideId || index} className="border-b border-gray-100">
                               <td className="py-2 text-blue-600 hover:underline cursor-pointer">
                                 {guide.name}
-                              </td>
-                              <td className="py-2">
-                                {guide.productArea ? (
-                                  <Badge variant="default">
-                                    {guide.productArea}
-                                  </Badge>
-                                ) : (
-                                  <span className="text-gray-400">--</span>
-                                )}
                               </td>
                               <td className="py-2">{guide.segment || '--'}</td>
                               <td className="py-2">
@@ -1053,7 +1043,7 @@ export const ReportDetails: React.FC = () => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={4} className="py-4 text-center text-gray-500 text-sm">
+                            <td colSpan={3} className="py-4 text-center text-gray-500 text-sm">
                               No guide data available
                             </td>
                           </tr>

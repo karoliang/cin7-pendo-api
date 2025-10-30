@@ -441,15 +441,11 @@ export interface PageFeature {
   featureId: string;
   name: string;
   eventCount: number;
-  deadClicks?: number;
-  errorClicks?: number;
-  rageClicks?: number;
 }
 
 export interface PageGuide {
   guideId: string;
   name: string;
-  productArea?: string;
   segment?: string;
   status: string;
 }

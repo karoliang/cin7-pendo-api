@@ -2694,11 +2694,11 @@ class PendoAPIClient {
    */
   async getFeaturesTargetingPage(pageId: string, limit: number = 10): Promise<PageFeature[]> {
     try {
-      console.log(`📊 Fetching features for page ${pageId} (Note: page filtering not supported by Pendo API)`);
+      console.log(`📊 Fetching top features by usage (Note: Pendo API does not support filtering features by page)`);
 
       // Step 1: Get all features metadata
       const features = await this.getFeatures({ limit: 1000 });
-      console.log(`✅ Retrieved ${features.length} total features`);
+      console.log(`✅ Retrieved ${features.length} total features (cannot filter by page)`);
 
       // Step 2: Get feature event counts from aggregation API
       const featureEventCounts = new Map<string, number>();
@@ -2745,11 +2745,6 @@ class PendoAPIClient {
         featureId: feature.id,
         name: feature.name,
         eventCount: featureEventCounts.get(feature.id) || feature.usageCount || 0,
-        // Note: Frustration metrics are NOT available in featureEvents
-        // These would require querying the 'events' source with frustration event types
-        deadClicks: undefined,
-        errorClicks: undefined,
-        rageClicks: undefined,
       }));
 
       // Step 4: Sort by event count and limit
@@ -2757,9 +2752,9 @@ class PendoAPIClient {
         .sort((a, b) => b.eventCount - a.eventCount)
         .slice(0, limit);
 
-      console.log(`✅ Returning top ${topFeatures.length} features by event count`);
-      console.warn(`⚠️ LIMITATION: Cannot filter features by page - Pendo's featureEvents do not include pageId/pageUrl`);
-      console.warn(`⚠️ LIMITATION: Frustration metrics not available - would require separate 'events' source query`);
+      console.log(`✅ Returning top ${topFeatures.length} features by event count (all features, not filtered by page)`);
+      console.warn(`⚠️ API LIMITATION: Cannot filter features by page - Pendo's featureEvents do not include pageId/pageUrl`);
+      console.warn(`⚠️ API LIMITATION: Frustration metrics not available - would require separate 'events' source query`);
 
       return topFeatures;
 
@@ -2788,7 +2783,7 @@ class PendoAPIClient {
    */
   async getGuidesTargetingPage(pageId: string, limit: number = 175): Promise<PageGuide[]> {
     try {
-      console.log(`📊 Fetching guides targeting page ${pageId}`);
+      console.log(`📊 Fetching all active guides (Note: Pendo API does not support filtering guides by page)`);
 
       // Step 1: Get page metadata to extract URL for matching
       const pages = await this.getPages({ limit: 1000 });
@@ -2815,12 +2810,11 @@ class PendoAPIClient {
           const viewCounts = await this.getGuideTotals(guide.id, 90);
 
           // Create PageGuide object
-          // Note: productArea and segment are not standard fields in Pendo API
-          // These would need to be extracted from guide metadata or custom fields
+          // Note: segment is not a standard field in Pendo API
+          // Using audience as segment approximation
           const pageGuide: PageGuide = {
             guideId: guide.id,
             name: guide.name,
-            productArea: undefined, // Not available in standard API
             segment: guide.audience?.[0] || undefined, // Using audience as segment approximation
             status: guide.state,
           };
@@ -2837,9 +2831,9 @@ class PendoAPIClient {
         }
       }
 
-      console.log(`✅ Returning ${guidesForPage.length} guides`);
-      console.warn(`⚠️ LIMITATION: Cannot accurately filter guides by page - guide targeting rules not fully accessible via API`);
-      console.warn(`⚠️ LIMITATION: productArea and segment fields may not be available in standard Pendo API`);
+      console.log(`✅ Returning ${guidesForPage.length} guides (all guides, not filtered by page)`);
+      console.warn(`⚠️ API LIMITATION: Cannot accurately filter guides by page - guide targeting rules not fully accessible via API`);
+      console.warn(`⚠️ API LIMITATION: productArea and segment fields may not be available in standard Pendo API`);
 
       return guidesForPage;
 
