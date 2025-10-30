@@ -1999,15 +1999,16 @@ class PendoAPIClient {
                 [
                   {
                     source: {
-                      pageEvents: {
-                        pageId: pageId  // Filter at source level
-                      },
+                      pageEvents: null,  // Don't filter in source - use separate filter step
                       timeSeries: {
                         first: "now()",
-                        count: -30,  // Negative count looks backward (max 30 days per Pendo best practices)
+                        count: 30,  // Positive count (not negative)
                         period: "dayRange"
                       }
                     }
+                  },
+                  {
+                    filter: `pageId == "${pageId}"`  // Filter as separate pipeline step
                   },
                   {
                     identified: "visitorId"
@@ -2108,15 +2109,16 @@ class PendoAPIClient {
                 [
                   {
                     source: {
-                      pageEvents: {
-                        pageId: pageId  // Filter at source level
-                      },
+                      pageEvents: null,  // Don't filter in source - use separate filter step
                       timeSeries: {
                         first: "now()",
-                        count: -30,  // Negative count looks backward (max 30 days per Pendo best practices)
+                        count: 30,  // Positive count (not negative)
                         period: "dayRange"
                       }
                     }
+                  },
+                  {
+                    filter: `pageId == "${pageId}"`  // Filter as separate pipeline step
                   },
                   {
                     identified: "accountId"
@@ -2219,15 +2221,16 @@ class PendoAPIClient {
           pipeline: [
             {
               source: {
-                pageEvents: {
-                  pageId: pageId  // Filter at source level
-                },
+                pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
                   first: "now()",
-                  count: -days,  // Negative count looks backward
+                  count: days,  // Positive count (not negative)
                   period: "dayRange"
                 }
               }
+            },
+            {
+              filter: `pageId == "${pageId}"`  // Filter as separate pipeline step
             },
             {
               identified: "visitorId"  // Required by Pendo API to filter out anonymous visitors
