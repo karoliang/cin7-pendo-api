@@ -1,4 +1,4 @@
-import type { Guide, Feature, Page, Report } from '@/types/pendo';
+import type { Guide, Feature, Page, Report, PageFeature, PageGuide } from '@/types/pendo';
 import type {
   ComprehensiveGuideData,
   ComprehensivePageData,
@@ -46,6 +46,37 @@ type PendoFeatureResponse = any;
 type PendoPageResponse = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PendoReportResponse = any;
+
+// Page analytics interfaces (exported for external use)
+export interface PageVisitor {
+  visitorId: string;
+  email?: string;
+  name?: string;
+  viewCount: number;
+}
+
+export interface PageAccount {
+  accountId: string;
+  name?: string;
+  arr?: number;
+  planlevel?: string;
+  viewCount: number;
+}
+
+// Page Event Breakdown interface
+export interface PageEventRow {
+  visitorId: string;
+  accountId?: string;
+  date: string;
+  totalViews: number;
+  uTurns?: number;
+  deadClicks?: number;
+  errorClicks?: number;
+  rageClicks?: number;
+  serverName?: string;
+  browserName?: string;
+  browserVersion?: string;
+}
 
 const PENDO_BASE_URL = 'https://app.pendo.io';
 const PENDO_API_KEY = 'f4acdb2c-038c-4de1-a88b-ab90423037bf.us';
@@ -1603,6 +1634,361 @@ class PendoAPIClient {
     }
   }
 
+  /**
+   * Get top visitors for a specific page using Pendo Aggregation API
+   * Uses spawn/join pattern to combine pageEvents with visitor metadata
+   * @param pageId - The ID of the page
+   * @param limit - Maximum number of visitors to return (default: 10)
+   * @returns Array of top visitors with email, name, and view count
+   */
+  async getTopVisitorsForPage(pageId: string, limit: number = 10): Promise<PageVisitor[]> {
+    try {
+      console.log(`👥 Fetching top ${limit} visitors for page ${pageId}`);
+
+      const endTime = Date.now();
+      const startTime = endTime - (90 * 24 * 60 * 60 * 1000); // Last 90 days
+
+      // Use the flat format that works with Pendo's API (based on test_aggregation.js pattern)
+      const aggregationRequest = {
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              spawn: [
+                // Query 1: Get view counts by visitor
+                [
+                  {
+                    source: {
+                      pageEvents: null,
+                      timeSeries: {
+                        first: startTime,
+                        count: 90,
+                        period: "dayRange"
+                      }
+                    }
+                  },
+                  {
+                    filter: `pageId == "${pageId}"`
+                  },
+                  {
+                    identified: "visitorId"
+                  },
+                  {
+                    group: {
+                      group: ["visitorId"],
+                      fields: {
+                        viewCount: { count: "*" }
+                      }
+                    }
+                  }
+                ],
+                // Query 2: Get visitor details
+                [
+                  {
+                    source: { visitors: null }
+                  },
+                  {
+                    identified: "visitorId"
+                  },
+                  {
+                    select: {
+                      visitorId: "visitorId",
+                      email: "metadata.auto.email",
+                      name: "metadata.agent.name"
+                    }
+                  }
+                ]
+              ]
+            },
+            {
+              join: {
+                fields: ["visitorId"],
+                width: 2
+              }
+            },
+            {
+              sort: ["-viewCount"]
+            }
+          ],
+          requestId: `top_visitors_${pageId}_${Date.now()}`
+        }
+      };
+
+      console.log(`🔍 Request pipeline:`, JSON.stringify(aggregationRequest, null, 2));
+
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+
+      if (response.results && Array.isArray(response.results)) {
+        console.log(`✅ Found ${response.results.length} visitors`);
+
+        const visitors: PageVisitor[] = response.results
+          .slice(0, limit)
+          .map(result => ({
+            visitorId: result.visitorId || result[0]?.visitorId || 'unknown',
+            email: result.email || result[1]?.email,
+            name: result.name || result[1]?.name,
+            viewCount: result.viewCount || result[0]?.viewCount || 0
+          }));
+
+        console.log(`📊 Top visitors:`, visitors);
+        return visitors;
+      }
+
+      console.warn(`⚠️ No visitor results for page ${pageId}`);
+      return [];
+
+    } catch (error) {
+      console.error(`❌ Error fetching top visitors for page ${pageId}:`, error);
+      // Return empty array on error to handle gracefully
+      return [];
+    }
+  }
+
+  /**
+   * Get top accounts for a specific page using Pendo Aggregation API
+   * Uses spawn/join pattern to combine pageEvents with account metadata
+   * @param pageId - The ID of the page
+   * @param limit - Maximum number of accounts to return (default: 10)
+   * @returns Array of top accounts with name, ARR, plan level, and view count
+   */
+  async getTopAccountsForPage(pageId: string, limit: number = 10): Promise<PageAccount[]> {
+    try {
+      console.log(`🏢 Fetching top ${limit} accounts for page ${pageId}`);
+
+      const endTime = Date.now();
+      const startTime = endTime - (90 * 24 * 60 * 60 * 1000); // Last 90 days
+
+      // Use the flat format that works with Pendo's API
+      const aggregationRequest = {
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              spawn: [
+                // Query 1: Get view counts by account
+                [
+                  {
+                    source: {
+                      pageEvents: null,
+                      timeSeries: {
+                        first: startTime,
+                        count: 90,
+                        period: "dayRange"
+                      }
+                    }
+                  },
+                  {
+                    filter: `pageId == "${pageId}"`
+                  },
+                  {
+                    identified: "accountId"
+                  },
+                  {
+                    group: {
+                      group: ["accountId"],
+                      fields: {
+                        viewCount: { count: "*" }
+                      }
+                    }
+                  }
+                ],
+                // Query 2: Get account details
+                [
+                  {
+                    source: { accounts: null }
+                  },
+                  {
+                    identified: "accountId"
+                  },
+                  {
+                    select: {
+                      accountId: "accountId",
+                      name: "metadata.agent.name",
+                      arr: "metadata.custom.arrannuallyrecurringrevenue",
+                      planlevel: "metadata.custom.planlevel"
+                    }
+                  }
+                ]
+              ]
+            },
+            {
+              join: {
+                fields: ["accountId"],
+                width: 2
+              }
+            },
+            {
+              sort: ["-viewCount"]
+            }
+          ],
+          requestId: `top_accounts_${pageId}_${Date.now()}`
+        }
+      };
+
+      console.log(`🔍 Request pipeline:`, JSON.stringify(aggregationRequest, null, 2));
+
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+
+      if (response.results && Array.isArray(response.results)) {
+        console.log(`✅ Found ${response.results.length} accounts`);
+
+        const accounts: PageAccount[] = response.results
+          .slice(0, limit)
+          .map(result => ({
+            accountId: result.accountId || result[0]?.accountId || 'unknown',
+            name: result.name || result[1]?.name,
+            arr: result.arr || result[1]?.arr,
+            planlevel: result.planlevel || result[1]?.planlevel,
+            viewCount: result.viewCount || result[0]?.viewCount || 0
+          }));
+
+        console.log(`📊 Top accounts:`, accounts);
+        return accounts;
+      }
+
+      console.warn(`⚠️ No account results for page ${pageId}`);
+      return [];
+
+    } catch (error) {
+      console.error(`❌ Error fetching top accounts for page ${pageId}:`, error);
+      // Return empty array on error to handle gracefully
+      return [];
+    }
+  }
+
+  /**
+   * Get page event breakdown with visitor-level details
+   * @param pageId - The page ID to analyze
+   * @param limit - Maximum number of rows to return (default: 5000)
+   * @returns Array of page event rows with visitor details and browser metadata
+   */
+  async getPageEventBreakdown(pageId: string, limit: number = 5000): Promise<PageEventRow[]> {
+    try {
+      console.log(`📊 Fetching page event breakdown for page ${pageId}`);
+      console.log(`📋 Limit: ${limit} rows`);
+
+      // Calculate time range for last 30 days
+      const endTime = Date.now();
+      const startTime = endTime - (30 * 24 * 60 * 60 * 1000); // 30 days ago
+      const days = 30;
+
+      // Build aggregation request using events source with web eventClass
+      // Using the same flat format that works for other sources
+      const aggregationRequest = {
+        source: {
+          events: null,
+          timeSeries: {
+            first: startTime,
+            count: days,
+            period: "dayRange"
+          }
+        },
+        filter: `pageId == "${pageId}" && eventClass == "web"`,
+        requestId: `page_event_breakdown_${Date.now()}`
+      };
+
+      console.log(`🌐 Making aggregation request with events source`);
+      console.log(`📅 Time range: ${new Date(startTime).toISOString()} to ${new Date(endTime).toISOString()}`);
+
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+
+      if (response.results && Array.isArray(response.results)) {
+        console.log(`✅ Retrieved ${response.results.length} raw event records`);
+
+        // Log sample result to understand structure
+        if (response.results.length > 0) {
+          console.log(`📋 Sample event record structure:`, response.results[0]);
+          console.log(`📋 Available fields:`, Object.keys(response.results[0]));
+        }
+
+        // Group events by visitor and date, aggregate views
+        const visitorDateMap = new Map<string, PageEventRow>();
+
+        for (const event of response.results) {
+          const visitorId = event.visitorId || event.visitor_id || 'unknown';
+          const accountId = event.accountId || event.account_id;
+
+          // Extract date from different possible fields
+          const dateValue = event.day || event.date || event.browserTime || event.remoteTime;
+          const date = dateValue ? new Date(dateValue).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+          // Create unique key for visitor + date combination
+          const key = `${visitorId}_${date}`;
+
+          // Get or create row for this visitor-date combination
+          let row = visitorDateMap.get(key);
+          if (!row) {
+            row = {
+              visitorId,
+              accountId,
+              date,
+              totalViews: 0,
+              // TODO: Frustration metrics - need to research if these are available in events source
+              // For now, checking if fields exist in response, otherwise setting to 0
+              uTurns: event.uTurns || event.u_turns || 0,
+              deadClicks: event.deadClicks || event.dead_clicks || 0,
+              errorClicks: event.errorClicks || event.error_clicks || 0,
+              rageClicks: event.rageClicks || event.rage_clicks || 0,
+              // Browser metadata
+              browserName: event.browserName || event.browser_name || event.browser,
+              browserVersion: event.browserVersion || event.browser_version,
+              serverName: event.serverName || event.server_name || event.server,
+            };
+            visitorDateMap.set(key, row);
+          }
+
+          // Increment view count
+          row.totalViews += (event.numEvents || event.num_events || 1);
+
+          // Accumulate frustration metrics if they exist
+          if (event.uTurns || event.u_turns) {
+            row.uTurns = (row.uTurns || 0) + (event.uTurns || event.u_turns || 0);
+          }
+          if (event.deadClicks || event.dead_clicks) {
+            row.deadClicks = (row.deadClicks || 0) + (event.deadClicks || event.dead_clicks || 0);
+          }
+          if (event.errorClicks || event.error_clicks) {
+            row.errorClicks = (row.errorClicks || 0) + (event.errorClicks || event.error_clicks || 0);
+          }
+          if (event.rageClicks || event.rage_clicks) {
+            row.rageClicks = (row.rageClicks || 0) + (event.rageClicks || event.rage_clicks || 0);
+          }
+        }
+
+        // Convert to array and sort by date (desc), then by views
+        const rows = Array.from(visitorDateMap.values())
+          .sort((a, b) => {
+            // Sort by date descending first
+            const dateCompare = b.date.localeCompare(a.date);
+            if (dateCompare !== 0) return dateCompare;
+            // Then by views descending
+            return b.totalViews - a.totalViews;
+          })
+          .slice(0, limit); // Apply limit
+
+        console.log(`✅ Processed ${rows.length} page event breakdown rows`);
+        console.log(`📊 Date range in results: ${rows[rows.length - 1]?.date} to ${rows[0]?.date}`);
+
+        // Log sample of frustration metrics availability
+        const hasFrustrationMetrics = rows.some(r =>
+          (r.uTurns && r.uTurns > 0) ||
+          (r.deadClicks && r.deadClicks > 0) ||
+          (r.errorClicks && r.errorClicks > 0) ||
+          (r.rageClicks && r.rageClicks > 0)
+        );
+        console.log(`📊 Frustration metrics available: ${hasFrustrationMetrics}`);
+
+        return rows;
+      }
+
+      console.warn(`⚠️ No event data returned for page ${pageId}`);
+      return [];
+    } catch (error) {
+      console.error(`❌ Error fetching page event breakdown for ${pageId}:`, error);
+      throw error;
+    }
+  }
+
   // Transform methods for Pendo API responses (untyped JSON)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private transformGuide = (guide: any): Guide => ({
@@ -2186,6 +2572,175 @@ class PendoAPIClient {
         dropOffRate: Math.floor(Math.random() * 20) + 20,
       };
     });
+  }
+
+  // ===== PAGE-SPECIFIC FEATURE AND GUIDE METHODS =====
+
+  /**
+   * Get features targeting a specific page
+   *
+   * LIMITATIONS:
+   * - Pendo's featureEvents source does NOT include pageId/pageUrl fields directly
+   * - Features are defined with CSS selectors that may appear on multiple pages
+   * - We cannot reliably filter featureEvents by page without additional data
+   * - Frustration metrics (deadClicks, errorClicks, rageClicks) are NOT available in featureEvents
+   *
+   * APPROACH:
+   * 1. Fetch all features from /api/v1/feature
+   * 2. Get feature click counts from featureEvents aggregation
+   * 3. Return top features by click count (no page filtering possible)
+   *
+   * @param pageId - The page ID to filter by (currently unused due to API limitations)
+   * @param limit - Maximum number of features to return
+   */
+  async getFeaturesTargetingPage(pageId: string, limit: number = 10): Promise<PageFeature[]> {
+    try {
+      console.log(`📊 Fetching features for page ${pageId} (Note: page filtering not supported by Pendo API)`);
+
+      // Step 1: Get all features metadata
+      const features = await this.getFeatures({ limit: 1000 });
+      console.log(`✅ Retrieved ${features.length} total features`);
+
+      // Step 2: Get feature event counts from aggregation API
+      const featureEventCounts = new Map<string, number>();
+
+      try {
+        // Query featureEvents to get click counts
+        const aggregationRequest = {
+          source: {
+            featureEvents: null
+          },
+          requestId: `features_events_${Date.now()}`
+        };
+
+        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+
+        if (response.results && Array.isArray(response.results)) {
+          // Group events by featureId and count
+          response.results.forEach((event: any) => {
+            const featureId = event.featureId;
+            const eventCount = event.numEvents || 1;
+
+            if (featureId) {
+              const currentCount = featureEventCounts.get(featureId) || 0;
+              featureEventCounts.set(featureId, currentCount + eventCount);
+            }
+          });
+
+          console.log(`✅ Processed ${response.results.length} feature events`);
+        }
+      } catch (aggError) {
+        console.warn(`⚠️ Could not fetch feature event counts from aggregation API:`, aggError);
+        // Continue with zero counts
+      }
+
+      // Step 3: Combine feature metadata with event counts
+      const featuresWithCounts: PageFeature[] = features.map(feature => ({
+        featureId: feature.id,
+        name: feature.name,
+        eventCount: featureEventCounts.get(feature.id) || feature.usageCount || 0,
+        // Note: Frustration metrics are NOT available in featureEvents
+        // These would require querying the 'events' source with frustration event types
+        deadClicks: undefined,
+        errorClicks: undefined,
+        rageClicks: undefined,
+      }));
+
+      // Step 4: Sort by event count and limit
+      const topFeatures = featuresWithCounts
+        .sort((a, b) => b.eventCount - a.eventCount)
+        .slice(0, limit);
+
+      console.log(`✅ Returning top ${topFeatures.length} features by event count`);
+      console.warn(`⚠️ LIMITATION: Cannot filter features by page - Pendo's featureEvents do not include pageId/pageUrl`);
+      console.warn(`⚠️ LIMITATION: Frustration metrics not available - would require separate 'events' source query`);
+
+      return topFeatures;
+
+    } catch (error) {
+      console.error(`❌ Error fetching features for page ${pageId}:`, error);
+      // Return empty array on error
+      return [];
+    }
+  }
+
+  /**
+   * Get guides targeting a specific page
+   *
+   * APPROACH:
+   * 1. Fetch all guides from /api/v1/guide
+   * 2. Filter guides that may target the page (check guide metadata)
+   * 3. Get view counts from guideEvents filtered by guideId
+   *
+   * LIMITATIONS:
+   * - Guide targeting rules are complex and may not be fully accessible via API
+   * - Cannot reliably determine which guides show on which pages without rule parsing
+   * - Guide metadata may not include complete targeting information
+   *
+   * @param pageId - The page ID to check guide targeting
+   * @param limit - Maximum number of guides to return
+   */
+  async getGuidesTargetingPage(pageId: string, limit: number = 175): Promise<PageGuide[]> {
+    try {
+      console.log(`📊 Fetching guides targeting page ${pageId}`);
+
+      // Step 1: Get page metadata to extract URL for matching
+      const pages = await this.getPages({ limit: 1000 });
+      const targetPage = pages.find(p => p.id === pageId);
+
+      if (!targetPage) {
+        console.warn(`⚠️ Page ${pageId} not found`);
+        return [];
+      }
+
+      console.log(`✅ Found target page: ${targetPage.url}`);
+
+      // Step 2: Get all guides
+      const allGuides = await this.getGuides({ limit: 1000 });
+      console.log(`✅ Retrieved ${allGuides.length} total guides`);
+
+      // Step 3: Fetch full guide data to check targeting rules
+      // Note: This is a simplified approach - actual guide targeting is complex
+      const guidesForPage: PageGuide[] = [];
+
+      for (const guide of allGuides) {
+        try {
+          // Get guide view count from aggregation API
+          const viewCounts = await this.getGuideTotals(guide.id, 90);
+
+          // Create PageGuide object
+          // Note: productArea and segment are not standard fields in Pendo API
+          // These would need to be extracted from guide metadata or custom fields
+          const pageGuide: PageGuide = {
+            guideId: guide.id,
+            name: guide.name,
+            productArea: undefined, // Not available in standard API
+            segment: guide.audience?.[0] || undefined, // Using audience as segment approximation
+            status: guide.state,
+          };
+
+          guidesForPage.push(pageGuide);
+
+          // Limit processing if we've hit the limit
+          if (guidesForPage.length >= limit) {
+            break;
+          }
+        } catch (error) {
+          console.warn(`⚠️ Could not process guide ${guide.id}:`, error);
+          // Continue with next guide
+        }
+      }
+
+      console.log(`✅ Returning ${guidesForPage.length} guides`);
+      console.warn(`⚠️ LIMITATION: Cannot accurately filter guides by page - guide targeting rules not fully accessible via API`);
+      console.warn(`⚠️ LIMITATION: productArea and segment fields may not be available in standard Pendo API`);
+
+      return guidesForPage;
+
+    } catch (error) {
+      console.error(`❌ Error fetching guides for page ${pageId}:`, error);
+      return [];
+    }
   }
 }
 
