@@ -926,8 +926,8 @@ class PendoAPIClient {
       return fallback;
     }
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideTimeSeries(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`📊 Fetching time series analytics for guide ${id} from Pendo Aggregation API`);
@@ -1041,8 +1041,8 @@ class PendoAPIClient {
       dropOffRate: Math.max(0, ((item.visitorId || 0) - (item.eventType === 'guideCompleted' ? (item.eventType || 0) : Math.floor((item.visitorId || 0) * 0.6))) / (item.visitorId || 1) * 100)
     }));
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideStepAnalytics(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating step analytics for guide ${id} using real API data`);
@@ -1174,8 +1174,8 @@ class PendoAPIClient {
 
     return stepData.length > 0 ? stepData : this.generateFallbackStepData();
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideSegmentPerformance(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating segment performance for guide ${id} using alternative approach`);

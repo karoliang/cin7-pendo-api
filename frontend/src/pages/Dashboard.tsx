@@ -39,9 +39,7 @@ export const Dashboard: React.FC = () => {
 
     // Type guards for union type
     const isGuide = (item: FilterableItem): item is Guide => 'state' in item && 'viewedCount' in item && 'completedCount' in item;
-    const isFeature = (item: FilterableItem): item is Feature => 'eventType' in item && 'usageCount' in item;
     const isPage = (item: FilterableItem): item is Page => 'url' in item && 'title' in item;
-    const isReport = (item: FilterableItem): item is Report => 'name' in item && !('state' in item) && !('url' in item);
 
     const filterArray = <T extends FilterableItem>(array: T[], filterFn: (item: T) => boolean): T[] => {
       return array.filter(filterFn);

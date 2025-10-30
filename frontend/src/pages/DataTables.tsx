@@ -77,9 +77,7 @@ export const DataTables: React.FC = () => {
 
     // Type guards for union type
     const isGuide = (item: FilterableItem): item is Guide => 'state' in item && 'viewedCount' in item && 'completedCount' in item;
-    const isFeature = (item: FilterableItem): item is Feature => 'eventType' in item && 'usageCount' in item;
     const isPage = (item: FilterableItem): item is Page => 'url' in item && 'name' in item;
-    const isReport = (item: FilterableItem): item is Report => 'name' in item && !('state' in item) && !('url' in item);
 
     const filterArray = <T extends FilterableItem>(array: T[], filterFn: (item: T) => boolean): T[] => {
       return array.filter(filterFn);
@@ -232,7 +230,6 @@ export const DataTables: React.FC = () => {
   const currentTab = tabs.find(tab => tab.id === activeTab)!;
 
   type TableItem = Guide | Feature | Page | Report;
-  type CommonKeys = keyof Guide & keyof Feature & keyof Page & keyof Report;
 
   const getColumns = (): Array<{
     key: string;
@@ -245,8 +242,8 @@ export const DataTables: React.FC = () => {
       case 'guides':
         return [
           { key: 'name', header: 'Name', sortable: true, width: '40%' },
-          { key: 'state', header: 'Status', sortable: true, render: (value: unknown, item: TableItem) => {
-            const guide = item as Guide;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          { key: 'state', header: 'Status', sortable: true, render: (value: unknown, _item: TableItem) => {
             const state = value as string;
             return (
               <div className="flex items-center gap-2">

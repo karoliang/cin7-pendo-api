@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { pendoAPI } from '@/lib/pendo-api';
 import type {
   ComprehensiveFeatureData,
-  ComprehensivePageData,
   ComprehensiveReportData
 } from '@/types/enhanced-pendo';
 

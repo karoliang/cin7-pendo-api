@@ -7,8 +7,6 @@ import {
   Tooltip,
   Legend
 } from 'recharts';
-import type { TooltipProps } from 'recharts';
-import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import type { PieLabelRenderProps } from 'recharts';
 
 interface PieChartDataPoint {
@@ -62,6 +60,7 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
 
   // Recharts v3 TooltipProps doesn't properly expose all properties in the type
   // Using explicit any here with proper runtime checks
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = (props: any) => {
     const { active, payload } = props;
     if (active && payload && payload.length) {

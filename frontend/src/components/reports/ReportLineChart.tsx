@@ -9,8 +9,6 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
-import type { TooltipProps } from 'recharts';
-import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface LineChartDataPoint {
   date: string;
@@ -48,6 +46,7 @@ export const ReportLineChart: React.FC<ReportLineChartProps> = ({
 
   // Recharts v3 TooltipProps doesn't properly expose all properties in the type
   // Using explicit any here with proper runtime checks
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = (props: any) => {
     const { active, payload, label } = props;
     if (active && payload && payload.length) {

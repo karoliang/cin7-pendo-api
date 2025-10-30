@@ -9,8 +9,6 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
-import type { TooltipProps } from 'recharts';
-import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface ChartDataPoint {
   [key: string]: string | number | undefined;
@@ -56,6 +54,7 @@ export const ReportBarChart: React.FC<ReportBarChartProps> = ({
 
   // Recharts v3 TooltipProps doesn't properly expose all properties in the type
   // Using explicit any here with proper runtime checks
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = (props: any) => {
     const { active, payload, label } = props;
     if (active && payload && payload.length) {
