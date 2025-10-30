@@ -1,7 +1,7 @@
 export interface Guide {
   id: string;
   name: string;
-  state: 'published' | 'draft' | 'archived' | '_pendingReview_';
+  state: 'published' | 'draft' | 'archived' | '_pendingReview_' | 'public' | 'staging' | 'disabled';
   lastShownCount: number;
   viewedCount: number;
   completedCount: number;
