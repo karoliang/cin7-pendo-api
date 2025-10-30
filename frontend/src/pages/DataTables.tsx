@@ -245,7 +245,25 @@ export const DataTables: React.FC = () => {
     switch (activeTab) {
       case 'guides':
         return [
-          { key: 'name', header: 'Name', sortable: true },
+          { key: 'name', header: 'Name', sortable: true, render: (value: unknown, item: TableItem) => {
+            const guide = item as Guide;
+            const hasActivity = guide.viewedCount > 0 || guide.completedCount > 0;
+            return (
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{value as string}</span>
+                {hasActivity && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    ✓
+                  </span>
+                )}
+                {!hasActivity && (guide.state === 'published' || guide.state === 'public') && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    No data
+                  </span>
+                )}
+              </div>
+            );
+          }},
           { key: 'state', header: 'Status', sortable: true, render: (value: unknown) => {
             const state = value as string;
             return (
@@ -266,18 +284,77 @@ export const DataTables: React.FC = () => {
               </span>
             );
           }},
-          { key: 'viewedCount', header: 'Views', sortable: true },
-          { key: 'completedCount', header: 'Completions', sortable: true },
+          { key: 'viewedCount', header: 'Views', sortable: true, render: (value: unknown, item: TableItem) => {
+            const guide = item as Guide;
+            const views = guide.viewedCount || 0;
+            return (
+              <div className="flex flex-col">
+                <span className={`font-semibold ${views > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
+                  {views.toLocaleString()}
+                </span>
+              </div>
+            );
+          }},
+          { key: 'completedCount', header: 'Completions', sortable: true, render: (value: unknown, item: TableItem) => {
+            const guide = item as Guide;
+            const completions = guide.completedCount || 0;
+            const views = guide.viewedCount || 0;
+            const completionRate = views > 0 ? ((completions / views) * 100).toFixed(1) : '0.0';
+            return (
+              <div className="flex flex-col">
+                <span className={`font-semibold ${completions > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                  {completions.toLocaleString()}
+                </span>
+                {views > 0 && (
+                  <span className="text-xs text-gray-500">
+                    {completionRate}%
+                  </span>
+                )}
+              </div>
+            );
+          }},
           { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
             new Date(value as string).toLocaleDateString()
           )},
         ];
       case 'features':
         return [
-          { key: 'name', header: 'Name', sortable: true },
+          { key: 'name', header: 'Name', sortable: true, render: (value: unknown, item: TableItem) => {
+            const feature = item as Feature;
+            const hasActivity = feature.usageCount > 0 || feature.visitorCount > 0;
+            return (
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{value as string}</span>
+                {hasActivity && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    ✓
+                  </span>
+                )}
+                {!hasActivity && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    No data
+                  </span>
+                )}
+              </div>
+            );
+          }},
           { key: 'eventType', header: 'Type', sortable: true },
-          { key: 'visitorCount', header: 'Visitors', sortable: true },
-          { key: 'usageCount', header: 'Usage', sortable: true },
+          { key: 'visitorCount', header: 'Visitors', sortable: true, render: (value: unknown) => {
+            const count = (value as number) || 0;
+            return (
+              <span className={`font-semibold ${count > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
+                {count.toLocaleString()}
+              </span>
+            );
+          }},
+          { key: 'usageCount', header: 'Usage', sortable: true, render: (value: unknown) => {
+            const count = (value as number) || 0;
+            return (
+              <span className={`font-semibold ${count > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                {count.toLocaleString()}
+              </span>
+            );
+          }},
           { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
             new Date(value as string).toLocaleDateString()
           )},
@@ -286,15 +363,42 @@ export const DataTables: React.FC = () => {
         return [
           { key: 'title', header: 'Title', sortable: true, render: (value: unknown, item: TableItem) => {
             const page = item as Page;
+            const hasActivity = page.viewedCount > 0 || page.visitorCount > 0;
             return (
               <div>
-                <div className="font-medium">{(value as string) || 'Untitled'}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{(value as string) || 'Untitled'}</span>
+                  {hasActivity && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      ✓
+                    </span>
+                  )}
+                  {!hasActivity && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                      No data
+                    </span>
+                  )}
+                </div>
                 <div className="text-xs text-gray-500 font-mono">{page.url}</div>
               </div>
             );
           }},
-          { key: 'viewedCount', header: 'Views', sortable: true },
-          { key: 'visitorCount', header: 'Visitors', sortable: true },
+          { key: 'viewedCount', header: 'Views', sortable: true, render: (value: unknown) => {
+            const count = (value as number) || 0;
+            return (
+              <span className={`font-semibold ${count > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
+                {count.toLocaleString()}
+              </span>
+            );
+          }},
+          { key: 'visitorCount', header: 'Visitors', sortable: true, render: (value: unknown) => {
+            const count = (value as number) || 0;
+            return (
+              <span className={`font-semibold ${count > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                {count.toLocaleString()}
+              </span>
+            );
+          }},
           { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
             new Date(value as string).toLocaleDateString()
           )},
