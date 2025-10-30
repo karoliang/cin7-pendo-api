@@ -1677,7 +1677,7 @@ class PendoAPIClient {
                     group: {
                       group: ["visitorId"],
                       fields: {
-                        viewCount: { count: "*" }
+                        viewCount: { count: "visitorId" }
                       }
                     }
                   }
@@ -1787,7 +1787,7 @@ class PendoAPIClient {
                     group: {
                       group: ["accountId"],
                       fields: {
-                        viewCount: { count: "*" }
+                        viewCount: { count: "accountId" }
                       }
                     }
                   }
@@ -1872,22 +1872,34 @@ class PendoAPIClient {
       const startTime = endTime - (30 * 24 * 60 * 60 * 1000); // 30 days ago
       const days = 30;
 
-      // Build aggregation request using events source with web eventClass
-      // Using the same flat format that works for other sources
+      // Build aggregation request using events source with pipeline format
+      // The API now requires a pipeline structure (similar to getTopVisitorsForPage)
       const aggregationRequest = {
-        source: {
-          events: null,
-          timeSeries: {
-            first: startTime,
-            count: days,
-            period: "dayRange"
-          }
-        },
-        filter: `pageId == "${pageId}" && eventClass == "web"`,
-        requestId: `page_event_breakdown_${Date.now()}`
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                events: null,
+                timeSeries: {
+                  first: startTime,
+                  count: days,
+                  period: "dayRange"
+                }
+              }
+            },
+            {
+              filter: `pageId == "${pageId}"`
+            },
+            {
+              sort: ["-day", "-numEvents"]
+            }
+          ],
+          requestId: `page_event_breakdown_${Date.now()}`
+        }
       };
 
-      console.log(`🌐 Making aggregation request with events source`);
+      console.log(`🌐 Making aggregation request with events source (pipeline format)`);
       console.log(`📅 Time range: ${new Date(startTime).toISOString()} to ${new Date(endTime).toISOString()}`);
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };

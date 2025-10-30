@@ -11,18 +11,26 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Read .env file manually
-const envPath = join(__dirname, 'frontend', '.env');
+// Read .env file manually (try multiple locations)
 let API_KEY;
 
-try {
-  const envContent = readFileSync(envPath, 'utf-8');
-  const match = envContent.match(/VITE_PENDO_API_KEY=(.+)/);
-  if (match) {
-    API_KEY = match[1].trim();
+const envPaths = [
+  join(__dirname, 'frontend', '.env'),
+  join(__dirname, '.env')
+];
+
+for (const envPath of envPaths) {
+  try {
+    const envContent = readFileSync(envPath, 'utf-8');
+    const match = envContent.match(/(?:VITE_)?PENDO_API_KEY=(.+)/);
+    if (match) {
+      API_KEY = match[1].trim();
+      console.log(`✅ API key loaded from: ${envPath}`);
+      break;
+    }
+  } catch (error) {
+    // Try next path
   }
-} catch (error) {
-  console.error('❌ Error reading .env file:', error.message);
 }
 
 const BASE_URL = 'https://app.pendo.io';
@@ -98,7 +106,7 @@ async function testTopVisitorsAndAccounts(pageId) {
                 group: {
                   group: ["visitorId"],
                   fields: {
-                    viewCount: { count: "*" }
+                    viewCount: { count: "visitorId" }
                   }
                 }
               }
@@ -146,8 +154,17 @@ async function testTopVisitorsAndAccounts(pageId) {
 
     console.log(`📡 Response status: ${response.status} ${response.statusText}`);
 
-    const data = await response.json();
-    console.log(`📦 Response data:`, JSON.stringify(data, null, 2));
+    let data;
+    const responseText = await response.text();
+    console.log(`📦 Raw response:`, responseText);
+
+    try {
+      data = JSON.parse(responseText);
+      console.log(`📦 Parsed response data:`, JSON.stringify(data, null, 2));
+    } catch (e) {
+      console.error(`❌ Failed to parse response as JSON`);
+      data = { error: responseText };
+    }
 
     if (response.ok) {
       console.log(`✅ Top Visitors API call successful!`);
@@ -207,7 +224,7 @@ async function testTopVisitorsAndAccounts(pageId) {
                 group: {
                   group: ["accountId"],
                   fields: {
-                    viewCount: { count: "*" }
+                    viewCount: { count: "accountId" }
                   }
                 }
               }
@@ -256,8 +273,17 @@ async function testTopVisitorsAndAccounts(pageId) {
 
     console.log(`📡 Response status: ${response.status} ${response.statusText}`);
 
-    const data = await response.json();
-    console.log(`📦 Response data:`, JSON.stringify(data, null, 2));
+    let data;
+    const responseText = await response.text();
+    console.log(`📦 Raw response:`, responseText);
+
+    try {
+      data = JSON.parse(responseText);
+      console.log(`📦 Parsed response data:`, JSON.stringify(data, null, 2));
+    } catch (e) {
+      console.error(`❌ Failed to parse response as JSON`);
+      data = { error: responseText };
+    }
 
     if (response.ok) {
       console.log(`✅ Top Accounts API call successful!`);
