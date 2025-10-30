@@ -438,7 +438,7 @@ class PendoAPIClient {
         requestId: `guide_totals_${id}_${Date.now()}`
       };
 
-      const response = await this.makeAggregationCall(aggregationRequest, 'POST');
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
 
       if (response.results && Array.isArray(response.results)) {
         let viewedCount = 0;
@@ -717,7 +717,7 @@ class PendoAPIClient {
 
       try {
         // Make the aggregation API call
-        const response = await this.makeAggregationCall(aggregationRequest, 'POST');
+        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
 
         console.log(`✅ Aggregation API response:`, response);
 
