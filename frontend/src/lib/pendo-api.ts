@@ -511,9 +511,18 @@ class PendoAPIClient {
 
   private async makeAggregationCall(params: Record<string, unknown>, method: string): Promise<PendoApiResponse> {
     let url = `${PENDO_BASE_URL}/api/v1/aggregation`;
+
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      console.error(`⏱️ Aggregation API call timed out after 30 seconds`);
+    }, 30000); // 30 second timeout
+
     const requestOptions: RequestInit = {
       method: method,
       headers: this.headers,
+      signal: controller.signal,
     };
 
     if (method === 'GET' && params) {
@@ -539,26 +548,39 @@ class PendoAPIClient {
     console.log(`🔬 Making aggregation ${method} call to: ${url}`);
     console.log(`📋 Request params:`, params);
 
-    const response = await fetch(url, requestOptions);
+    try {
+      const response = await fetch(url, requestOptions);
+      clearTimeout(timeoutId); // Clear timeout on successful response
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ Aggregation API error: ${response.status} ${response.statusText}`);
-      console.error(`📄 Error details:`, errorText);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Aggregation API error: ${response.status} ${response.statusText}`);
+        console.error(`📄 Error details:`, errorText);
 
-      try {
-        const errorData = JSON.parse(errorText);
-        console.error(`🔍 Parsed error:`, errorData);
-      } catch {
-        // Error response is not JSON
+        try {
+          const errorData = JSON.parse(errorText);
+          console.error(`🔍 Parsed error:`, errorData);
+        } catch {
+          // Error response is not JSON
+        }
+
+        throw new Error(`Aggregation API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
-      throw new Error(`Aggregation API error: ${response.status} ${response.statusText} - ${errorText}`);
-    }
+      const result = await response.json();
+      console.log(`✅ Aggregation response:`, result);
+      return result;
+    } catch (error) {
+      clearTimeout(timeoutId); // Clear timeout on error
 
-    const result = await response.json();
-    console.log(`✅ Aggregation response:`, result);
-    return result;
+      // Handle timeout specifically
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`Pendo API request timed out after 30 seconds. This could indicate a slow network or the Pendo API is unresponsive.`);
+      }
+
+      // Re-throw other errors
+      throw error;
+    }
   }
 
   async getGuides(params?: {
@@ -1727,26 +1749,35 @@ class PendoAPIClient {
 
   // Page Analytics - Complete Real Data Implementation
   async getPageAnalytics(id: string, period: { start: string; end: string }): Promise<ComprehensivePageData> {
+    const startTime = Date.now();
     try {
       console.log(`🚀 Starting page analytics fetch for ID: ${id}`);
       console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
 
       // Get page metadata
+      console.log(`⏱️ [1/4] Fetching page metadata...`);
+      const pagesStart = Date.now();
       const pages = await this.getPages();
       const page = pages.find(p => p.id === id);
+      console.log(`   ✓ Completed in ${Date.now() - pagesStart}ms`);
 
       if (!page) {
-        throw new Error(`Page ${id} not found`);
+        throw new Error(`Page ${id} not found in pages list (${pages.length} pages checked)`);
       }
 
       console.log(`📊 Base page data retrieved: ${page.name || page.url}`);
 
       // Fetch real analytics from aggregation API
+      console.log(`⏱️ [2/4] Fetching page totals...`);
+      const totalsStart = Date.now();
       const totals = await this.getPageTotals(id);
-      console.log(`📈 Page analytics: ${totals.viewedCount} views, ${totals.visitorCount} unique visitors`);
+      console.log(`   ✓ Completed in ${Date.now() - totalsStart}ms - ${totals.viewedCount} views, ${totals.visitorCount} unique visitors`);
 
       // Fetch time series data
+      console.log(`⏱️ [3/4] Fetching time series data...`);
+      const timeSeriesStart = Date.now();
       const timeSeriesData = await this.getPageTimeSeries(id, period);
+      console.log(`   ✓ Completed in ${Date.now() - timeSeriesStart}ms - ${timeSeriesData.length} data points`);
 
       // Calculate engagement metrics based on real data
       const avgTimeOnPage = totals.viewedCount > 0 ? Math.floor(180 + Math.random() * 120) : 0; // Estimate 3-5 mins
@@ -1854,16 +1885,38 @@ class PendoAPIClient {
       };
 
       // Fetch additional real data from new API methods
-      console.log(`🔄 Fetching additional page analytics data...`);
+      console.log(`⏱️ [4/4] Fetching additional page analytics data (5 parallel calls)...`);
+      const additionalDataStart = Date.now();
 
       try {
-        const [topVisitors, topAccounts, eventBreakdown, featuresTargeting, guidesTargeting] = await Promise.allSettled([
+        const results = await Promise.allSettled([
           this.getTopVisitorsForPage(id, 10),
           this.getTopAccountsForPage(id, 10),
           this.getPageEventBreakdown(id, 20), // Limit to 20 for initial display
           this.getFeaturesTargetingPage(id, 7),
           this.getGuidesTargetingPage(id, 10), // Limit to 10 for initial display
         ]);
+
+        const [topVisitors, topAccounts, eventBreakdown, featuresTargeting, guidesTargeting] = results;
+
+        // Check for failures
+        const failedCalls = results.filter(r => r.status === 'rejected');
+        const successfulCalls = results.filter(r => r.status === 'fulfilled');
+
+        if (failedCalls.length > 0) {
+          console.warn(`⚠️ ${failedCalls.length}/5 additional API calls failed:`);
+          const callNames = ['topVisitors', 'topAccounts', 'eventBreakdown', 'featuresTargeting', 'guidesTargeting'];
+          results.forEach((result, index) => {
+            if (result.status === 'rejected') {
+              console.error(`   ❌ ${callNames[index]} failed:`, result.reason);
+            }
+          });
+        }
+
+        // Warn if ALL calls failed
+        if (failedCalls.length === 5) {
+          console.error(`❌ CRITICAL: All 5 additional API calls failed - page analytics will be incomplete`);
+        }
 
         // Add data if successful, empty arrays if failed
         comprehensiveData.topVisitors = topVisitors.status === 'fulfilled' ? topVisitors.value : [];
@@ -1872,7 +1925,8 @@ class PendoAPIClient {
         comprehensiveData.featuresTargeting = featuresTargeting.status === 'fulfilled' ? featuresTargeting.value : [];
         comprehensiveData.guidesTargeting = guidesTargeting.status === 'fulfilled' ? guidesTargeting.value : [];
 
-        console.log(`✅ Additional data fetched:`, {
+        console.log(`   ✓ Completed in ${Date.now() - additionalDataStart}ms - ${successfulCalls.length}/5 successful`);
+        console.log(`   Data summary:`, {
           visitors: comprehensiveData.topVisitors?.length || 0,
           accounts: comprehensiveData.topAccounts?.length || 0,
           events: comprehensiveData.eventBreakdown?.length || 0,
@@ -1880,7 +1934,7 @@ class PendoAPIClient {
           guides: comprehensiveData.guidesTargeting?.length || 0,
         });
       } catch (error) {
-        console.warn(`⚠️ Some additional data failed to fetch:`, error);
+        console.error(`❌ Unexpected error in Promise.allSettled (this should never happen):`, error);
         // Initialize with empty arrays if fetch fails
         comprehensiveData.topVisitors = [];
         comprehensiveData.topAccounts = [];
@@ -1889,7 +1943,9 @@ class PendoAPIClient {
         comprehensiveData.guidesTargeting = [];
       }
 
-      console.log(`✅ Page analytics assembled successfully`);
+      const totalTime = Date.now() - startTime;
+      console.log(`✅ Page analytics completed successfully in ${totalTime}ms`);
+      console.log(`📊 Final data: ${totals.viewedCount} views, ${totals.visitorCount} visitors, ${timeSeriesData.length} time points`);
       return comprehensiveData;
 
     } catch (error) {
