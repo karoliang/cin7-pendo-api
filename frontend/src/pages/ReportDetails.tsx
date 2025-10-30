@@ -528,6 +528,45 @@ export const ReportDetails: React.FC = () => {
           </Card>
         )}
 
+        {/* Reports Warning Banner */}
+        {type === 'reports' && (
+          <Card className="border-orange-200 bg-orange-50">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <ExclamationTriangleIcon className="h-8 w-8 text-orange-600 flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-orange-900 mb-2">
+                    Reports Analytics Not Available via Pendo API
+                  </h3>
+                  <p className="text-orange-800 mb-4">
+                    The Pendo Reports API only provides report metadata (name, description, configuration).
+                    <strong> No analytics data</strong> (views, engagement, user metrics) is available through the API.
+                  </p>
+                  <div className="bg-white rounded-lg p-4 border border-orange-200">
+                    <h4 className="font-semibold text-orange-900 mb-2">What is Available:</h4>
+                    <ul className="list-disc list-inside text-orange-800 space-y-1 text-sm mb-4">
+                      <li>Report Name: {data.name}</li>
+                      <li>Report ID: {data.id}</li>
+                      <li>Description: {(data as ComprehensiveReportData).description || 'N/A'}</li>
+                      <li>Last Updated: {new Date(data.updatedAt).toLocaleDateString()}</li>
+                    </ul>
+                    <h4 className="font-semibold text-orange-900 mb-2">To Track Report Analytics:</h4>
+                    <ol className="list-decimal list-inside text-orange-800 space-y-1 text-sm">
+                      <li>Use Pendo Track Events to log report views</li>
+                      <li>Tag report interactions as custom events</li>
+                      <li>Query custom events via Aggregation API</li>
+                      <li>Consider using Data Sync for export to external analytics</li>
+                    </ol>
+                  </div>
+                  <p className="text-xs text-orange-700 mt-3">
+                    <strong>Note:</strong> All analytics shown below are simulated for demonstration purposes only.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* All Analytics Sections - Single Page View */}
         <div className="space-y-12">
           {/* Overview Section */}
