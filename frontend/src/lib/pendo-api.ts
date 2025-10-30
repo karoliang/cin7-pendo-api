@@ -487,12 +487,18 @@ class PendoAPIClient {
     try {
       console.log(`📊 Fetching total analytics for guide ${id} from aggregation API`);
 
-      // Use the flat format that works (from test_aggregation.js)
+      // Use pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
-        source: {
-          guideEvents: null
-        },
-        filter: `guideId == "${id}"`,
+        pipeline: [
+          {
+            source: {
+              guideEvents: null
+            }
+          },
+          {
+            filter: `guideId == "${id}"`
+          }
+        ],
         requestId: `totals_${Date.now()}`
       };
 
@@ -1427,12 +1433,18 @@ class PendoAPIClient {
     try {
       console.log(`📊 Fetching total analytics for page ${id} from aggregation API`);
 
-      // Use the flat format that works (similar to guides but with pageEvents)
+      // Use pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
-        source: {
-          pageEvents: null
-        },
-        filter: `pageId == "${id}"`,
+        pipeline: [
+          {
+            source: {
+              pageEvents: null
+            }
+          },
+          {
+            filter: `pageId == "${id}"`
+          }
+        ],
         requestId: `page_totals_${Date.now()}`
       };
 
@@ -1474,17 +1486,23 @@ class PendoAPIClient {
       const endTime = new Date(period.end).getTime();
       const days = Math.ceil((endTime - startTime) / (24 * 60 * 60 * 1000));
 
-      // Use the flat format that works (from test_aggregation.js)
+      // Use pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
-        source: {
-          pageEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: days,
-            period: "dayRange"
+        pipeline: [
+          {
+            source: {
+              pageEvents: null,
+              timeSeries: {
+                first: startTime,
+                count: days,
+                period: "dayRange"
+              }
+            }
+          },
+          {
+            filter: `pageId == "${id}"`
           }
-        },
-        filter: `pageId == "${id}"`,
+        ],
         requestId: `page_timeseries_${Date.now()}`
       };
 
@@ -1538,7 +1556,7 @@ class PendoAPIClient {
         throw new Error(`Page ${id} not found`);
       }
 
-      console.log(`📊 Base page data retrieved: ${page.title || page.url}`);
+      console.log(`📊 Base page data retrieved: ${page.name || page.url}`);
 
       // Fetch real analytics from aggregation API
       const totals = await this.getPageTotals(id);
@@ -1558,8 +1576,7 @@ class PendoAPIClient {
         // Core Identity
         id: page.id,
         url: page.url,
-        title: page.title,
-        name: page.title || page.url,
+        name: page.name || page.url,
         type: 'content-page',
 
         // Real Basic Metrics from Aggregation API
@@ -2098,7 +2115,7 @@ class PendoAPIClient {
   private transformPage = (page: any): Page => ({
     id: page.id || '',
     url: page.url || '',
-    title: page.title,
+    name: page.name || page.url || 'Untitled',
     viewedCount: page.viewedCount || 0,
     visitorCount: page.visitorCount || 0,
     createdAt: page.createdAt || new Date().toISOString(),
@@ -2680,9 +2697,13 @@ class PendoAPIClient {
       try {
         // Query featureEvents to get click counts
         const aggregationRequest = {
-          source: {
-            featureEvents: null
-          },
+          pipeline: [
+            {
+              source: {
+                featureEvents: null
+              }
+            }
+          ],
           requestId: `features_events_${Date.now()}`
         };
 

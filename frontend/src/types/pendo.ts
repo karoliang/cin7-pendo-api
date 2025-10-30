@@ -30,7 +30,7 @@ export interface Feature {
 export interface Page {
   id: string;
   url: string;
-  title?: string;
+  name: string;
   viewedCount: number;
   visitorCount: number;
   createdAt: string;

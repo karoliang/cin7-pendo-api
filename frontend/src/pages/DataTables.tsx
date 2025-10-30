@@ -78,7 +78,7 @@ export const DataTables: React.FC = () => {
     // Type guards for union type
     const isGuide = (item: FilterableItem): item is Guide => 'state' in item && 'viewedCount' in item && 'completedCount' in item;
     const isFeature = (item: FilterableItem): item is Feature => 'eventType' in item && 'usageCount' in item;
-    const isPage = (item: FilterableItem): item is Page => 'url' in item && 'title' in item;
+    const isPage = (item: FilterableItem): item is Page => 'url' in item && 'name' in item;
     const isReport = (item: FilterableItem): item is Report => 'name' in item && !('state' in item) && !('url' in item);
 
     const filterArray = <T extends FilterableItem>(array: T[], filterFn: (item: T) => boolean): T[] => {
@@ -91,10 +91,9 @@ export const DataTables: React.FC = () => {
         const searchLower = filters.searchQuery.toLowerCase();
         const nameMatch = 'name' in item && item.name?.toLowerCase().includes(searchLower);
         const descMatch = 'description' in item && item.description?.toLowerCase().includes(searchLower);
-        const titleMatch = isPage(item) && item.title?.toLowerCase().includes(searchLower);
         const urlMatch = isPage(item) && item.url?.toLowerCase().includes(searchLower);
 
-        if (!nameMatch && !descMatch && !titleMatch && !urlMatch) {
+        if (!nameMatch && !descMatch && !urlMatch) {
           return false;
         }
       }
@@ -332,13 +331,13 @@ export const DataTables: React.FC = () => {
         ];
       case 'pages':
         return [
-          { key: 'title', header: 'Title', sortable: true, render: (value: unknown, item: TableItem) => {
+          { key: 'name', header: 'Page Name', sortable: true, render: (value: unknown, item: TableItem) => {
             const page = item as Page;
             const hasActivity = page.viewedCount > 0 || page.visitorCount > 0;
             return (
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{(value as string) || 'Untitled'}</span>
+                  <span className="font-medium">{value as string}</span>
                   {hasActivity && (
                     <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       ✓
@@ -395,7 +394,7 @@ export const DataTables: React.FC = () => {
     console.log('Navigating to:', `/report/${activeTab}/${item.id}`, {
       activeTab,
       itemId: item.id,
-      itemName: 'name' in item ? item.name : 'title' in item ? item.title : 'Unknown'
+      itemName: 'name' in item ? item.name : 'Unknown'
     });
     navigate(`/report/${activeTab}/${item.id}`);
   };
