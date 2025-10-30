@@ -80,346 +80,80 @@ export const useGuideReport = (id: string, options?: { enabled?: boolean }) => {
   });
 };
 
-// Hook for fetching comprehensive feature data with all analytics
+// Hook for fetching comprehensive feature data with REAL Pendo API analytics
 export const useFeatureReport = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['feature-report', id],
     enabled: options?.enabled ?? true,
     queryFn: async () => {
       try {
-        const features = await pendoAPI.getFeatures();
-        const feature = features.find(f => f.id === id);
+        console.log(`🚀 useFeatureReport: Fetching analytics for feature ${id}`);
 
-        if (!feature) {
-          throw new Error('Feature not found');
+        // Calculate date range for analytics (last 30 days)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+
+        const period = {
+          start: startDate.toISOString(),
+          end: endDate.toISOString()
+        };
+
+        console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
+
+        // Fetch REAL comprehensive analytics data from Pendo API
+        const analyticsData = await pendoAPI.getFeatureAnalytics(id, period);
+
+        if (!analyticsData) {
+          throw new Error('Feature analytics not found');
         }
 
-        // Generate comprehensive analytics data with all available insights
-        const analyticsData: ComprehensiveFeatureData = {
-          // Core Identity
-          id: feature.id,
-          name: feature.name,
-          description: feature.description,
-          type: 'core-feature',
-          eventType: feature.eventType,
-          elementId: feature.elementId,
-          elementPath: `button[data-feature="${feature.id}"]`,
-
-          // Basic Metrics
-          visitorCount: feature.visitorCount,
-          accountCount: feature.accountCount,
-          usageCount: feature.usageCount,
-          uniqueUsers: feature.visitorCount,
-
-          // Calculated Metrics
-          adoptionRate: Math.floor(Math.random() * 30) + 10,
-          usageFrequency: Math.floor(Math.random() * 15) + 2,
-          retentionRate: Math.floor(Math.random() * 40) + 50,
-          stickinessIndex: Math.floor(Math.random() * 50) + 30,
-          powerUserPercentage: Math.floor(Math.random() * 30) + 10,
-
-          // Advanced Analytics - Cohort Analysis (Comprehensive)
-          cohortAnalysis: [
-            {
-              cohort: 'Week 1 Users',
-              cohortSize: 450,
-              activeUsers: 280,
-              retentionRate: 62,
-              averageUsagePerUser: 8.5,
-              dropOffRate: 38,
-              period: '2024-01-01',
-            },
-            {
-              cohort: 'Week 2 Users',
-              cohortSize: 380,
-              activeUsers: 195,
-              retentionRate: 51,
-              averageUsagePerUser: 7.2,
-              dropOffRate: 49,
-              period: '2024-01-08',
-            },
-            {
-              cohort: 'Week 3 Users',
-              cohortSize: 420,
-              activeUsers: 218,
-              retentionRate: 52,
-              averageUsagePerUser: 9.1,
-              dropOffRate: 48,
-              period: '2024-01-15',
-            },
-            {
-              cohort: 'Week 4 Users',
-              cohortSize: 390,
-              activeUsers: 156,
-              retentionRate: 40,
-              averageUsagePerUser: 6.8,
-              dropOffRate: 60,
-              period: '2024-01-22',
-            },
-          ],
-
-          // Feature Correlation Analysis (Advanced)
-          relatedFeatures: [
-            {
-              featureName: 'Dashboard Analytics',
-              featureId: 'feat-001',
-              correlationStrength: 0.82,
-              usageCount: 1567,
-              jointUsageCount: 892,
-              liftPercentage: 45,
-            },
-            {
-              featureName: 'Export Reports',
-              featureId: 'feat-002',
-              correlationStrength: 0.74,
-              usageCount: 892,
-              jointUsageCount: 523,
-              liftPercentage: 32,
-            },
-            {
-              featureName: 'User Settings',
-              featureId: 'feat-003',
-              correlationStrength: 0.68,
-              usageCount: 445,
-              jointUsageCount: 234,
-              liftPercentage: 28,
-            },
-            {
-              featureName: 'Data Filters',
-              featureId: 'feat-004',
-              correlationStrength: 0.91,
-              usageCount: 2100,
-              jointUsageCount: 1456,
-              liftPercentage: 68,
-            },
-          ],
-
-          // Usage Pattern Analysis
-          usagePatterns: [
-            {
-              pattern: 'Power Users - Daily',
-              description: 'Users who use this feature daily',
-              userCount: 150,
-              percentage: 15,
-              averageUsage: 12.5,
-              timeOfDay: [9, 10, 11, 14, 15, 16],
-              daysOfWeek: [1, 2, 3, 4, 5],
-            },
-            {
-              pattern: 'Regular Users - Weekly',
-              description: 'Users who use this feature weekly',
-              userCount: 450,
-              percentage: 45,
-              averageUsage: 3.2,
-              timeOfDay: [10, 11, 15, 16],
-              daysOfWeek: [1, 2, 3, 4, 5],
-            },
-            {
-              pattern: 'Occasional Users - Monthly',
-              description: 'Users who use this feature monthly',
-              userCount: 300,
-              percentage: 30,
-              averageUsage: 1.1,
-              timeOfDay: [14, 15, 16],
-              daysOfWeek: [1, 2, 3, 4, 5],
-            },
-          ],
-
-          // Adoption Metrics (Comprehensive)
-          adoptionMetrics: Array.from({ length: 12 }, (_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (11 - i) * 7);
-            return {
-              period: date.toISOString().split('T')[0],
-              newUsers: Math.floor(Math.random() * 100) + 50,
-              adoptingUsers: Math.floor(Math.random() * 80) + 30,
-              cumulativeAdoptionRate: Math.min(95, (i + 1) * 8 + Math.floor(Math.random() * 10)),
-              adoptionVelocity: Math.floor(Math.random() * 20) + 10,
-              timeToAdoption: Math.floor(Math.random() * 5) + 2,
-            };
-          }),
-
-          // Time Analytics (Comprehensive)
-          dailyUsage: Array.from({ length: 30 }, (_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (29 - i));
-            return {
-              date: date.toISOString().split('T')[0],
-              views: Math.floor(Math.random() * 150) + 50,
-              completions: Math.floor(Math.random() * 100) + 30,
-              uniqueVisitors: Math.floor(Math.random() * 80) + 20,
-              averageTimeSpent: Math.floor(Math.random() * 60) + 30,
-              dropOffRate: Math.floor(Math.random() * 25) + 10,
-            };
-          }),
-
-          hourlyUsage: Array.from({ length: 24 }, (_, i) => ({
-            date: new Date().toISOString().split('T')[0],
-            hour: i,
-            views: i >= 8 && i <= 18 ? Math.floor(Math.random() * 120) + 80 : Math.floor(Math.random() * 40) + 10,
-            completions: i >= 8 && i <= 18 ? Math.floor(Math.random() * 80) + 40 : Math.floor(Math.random() * 25) + 5,
-            uniqueVisitors: i >= 8 && i <= 18 ? Math.floor(Math.random() * 60) + 30 : Math.floor(Math.random() * 20) + 5,
-            averageTimeSpent: Math.floor(Math.random() * 40) + 25,
-            dropOffRate: Math.floor(Math.random() * 20) + 10,
-          })),
-
-          // User Segmentation (Advanced)
-          userSegments: [
-            {
-              segment: 'Enterprise Users',
-              users: 350,
-              usageCount: 3500,
-              adoptionRate: 85,
-              averageFrequency: 10,
-            },
-            {
-              segment: 'Business Users',
-              users: 450,
-              usageCount: 3150,
-              adoptionRate: 70,
-              averageFrequency: 7,
-            },
-            {
-              segment: 'Trial Users',
-              users: 150,
-              usageCount: 450,
-              adoptionRate: 30,
-              averageFrequency: 3,
-            },
-            {
-              segment: 'Free Tier Users',
-              users: 50,
-              usageCount: 100,
-              adoptionRate: 20,
-              averageFrequency: 2,
-            },
-          ],
-
-          // Geographic Distribution (Detailed)
-          geographicDistribution: [
-            {
-              region: 'North America',
-              country: 'United States',
-              city: 'New York',
-              users: 450,
-              percentage: 45,
-              completionRate: 72,
-              language: 'English',
-            },
-            {
-              region: 'Europe',
-              country: 'United Kingdom',
-              city: 'London',
-              users: 280,
-              percentage: 28,
-              completionRate: 68,
-              language: 'English',
-            },
-            {
-              region: 'Asia Pacific',
-              country: 'Singapore',
-              city: 'Singapore',
-              users: 150,
-              percentage: 15,
-              completionRate: 78,
-              language: 'English',
-            },
-            {
-              region: 'Europe',
-              country: 'Germany',
-              city: 'Berlin',
-              users: 120,
-              percentage: 12,
-              completionRate: 65,
-              language: 'German',
-            },
-          ],
-
-          // Device Analytics (Comprehensive)
-          deviceBreakdown: [
-            {
-              device: 'Desktop',
-              platform: 'Windows',
-              browser: 'Chrome',
-              users: 680,
-              percentage: 68,
-              completionRate: 74,
-              averageTimeSpent: 120,
-            },
-            {
-              device: 'Mobile',
-              platform: 'iOS',
-              browser: 'Safari',
-              users: 220,
-              percentage: 22,
-              completionRate: 62,
-              averageTimeSpent: 85,
-            },
-            {
-              device: 'Tablet',
-              platform: 'iPadOS',
-              browser: 'Safari',
-              users: 100,
-              percentage: 10,
-              completionRate: 70,
-              averageTimeSpent: 110,
-            },
-          ],
-
-          // Performance Analytics
-          errorRate: Math.floor(Math.random() * 3) + 1,
-          responseTime: Math.floor(Math.random() * 500) + 200,
-          successRate: 97 + Math.floor(Math.random() * 3),
-
-          // Business Impact
-          conversionEvents: Math.floor(Math.random() * 200) + 50,
-          revenueImpact: Math.floor(Math.random() * 50000) + 10000,
-          productivityGain: Math.floor(Math.random() * 40) + 10,
-
-          // Timing Data
-          createdAt: feature.createdAt,
-          updatedAt: feature.updatedAt,
-          firstUsedAt: new Date(Date.now() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000)).toISOString(),
-          lastUsedAt: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)).toISOString(),
-
-          // Configuration
-          appWide: true,
-          pageId: undefined,
-          applicationId: feature.applicationId,
-          isCoreEvent: true,
-          isSuggested: false,
-        };
+        console.log(`✅ useFeatureReport: Successfully fetched analytics for ${analyticsData.name}`);
+        console.log(`📊 Summary: ${analyticsData.usageCount} uses, ${analyticsData.visitorCount} visitors`);
 
         return analyticsData;
       } catch (error) {
-        console.error('Error fetching feature report:', error);
+        console.error('❌ useFeatureReport: Error fetching feature report:', error);
 
         // Enhanced error handling with user-friendly messages
         if (error instanceof Error) {
+          if (error.message.includes('404')) {
+            console.error(`🚨 Feature ${id} not found. Available features can be checked in browser console.`);
+            throw new Error(`Feature "${id}" not found in Pendo. Please verify the feature ID or select a different feature.`);
+          }
+
+          if (error.message.includes('not accessible')) {
+            console.error(`🚨 Pendo API access issues detected.`);
+            throw new Error(`Unable to access Pendo analytics. Please check API permissions or try again later.`);
+          }
+
           if (error.message.includes('not found')) {
-            throw new Error(`Feature "${id}" not found. Please verify the feature ID or select a different feature.`);
+            throw new Error(`Feature data not available. The feature may not exist or may not be accessible.`);
           }
         }
 
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
     retry: (failureCount, error) => {
-      // Only retry on network errors, not on 404s
-      if (error instanceof Error && error.message.includes('not found')) {
-        return false;
+      // Only retry on network errors, not on 404s or permission errors
+      if (error instanceof Error && (
+        error.message.includes('404') ||
+        error.message.includes('not accessible') ||
+        error.message.includes('permission')
+      )) {
+        return false; // Don't retry these errors
       }
-      return failureCount < 2;
+      return failureCount < 2; // Retry other errors max 2 times
     },
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000),
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: true,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
+    refetchOnMount: false, // Don't refetch on component mount
+    refetchOnWindowFocus: false, // Don't refetch on window focus to avoid unnecessary API calls
+    refetchOnReconnect: true, // Do refetch on reconnect
   });
 };
-
 // Hook for fetching comprehensive page data with all analytics
 export const usePageReport = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({

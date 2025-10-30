@@ -22,12 +22,8 @@ import {
   StarIcon,
   UsersIcon,
   MapPinIcon,
-  ArrowTrendingUpIcon,
-  ChatBubbleLeftRightIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
-  SparklesIcon,
-  VideoCameraIcon,
 } from '@heroicons/react/24/outline';
 
 // Import report hooks
@@ -38,7 +34,6 @@ import { useReportReport } from '@/hooks/useReportData';
 
 // Import chart components
 import { ReportLineChart } from '@/components/reports/ReportLineChart';
-import { ReportBarChart } from '@/components/reports/ReportBarChart';
 import { ReportPieChart } from '@/components/reports/ReportPieChart';
 import { GeographicMap, GeographicMapData } from '@/components/reports/GeographicMap';
 import { SessionTimingDistribution } from '@/components/reports/SessionTimingDistribution';
@@ -87,34 +82,12 @@ export const ReportDetails: React.FC = () => {
   const pageReport = usePageReport(safeId, { enabled: validatedType === 'pages' && !!id });
   const reportReport = useReportReport(safeId, { enabled: validatedType === 'reports' && !!id });
 
-  useEffect(() => {
-    console.log('ReportDetails route accessed:', { type, id, isValid: type ? isValidType(type) : false });
-    if (!type || !id || !isValidType(type)) {
-      console.log('Invalid route params, navigating to tables');
-      navigate('/tables');
-    }
-  }, [type, id, navigate]);
-
-  // Now safe to do early return - all hooks have been called
-  if (!type || !id || !isValidType(type)) {
-    return null;
-  }
-
-  // Get the appropriate data and loading state based on validated type
-  const currentReport =
-    type === 'guides' ? guideReport :
-    type === 'features' ? featureReport :
-    type === 'pages' ? pageReport :
-    reportReport;
-
-  const data = currentReport?.data as ReportDataType;
-  const isLoading = currentReport?.isLoading ?? false;
-  const error = currentReport?.error;
-
-  // Helper function to aggregate time series data by week
+  // Helper functions need to be defined before early return
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const aggregateByWeek = React.useCallback((dailyData: any[]) => {
     if (!dailyData || dailyData.length === 0) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const weeklyMap = new Map<string, any>();
 
     dailyData.forEach(day => {
@@ -150,9 +123,11 @@ export const ReportDetails: React.FC = () => {
   }, []);
 
   // Helper function to aggregate time series data by month
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const aggregateByMonth = React.useCallback((dailyData: any[]) => {
     if (!dailyData || dailyData.length === 0) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const monthlyMap = new Map<string, any>();
 
     dailyData.forEach(day => {
@@ -186,6 +161,7 @@ export const ReportDetails: React.FC = () => {
   }, []);
 
   // Get aggregated time series data based on selected view
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getTimeSeriesData = React.useCallback((dailyData: any[]) => {
     switch (timeSeriesView) {
       case 'weekly':
@@ -196,6 +172,30 @@ export const ReportDetails: React.FC = () => {
         return dailyData;
     }
   }, [timeSeriesView, aggregateByWeek, aggregateByMonth]);
+
+  useEffect(() => {
+    console.log('ReportDetails route accessed:', { type, id, isValid: type ? isValidType(type) : false });
+    if (!type || !id || !isValidType(type)) {
+      console.log('Invalid route params, navigating to tables');
+      navigate('/tables');
+    }
+  }, [type, id, navigate]);
+
+  // Now safe to do early return - all hooks have been called
+  if (!type || !id || !isValidType(type)) {
+    return null;
+  }
+
+  // Get the appropriate data and loading state based on validated type
+  const currentReport =
+    type === 'guides' ? guideReport :
+    type === 'features' ? featureReport :
+    type === 'pages' ? pageReport :
+    reportReport;
+
+  const data = currentReport?.data as ReportDataType;
+  const isLoading = currentReport?.isLoading ?? false;
+  const error = currentReport?.error;
 
   // Check if this is a "no data" scenario vs "not found"
   // DISABLED: User wants to see charts with 0 values, not a "no data" screen
@@ -1066,7 +1066,7 @@ export const ReportDetails: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {(data as ComprehensivePageData).frustrationMetrics!.topFrustratedVisitors.map((visitor, idx) => (
+                            {(data as ComprehensivePageData).frustrationMetrics!.topFrustratedVisitors.map((visitor) => (
                               <tr key={visitor.visitorId} className="border-b border-gray-100">
                                 <td className="py-2 text-blue-600 hover:underline cursor-pointer">{visitor.email || visitor.visitorId}</td>
                                 <td className="text-right py-2">{visitor.rageClicks.toLocaleString()}</td>
@@ -1104,6 +1104,7 @@ export const ReportDetails: React.FC = () => {
                       <GeographicMap
                         data={(() => {
                           const eventBreakdown = (data as ComprehensivePageData).eventBreakdown || [];
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           const geoMap = eventBreakdown
                             .filter(e => e.latitude !== undefined && e.longitude !== undefined && e.region && e.country)
                             .reduce((acc, event) => {
