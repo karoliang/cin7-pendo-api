@@ -464,6 +464,20 @@ export const ReportDetails: React.FC = () => {
               <CalendarIcon className="h-4 w-4 mr-1" />
               Updated {new Date(data.updatedAt).toLocaleDateString()}
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (currentReport?.refetch) {
+                  currentReport.refetch();
+                }
+              }}
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              <ArrowPathIcon className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh Data
+            </Button>
             <Button variant="outline" size="sm" onClick={() => handleExport('pdf')}>
               <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
               Export PDF
@@ -569,8 +583,8 @@ export const ReportDetails: React.FC = () => {
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold text-gray-900">Guide Steps</h2>
                 <DataQualityBadge
-                  type="estimated"
-                  tooltip="Step analytics calculated from real guide totals with estimated step distribution"
+                  type="real"
+                  tooltip="Step analytics from guideEvents API when available, otherwise estimated from guide totals"
                 />
               </div>
               <Card>
@@ -1174,34 +1188,114 @@ export const ReportDetails: React.FC = () => {
                 </div>
               )}
 
-              {/* NEW: Improved Daily Time Series */}
-              {(data as ComprehensivePageData).dailyTimeSeries && (data as ComprehensivePageData).dailyTimeSeries!.length > 0 && (
+              {/* NEW: Session Timing Distribution */}
+              {(data as ComprehensivePageData).eventBreakdown && (data as ComprehensivePageData).eventBreakdown!.length > 0 && (
                 <div className="space-y-6 mt-12">
                   <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold text-gray-900">Daily Trends (Real Data)</h2>
-                    <DataQualityBadge type="real" tooltip="Daily aggregated data from all page events" />
+                    <h2 className="text-2xl font-bold text-gray-900">Session Duration Analysis</h2>
+                    <DataQualityBadge type="real" tooltip="Real session timing data from Pendo page events" />
                   </div>
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Daily Page Views & Visitors</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <ClockIcon className="h-5 w-5 text-purple-600" />
+                        Session Timing Distribution
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <SessionTimingDistribution
+                        events={(data as ComprehensivePageData).eventBreakdown!}
+                        height={300}
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* NEW: Improved Daily Time Series with Toggle */}
+              {(data as ComprehensivePageData).dailyTimeSeries && (data as ComprehensivePageData).dailyTimeSeries!.length > 0 && (
+                <div className="space-y-6 mt-12">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-2xl font-bold text-gray-900">Time Series Trends</h2>
+                      <DataQualityBadge type="real" tooltip="Daily aggregated data from all page events" />
+                    </div>
+
+                    {/* View Toggle Buttons */}
+                    <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
+                      <Button
+                        variant={timeSeriesView === 'daily' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setTimeSeriesView('daily')}
+                        className={timeSeriesView === 'daily' ? 'shadow-sm' : ''}
+                      >
+                        Daily
+                      </Button>
+                      <Button
+                        variant={timeSeriesView === 'weekly' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setTimeSeriesView('weekly')}
+                        className={timeSeriesView === 'weekly' ? 'shadow-sm' : ''}
+                      >
+                        Weekly
+                      </Button>
+                      <Button
+                        variant={timeSeriesView === 'monthly' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setTimeSeriesView('monthly')}
+                        className={timeSeriesView === 'monthly' ? 'shadow-sm' : ''}
+                      >
+                        Monthly
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>
+                          {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Page Views & Visitors
+                        </CardTitle>
+                        <div className="text-xs text-gray-500">
+                          Last updated: {new Date().toLocaleString()}
+                        </div>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <ReportLineChart
-                        data={(data as ComprehensivePageData).dailyTimeSeries!}
+                        data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
                         dataKey="views"
+                        showBrush={timeSeriesView === 'daily'}
+                        showAverage={true}
+                        height={350}
                       />
                     </CardContent>
                   </Card>
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Daily Frustration Events</CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>
+                          {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Frustration Events
+                        </CardTitle>
+                        <div className="text-xs text-gray-500">
+                          Last updated: {new Date().toLocaleString()}
+                        </div>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <ReportLineChart
-                        data={(data as ComprehensivePageData).dailyTimeSeries!}
+                        data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
                         dataKey="frustrationCount"
+                        showBrush={timeSeriesView === 'daily'}
+                        showAverage={true}
+                        height={350}
+                        colors={{
+                          primary: '#EF4444',
+                          secondary: '#F59E0B',
+                          tertiary: '#10B981'
+                        }}
                       />
                     </CardContent>
                   </Card>

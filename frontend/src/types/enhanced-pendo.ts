@@ -467,6 +467,31 @@ export interface PageEventRow {
   quarter?: number;
 }
 
+export interface GuideEventRow {
+  visitorId: string;
+  accountId?: string;
+  date: string;
+  views: number;
+  completions: number;
+  dismissals: number;
+  timeouts: number;
+  serverName?: string;
+  browserName?: string;
+  browserVersion?: string;
+
+  // Extended fields from Pendo API
+  numMinutes?: number;
+
+  // Geographic data
+  latitude?: number;
+  longitude?: number;
+  region?: string;
+  country?: string;
+
+  // Device/Browser (raw)
+  userAgent?: string;
+}
+
 export interface PageFeature {
   featureId: string;
   name: string;
