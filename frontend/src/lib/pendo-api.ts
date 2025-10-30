@@ -569,11 +569,7 @@ class PendoAPIClient {
     try {
       const response = await this.request<PendoGuideResponse[]>('/api/v1/guide', params);
 
-      // Log available guide IDs for debugging
-      console.log('📋 Available Pendo Guides:');
-      response.forEach((guide: PendoGuideResponse, index: number) => {
-        console.log(`${index + 1}. ID: ${guide.id}, Name: "${guide.name}", State: ${guide.state}`);
-      });
+      console.log(`📋 Fetched ${response.length} guides from Pendo API`);
 
       return response.map(this.transformGuide);
     } catch (error) {

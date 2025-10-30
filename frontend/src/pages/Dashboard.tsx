@@ -21,6 +21,18 @@ export const Dashboard: React.FC = () => {
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters, resetFilters } = useFilterStore();
 
+  // Debug logging
+  console.log('Dashboard render:', {
+    isLoading,
+    hasError: !!error,
+    dataLengths: {
+      guides: guides?.length,
+      features: features?.length,
+      pages: pages?.length,
+      reports: reports?.length
+    }
+  });
+
   const handleAdvancedSearch = (query: string, searchFilters?: SearchFilters) => {
     // Update the search query in filters
     updateFilters({
