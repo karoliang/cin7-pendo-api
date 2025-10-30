@@ -40,6 +40,9 @@ import { GeographicMap } from '@/components/reports/GeographicMap';
 import type { GeographicMapData } from '@/components/reports/GeographicMap';
 import { SessionTimingDistribution } from '@/components/reports/SessionTimingDistribution';
 
+// Import AI Summary component
+import { AISummary } from '@/components/ai/AISummary';
+
 // Import comprehensive types
 import type {
   ComprehensiveGuideData,
@@ -491,6 +494,14 @@ export const ReportDetails: React.FC = () => {
           </div>
         </div>
 
+        {/* AI-Powered Summary Section */}
+        <AISummary
+          reportType={type}
+          reportData={data}
+          defaultExpanded={false}
+          className="mb-8"
+        />
+
         {/* Reports Warning Banner */}
         {type === 'reports' && (
           <Card className="border-orange-200 bg-orange-50">
@@ -571,7 +582,7 @@ export const ReportDetails: React.FC = () => {
 
         {/* All Analytics Sections - Single Page View */}
         <div className="space-y-12">
-          {/* Overview Section */}
+          {/* POSITION 3: Overview Section */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-2">
               <h2 className="text-2xl font-bold text-gray-900">Overview</h2>
@@ -618,7 +629,634 @@ export const ReportDetails: React.FC = () => {
             {/* Performance Overview */}
           </div>
 
-          {/* Type-Specific Sections */}
+          {/* POSITION 4: Time Series Trends Section (MOVED UP) */}
+          {type === 'pages' && (data as ComprehensivePageData).dailyTimeSeries && (data as ComprehensivePageData).dailyTimeSeries!.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold text-gray-900">Time Series Trends</h2>
+                  <DataQualityBadge type="real" tooltip="Daily aggregated data from all page events" />
+                </div>
+
+                {/* View Toggle Buttons */}
+                <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
+                  <Button
+                    variant={timeSeriesView === 'daily' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setTimeSeriesView('daily')}
+                    className={timeSeriesView === 'daily' ? 'shadow-sm' : ''}
+                  >
+                    Daily
+                  </Button>
+                  <Button
+                    variant={timeSeriesView === 'weekly' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setTimeSeriesView('weekly')}
+                    className={timeSeriesView === 'weekly' ? 'shadow-sm' : ''}
+                  >
+                    Weekly
+                  </Button>
+                  <Button
+                    variant={timeSeriesView === 'monthly' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setTimeSeriesView('monthly')}
+                    className={timeSeriesView === 'monthly' ? 'shadow-sm' : ''}
+                  >
+                    Monthly
+                  </Button>
+                </div>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>
+                      {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Page Views & Visitors
+                    </CardTitle>
+                    <div className="text-xs text-gray-500">
+                      Last updated: {new Date().toLocaleString()}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ReportLineChart
+                    data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
+                    dataKey="views"
+                    showBrush={timeSeriesView === 'daily'}
+                    showAverage={true}
+                    height={350}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>
+                      {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Frustration Events
+                    </CardTitle>
+                    <div className="text-xs text-gray-500">
+                      Last updated: {new Date().toLocaleString()}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ReportLineChart
+                    data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
+                    dataKey="frustrationCount"
+                    showBrush={timeSeriesView === 'daily'}
+                    showAverage={true}
+                    height={350}
+                    colors={{
+                      primary: '#EF4444',
+                      secondary: '#F59E0B',
+                      tertiary: '#10B981'
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* POSITION 5: Frustration Metrics Section (MOVED UP) */}
+          {type === 'pages' && (data as ComprehensivePageData).frustrationMetrics && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Frustration Metrics</h2>
+                <DataQualityBadge type="real" tooltip="Real frustration metrics from Pendo page events (rage clicks, dead clicks, U-turns, error clicks)" />
+              </div>
+
+              {/* Summary KPI Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Rage Clicks</p>
+                        <p className="text-2xl font-bold text-red-900">
+                          {(data as ComprehensivePageData).frustrationMetrics!.totalRageClicks.toLocaleString()}
+                        </p>
+                      </div>
+                      <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Dead Clicks</p>
+                        <p className="text-2xl font-bold text-orange-900">
+                          {(data as ComprehensivePageData).frustrationMetrics!.totalDeadClicks.toLocaleString()}
+                        </p>
+                      </div>
+                      <ExclamationTriangleIcon className="h-8 w-8 text-orange-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">U-Turns</p>
+                        <p className="text-2xl font-bold text-yellow-900">
+                          {(data as ComprehensivePageData).frustrationMetrics!.totalUTurns.toLocaleString()}
+                        </p>
+                      </div>
+                      <ArrowPathIcon className="h-8 w-8 text-yellow-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Error Clicks</p>
+                        <p className="text-2xl font-bold text-red-900">
+                          {(data as ComprehensivePageData).frustrationMetrics!.totalErrorClicks.toLocaleString()}
+                        </p>
+                      </div>
+                      <ExclamationTriangleIcon className="h-8 w-8 text-red-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Frustration Rate</p>
+                        <p className="text-2xl font-bold text-purple-900">
+                          {(data as ComprehensivePageData).frustrationMetrics!.frustrationRate.toFixed(1)}%
+                        </p>
+                      </div>
+                      <ChartBarIcon className="h-8 w-8 text-purple-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Top Frustrated Visitors */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Frustrated Visitors</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-gray-600">
+                          <th className="text-left py-2">Visitor</th>
+                          <th className="text-right py-2">Rage Clicks</th>
+                          <th className="text-right py-2">Dead Clicks</th>
+                          <th className="text-right py-2">U-Turns</th>
+                          <th className="text-right py-2">Error Clicks</th>
+                          <th className="text-right py-2">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(data as ComprehensivePageData).frustrationMetrics!.topFrustratedVisitors.map((visitor) => (
+                          <tr key={visitor.visitorId} className="border-b border-gray-100">
+                            <td className="py-2 text-blue-600 hover:underline cursor-pointer">{visitor.email || visitor.visitorId}</td>
+                            <td className="text-right py-2">{visitor.rageClicks.toLocaleString()}</td>
+                            <td className="text-right py-2">{visitor.deadClicks.toLocaleString()}</td>
+                            <td className="text-right py-2">{visitor.uTurns.toLocaleString()}</td>
+                            <td className="text-right py-2">{visitor.errorClicks.toLocaleString()}</td>
+                            <td className="text-right py-2 font-bold">{visitor.totalFrustration.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* POSITION 6: Top Visitors & Top Accounts Tables */}
+          {type === 'pages' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Top Visitors */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <UsersIcon className="h-5 w-5 text-blue-600" />
+                      <CardTitle className="m-0">Top Visitors (10)</CardTitle>
+                      <DataQualityBadge type="real" tooltip="Real visitor data from Pendo Aggregation API" />
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-blue-600">
+                      View all Visitors →
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1">
+                    <div className="grid grid-cols-2 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
+                      <div>Visitor</div>
+                      <div className="text-right">Number of views</div>
+                    </div>
+                    {/* Real data from Pendo API */}
+                    {((data as ComprehensivePageData).topVisitors && (data as ComprehensivePageData).topVisitors!.length > 0) ? (
+                      (data as ComprehensivePageData).topVisitors!.map((visitor, index) => (
+                        <div key={visitor.visitorId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
+                          <div className="text-blue-600 hover:underline cursor-pointer">
+                            {visitor.email || visitor.name || visitor.visitorId}
+                          </div>
+                          <div className="text-right font-medium">
+                            {visitor.viewCount.toLocaleString()}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-4 text-center text-gray-500 text-sm">
+                        No visitor data available
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Top Accounts */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <UserGroupIcon className="h-5 w-5 text-purple-600" />
+                      <CardTitle className="m-0">Top Accounts (10)</CardTitle>
+                      <DataQualityBadge type="real" tooltip="Real account data from Pendo Aggregation API" />
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-purple-600">
+                      View all Accounts →
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1">
+                    <div className="grid grid-cols-4 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
+                      <div>Account</div>
+                      <div>Plan</div>
+                      <div className="text-right">ARR</div>
+                      <div className="text-right">Number of views</div>
+                    </div>
+                    {/* Real data from Pendo API */}
+                    {((data as ComprehensivePageData).topAccounts && (data as ComprehensivePageData).topAccounts!.length > 0) ? (
+                      (data as ComprehensivePageData).topAccounts!.map((account, index) => (
+                        <div key={account.accountId || index} className="grid grid-cols-4 gap-4 py-2 text-sm border-b border-gray-100 items-center">
+                          <div className="text-purple-600 hover:underline cursor-pointer">
+                            {account.name || account.accountId}
+                          </div>
+                          <div>
+                            {account.planlevel ? (
+                              <Badge
+                                variant="secondary"
+                                className={
+                                  account.planlevel.toLowerCase().includes('enterprise') ? 'bg-purple-100 text-purple-800' :
+                                  account.planlevel.toLowerCase().includes('professional') || account.planlevel.toLowerCase().includes('pro') ? 'bg-blue-100 text-blue-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }
+                              >
+                                {account.planlevel}
+                              </Badge>
+                            ) : (
+                              <span className="text-gray-400">--</span>
+                            )}
+                          </div>
+                          <div className="text-right font-medium">
+                            {account.arr ? (
+                              account.arr >= 1000000 ? `$${(account.arr / 1000000).toFixed(1)}M` :
+                              account.arr >= 1000 ? `$${(account.arr / 1000).toFixed(0)}K` :
+                              `$${account.arr.toLocaleString()}`
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </div>
+                          <div className="text-right font-medium">
+                            {account.viewCount.toLocaleString()}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-4 text-center text-gray-500 text-sm">
+                        No account data available
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* POSITION 7: Geographic Distribution Section (MOVED UP) */}
+          {type === 'pages' && (data as ComprehensivePageData).geographicDistribution && (data as ComprehensivePageData).geographicDistribution!.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Geographic Distribution (Real Data)</h2>
+                <DataQualityBadge type="real" tooltip="Real geographic data aggregated from Pendo page events" />
+              </div>
+
+              {/* Interactive Map - NEW */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPinIcon className="h-5 w-5 text-blue-600" />
+                    Interactive Geographic Map
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <GeographicMap
+                    data={(() => {
+                      const eventBreakdown = (data as ComprehensivePageData).eventBreakdown || [];
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const geoMap = eventBreakdown
+                        .filter(e => e.latitude !== undefined && e.longitude !== undefined && e.region && e.country)
+                        .reduce((acc, event) => {
+                          const key = `${event.region}-${event.country}`;
+                          if (!acc[key]) {
+                            acc[key] = {
+                              lat: event.latitude!,
+                              lon: event.longitude!,
+                              visitors: 0,
+                              views: 0,
+                              name: `${event.region}, ${event.country}`,
+                              region: event.region!,
+                              country: event.country!,
+                              avgTimeOnPage: 0,
+                              _totalTime: 0,
+                              _count: 0
+                            };
+                          }
+                          acc[key].visitors++;
+                          acc[key].views += event.totalViews || 0;
+                          acc[key]._totalTime += (event.numMinutes || 0) * 60; // Convert to seconds
+                          acc[key]._count++;
+                          acc[key].avgTimeOnPage = acc[key]._totalTime / acc[key]._count;
+                          return acc;
+                        }, {} as Record<string, any>);
+                      return Object.values(geoMap) as GeographicMapData[];
+                    })()}
+                    height={450}
+                  />
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Pie Chart */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Visitors by Region</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ReportPieChart
+                      data={(data as ComprehensivePageData).geographicDistribution!.slice(0, 8).map(geo => ({
+                        name: `${geo.region}, ${geo.country}`,
+                        users: geo.visitors,
+                        percentage: geo.percentage
+                      }))}
+                      dataKey="users"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Top Regions by Engagement</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b text-gray-600">
+                            <th className="text-left py-2">Location</th>
+                            <th className="text-right py-2">Visitors</th>
+                            <th className="text-right py-2">Views</th>
+                            <th className="text-right py-2">Avg Time</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(data as ComprehensivePageData).geographicDistribution!.slice(0, 10).map((geo, idx) => (
+                            <tr key={idx} className="border-b border-gray-100">
+                              <td className="py-2">{geo.region}, {geo.country}</td>
+                              <td className="text-right py-2">{geo.visitors.toLocaleString()}</td>
+                              <td className="text-right py-2">{geo.views.toLocaleString()}</td>
+                              <td className="text-right py-2">{geo.avgTimeOnPage.toFixed(0)}s</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* POSITION 8: Device & Browser Breakdown Section */}
+          {type === 'pages' && (data as ComprehensivePageData).deviceBrowserBreakdown && (data as ComprehensivePageData).deviceBrowserBreakdown!.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Device & Browser Breakdown (Real Data)</h2>
+                <DataQualityBadge type="real" tooltip="Real device, OS, and browser data parsed from userAgent strings" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Device Type Pie Chart */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Users by Device Type</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ReportPieChart
+                      data={(() => {
+                        const deviceGroups = new Map();
+                        (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
+                          const existing = deviceGroups.get(item.device) || {name: item.device, users: 0, percentage: 0};
+                          existing.users += item.users;
+                          existing.percentage += item.percentage;
+                          deviceGroups.set(item.device, existing);
+                        });
+                        return Array.from(deviceGroups.values());
+                      })()}
+                      dataKey="users"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Browser Pie Chart */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Users by Browser</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ReportPieChart
+                      data={(() => {
+                        const browserGroups = new Map();
+                        (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
+                          const existing = browserGroups.get(item.browser) || {name: item.browser, users: 0, percentage: 0};
+                          existing.users += item.users;
+                          existing.percentage += item.percentage;
+                          browserGroups.set(item.browser, existing);
+                        });
+                        return Array.from(browserGroups.values()).sort((a, b) => b.users - a.users);
+                      })()}
+                      dataKey="users"
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Detailed Breakdown Table */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Detailed Device, OS & Browser Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-gray-600">
+                          <th className="text-left py-2">Device</th>
+                          <th className="text-left py-2">Operating System</th>
+                          <th className="text-left py-2">Browser</th>
+                          <th className="text-right py-2">Users</th>
+                          <th className="text-right py-2">Percentage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(data as ComprehensivePageData).deviceBrowserBreakdown!.slice(0, 15).map((item, idx) => (
+                          <tr key={idx} className="border-b border-gray-100">
+                            <td className="py-2">{item.device}</td>
+                            <td className="py-2">{item.os} {item.osVersion && `(${item.osVersion})`}</td>
+                            <td className="py-2">{item.browser} {item.browserVersion && `(${item.browserVersion})`}</td>
+                            <td className="text-right py-2">{item.users.toLocaleString()}</td>
+                            <td className="text-right py-2">{item.percentage.toFixed(1)}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* POSITION 9: Session Duration Analysis (MOVED UP) */}
+          {type === 'pages' && (data as ComprehensivePageData).eventBreakdown && (data as ComprehensivePageData).eventBreakdown!.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Session Duration Analysis</h2>
+                <DataQualityBadge type="real" tooltip="Real session timing data from Pendo page events" />
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ClockIcon className="h-5 w-5 text-purple-600" />
+                    Session Timing Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SessionTimingDistribution
+                    events={(data as ComprehensivePageData).eventBreakdown!}
+                    height={300}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* POSITION 10: Event Breakdown Table (MOVED DOWN) */}
+          {type === 'pages' && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <ChartBarIcon className="h-5 w-5 text-indigo-600" />
+                    <CardTitle className="m-0">Event breakdown (Showing top 20 of {(data as ComprehensivePageData).eventBreakdown?.length.toLocaleString() || 0})</CardTitle>
+                    <DataQualityBadge
+                      type="real"
+                      tooltip="Real page event data from Pendo API including frustration metrics. Aggregations use all events, table shows top 20."
+                    />
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Displaying top 20 rows. All {(data as ComprehensivePageData).eventBreakdown?.length.toLocaleString() || 0} events are used for aggregations below.
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b text-gray-600 bg-gray-50">
+                        <th className="text-left py-2 px-2 font-medium">Visitor</th>
+                        <th className="text-left py-2 px-2 font-medium">Account</th>
+                        <th className="text-left py-2 px-2 font-medium">Date</th>
+                        <th className="text-right py-2 px-2 font-medium">Total Views</th>
+                        <th className="text-right py-2 px-2 font-medium">U-turns</th>
+                        <th className="text-right py-2 px-2 font-medium">Dead clicks</th>
+                        <th className="text-right py-2 px-2 font-medium">Error clicks</th>
+                        <th className="text-right py-2 px-2 font-medium">Rage clicks</th>
+                        <th className="text-center py-2 px-2 font-medium">Recording</th>
+                        <th className="text-left py-2 px-2 font-medium">Page parameter</th>
+                        <th className="text-left py-2 px-2 font-medium">Server name</th>
+                        <th className="text-left py-2 px-2 font-medium">Browser Name</th>
+                        <th className="text-left py-2 px-2 font-medium">Browser Version</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {((data as ComprehensivePageData).eventBreakdown && (data as ComprehensivePageData).eventBreakdown!.length > 0) ? (
+                        (data as ComprehensivePageData).eventBreakdown!.slice(0, 20).map((event, index) => (
+                          <tr key={`${event.visitorId}-${event.date}-${index}`} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="py-2 px-2 text-blue-600 hover:underline cursor-pointer">
+                              {event.visitorId}
+                            </td>
+                            <td className="py-2 px-2">{event.accountId || '--'}</td>
+                            <td className="py-2 px-2">{event.date}</td>
+                            <td className="text-right py-2 px-2">{event.totalViews.toLocaleString()}</td>
+                            <td className="text-right py-2 px-2">{event.uTurns?.toLocaleString() || 0}</td>
+                            <td className="text-right py-2 px-2">{event.deadClicks?.toLocaleString() || 0}</td>
+                            <td className="text-right py-2 px-2">{event.errorClicks?.toLocaleString() || 0}</td>
+                            <td className="text-right py-2 px-2">{event.rageClicks?.toLocaleString() || 0}</td>
+                            <td className="text-center py-2 px-2">
+                              {event.recordingId ? (
+                                <a
+                                  href={`https://app.pendo.io/session/${event.recordingId}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                                  title="View Session Recording"
+                                >
+                                  <VideoCameraIcon className="h-4 w-4" />
+                                </a>
+                              ) : (
+                                <span className="text-gray-400">--</span>
+                              )}
+                            </td>
+                            <td className="py-2 px-2 text-gray-400">--</td>
+                            <td className="py-2 px-2">{event.serverName || '--'}</td>
+                            <td className="py-2 px-2">{event.browserName || '--'}</td>
+                            <td className="py-2 px-2">{event.browserVersion || '--'}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={13} className="py-4 text-center text-gray-500 text-sm">
+                            No event data available
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* POSITION 11: Guide Steps Section (for guides type) */}
           {type === 'guides' && (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -692,121 +1330,9 @@ export const ReportDetails: React.FC = () => {
             </div>
           )}
 
-
+          {/* POSITION 12: Features Targeting Section (for pages type) */}
           {type === 'pages' && (
             <div className="space-y-6">
-              {/* Top Visitors and Top Accounts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Top Visitors */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <UsersIcon className="h-5 w-5 text-blue-600" />
-                        <CardTitle className="m-0">Top Visitors (10)</CardTitle>
-                        <DataQualityBadge type="real" tooltip="Real visitor data from Pendo Aggregation API" />
-                      </div>
-                      <Button variant="ghost" size="sm" className="text-blue-600">
-                        View all Visitors →
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1">
-                      <div className="grid grid-cols-2 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
-                        <div>Visitor</div>
-                        <div className="text-right">Number of views</div>
-                      </div>
-                      {/* Real data from Pendo API */}
-                      {((data as ComprehensivePageData).topVisitors && (data as ComprehensivePageData).topVisitors!.length > 0) ? (
-                        (data as ComprehensivePageData).topVisitors!.map((visitor, index) => (
-                          <div key={visitor.visitorId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
-                            <div className="text-blue-600 hover:underline cursor-pointer">
-                              {visitor.email || visitor.name || visitor.visitorId}
-                            </div>
-                            <div className="text-right font-medium">
-                              {visitor.viewCount.toLocaleString()}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="py-4 text-center text-gray-500 text-sm">
-                          No visitor data available
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Top Accounts */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <UserGroupIcon className="h-5 w-5 text-purple-600" />
-                        <CardTitle className="m-0">Top Accounts (10)</CardTitle>
-                        <DataQualityBadge type="real" tooltip="Real account data from Pendo Aggregation API" />
-                      </div>
-                      <Button variant="ghost" size="sm" className="text-purple-600">
-                        View all Accounts →
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1">
-                      <div className="grid grid-cols-4 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
-                        <div>Account</div>
-                        <div>Plan</div>
-                        <div className="text-right">ARR</div>
-                        <div className="text-right">Number of views</div>
-                      </div>
-                      {/* Real data from Pendo API */}
-                      {((data as ComprehensivePageData).topAccounts && (data as ComprehensivePageData).topAccounts!.length > 0) ? (
-                        (data as ComprehensivePageData).topAccounts!.map((account, index) => (
-                          <div key={account.accountId || index} className="grid grid-cols-4 gap-4 py-2 text-sm border-b border-gray-100 items-center">
-                            <div className="text-purple-600 hover:underline cursor-pointer">
-                              {account.name || account.accountId}
-                            </div>
-                            <div>
-                              {account.planlevel ? (
-                                <Badge
-                                  variant="secondary"
-                                  className={
-                                    account.planlevel.toLowerCase().includes('enterprise') ? 'bg-purple-100 text-purple-800' :
-                                    account.planlevel.toLowerCase().includes('professional') || account.planlevel.toLowerCase().includes('pro') ? 'bg-blue-100 text-blue-800' :
-                                    'bg-gray-100 text-gray-800'
-                                  }
-                                >
-                                  {account.planlevel}
-                                </Badge>
-                              ) : (
-                                <span className="text-gray-400">--</span>
-                              )}
-                            </div>
-                            <div className="text-right font-medium">
-                              {account.arr ? (
-                                account.arr >= 1000000 ? `$${(account.arr / 1000000).toFixed(1)}M` :
-                                account.arr >= 1000 ? `$${(account.arr / 1000).toFixed(0)}K` :
-                                `$${account.arr.toLocaleString()}`
-                              ) : (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </div>
-                            <div className="text-right font-medium">
-                              {account.viewCount.toLocaleString()}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="py-4 text-center text-gray-500 text-sm">
-                          No account data available
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
               {/* Features - All (API Limitation) */}
               <Card>
                 <CardHeader>
@@ -921,521 +1447,13 @@ export const ReportDetails: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Event Breakdown */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <ChartBarIcon className="h-5 w-5 text-indigo-600" />
-                      <CardTitle className="m-0">Event breakdown (Showing top 20 of {(data as ComprehensivePageData).eventBreakdown?.length.toLocaleString() || 0})</CardTitle>
-                      <DataQualityBadge
-                        type="real"
-                        tooltip="Real page event data from Pendo API including frustration metrics. Aggregations use all events, table shows top 20."
-                      />
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Displaying top 20 rows. All {(data as ComprehensivePageData).eventBreakdown?.length.toLocaleString() || 0} events are used for aggregations below.
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
-                      <thead>
-                        <tr className="border-b text-gray-600 bg-gray-50">
-                          <th className="text-left py-2 px-2 font-medium">Visitor</th>
-                          <th className="text-left py-2 px-2 font-medium">Account</th>
-                          <th className="text-left py-2 px-2 font-medium">Date</th>
-                          <th className="text-right py-2 px-2 font-medium">Total Views</th>
-                          <th className="text-right py-2 px-2 font-medium">U-turns</th>
-                          <th className="text-right py-2 px-2 font-medium">Dead clicks</th>
-                          <th className="text-right py-2 px-2 font-medium">Error clicks</th>
-                          <th className="text-right py-2 px-2 font-medium">Rage clicks</th>
-                          <th className="text-center py-2 px-2 font-medium">Recording</th>
-                          <th className="text-left py-2 px-2 font-medium">Page parameter</th>
-                          <th className="text-left py-2 px-2 font-medium">Server name</th>
-                          <th className="text-left py-2 px-2 font-medium">Browser Name</th>
-                          <th className="text-left py-2 px-2 font-medium">Browser Version</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {((data as ComprehensivePageData).eventBreakdown && (data as ComprehensivePageData).eventBreakdown!.length > 0) ? (
-                          (data as ComprehensivePageData).eventBreakdown!.slice(0, 20).map((event, index) => (
-                            <tr key={`${event.visitorId}-${event.date}-${index}`} className="border-b border-gray-100 hover:bg-gray-50">
-                              <td className="py-2 px-2 text-blue-600 hover:underline cursor-pointer">
-                                {event.visitorId}
-                              </td>
-                              <td className="py-2 px-2">{event.accountId || '--'}</td>
-                              <td className="py-2 px-2">{event.date}</td>
-                              <td className="text-right py-2 px-2">{event.totalViews.toLocaleString()}</td>
-                              <td className="text-right py-2 px-2">{event.uTurns?.toLocaleString() || 0}</td>
-                              <td className="text-right py-2 px-2">{event.deadClicks?.toLocaleString() || 0}</td>
-                              <td className="text-right py-2 px-2">{event.errorClicks?.toLocaleString() || 0}</td>
-                              <td className="text-right py-2 px-2">{event.rageClicks?.toLocaleString() || 0}</td>
-                              <td className="text-center py-2 px-2">
-                                {event.recordingId ? (
-                                  <a
-                                    href={`https://app.pendo.io/session/${event.recordingId}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center text-blue-600 hover:text-blue-800"
-                                    title="View Session Recording"
-                                  >
-                                    <VideoCameraIcon className="h-4 w-4" />
-                                  </a>
-                                ) : (
-                                  <span className="text-gray-400">--</span>
-                                )}
-                              </td>
-                              <td className="py-2 px-2 text-gray-400">--</td>
-                              <td className="py-2 px-2">{event.serverName || '--'}</td>
-                              <td className="py-2 px-2">{event.browserName || '--'}</td>
-                              <td className="py-2 px-2">{event.browserVersion || '--'}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={13} className="py-4 text-center text-gray-500 text-sm">
-                              No event data available
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* NEW: Frustration Metrics Section */}
-              {(data as ComprehensivePageData).frustrationMetrics && (
-                <div className="space-y-6 mt-12">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold text-gray-900">Frustration Metrics</h2>
-                    <DataQualityBadge type="real" tooltip="Real frustration metrics from Pendo page events (rage clicks, dead clicks, U-turns, error clicks)" />
-                  </div>
-
-                  {/* Summary KPI Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Rage Clicks</p>
-                            <p className="text-2xl font-bold text-red-900">
-                              {(data as ComprehensivePageData).frustrationMetrics!.totalRageClicks.toLocaleString()}
-                            </p>
-                          </div>
-                          <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Dead Clicks</p>
-                            <p className="text-2xl font-bold text-orange-900">
-                              {(data as ComprehensivePageData).frustrationMetrics!.totalDeadClicks.toLocaleString()}
-                            </p>
-                          </div>
-                          <ExclamationTriangleIcon className="h-8 w-8 text-orange-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">U-Turns</p>
-                            <p className="text-2xl font-bold text-yellow-900">
-                              {(data as ComprehensivePageData).frustrationMetrics!.totalUTurns.toLocaleString()}
-                            </p>
-                          </div>
-                          <ArrowPathIcon className="h-8 w-8 text-yellow-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Error Clicks</p>
-                            <p className="text-2xl font-bold text-red-900">
-                              {(data as ComprehensivePageData).frustrationMetrics!.totalErrorClicks.toLocaleString()}
-                            </p>
-                          </div>
-                          <ExclamationTriangleIcon className="h-8 w-8 text-red-500" />
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Frustration Rate</p>
-                            <p className="text-2xl font-bold text-purple-900">
-                              {(data as ComprehensivePageData).frustrationMetrics!.frustrationRate.toFixed(1)}%
-                            </p>
-                          </div>
-                          <ChartBarIcon className="h-8 w-8 text-purple-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Top Frustrated Visitors */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Top Frustrated Visitors</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b text-gray-600">
-                              <th className="text-left py-2">Visitor</th>
-                              <th className="text-right py-2">Rage Clicks</th>
-                              <th className="text-right py-2">Dead Clicks</th>
-                              <th className="text-right py-2">U-Turns</th>
-                              <th className="text-right py-2">Error Clicks</th>
-                              <th className="text-right py-2">Total</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(data as ComprehensivePageData).frustrationMetrics!.topFrustratedVisitors.map((visitor) => (
-                              <tr key={visitor.visitorId} className="border-b border-gray-100">
-                                <td className="py-2 text-blue-600 hover:underline cursor-pointer">{visitor.email || visitor.visitorId}</td>
-                                <td className="text-right py-2">{visitor.rageClicks.toLocaleString()}</td>
-                                <td className="text-right py-2">{visitor.deadClicks.toLocaleString()}</td>
-                                <td className="text-right py-2">{visitor.uTurns.toLocaleString()}</td>
-                                <td className="text-right py-2">{visitor.errorClicks.toLocaleString()}</td>
-                                <td className="text-right py-2 font-bold">{visitor.totalFrustration.toLocaleString()}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              {/* NEW: Geographic Distribution Section */}
-              {(data as ComprehensivePageData).geographicDistribution && (data as ComprehensivePageData).geographicDistribution!.length > 0 && (
-                <div className="space-y-6 mt-12">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold text-gray-900">Geographic Distribution (Real Data)</h2>
-                    <DataQualityBadge type="real" tooltip="Real geographic data aggregated from Pendo page events" />
-                  </div>
-
-                  {/* Interactive Map - NEW */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPinIcon className="h-5 w-5 text-blue-600" />
-                        Interactive Geographic Map
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <GeographicMap
-                        data={(() => {
-                          const eventBreakdown = (data as ComprehensivePageData).eventBreakdown || [];
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          const geoMap = eventBreakdown
-                            .filter(e => e.latitude !== undefined && e.longitude !== undefined && e.region && e.country)
-                            .reduce((acc, event) => {
-                              const key = `${event.region}-${event.country}`;
-                              if (!acc[key]) {
-                                acc[key] = {
-                                  lat: event.latitude!,
-                                  lon: event.longitude!,
-                                  visitors: 0,
-                                  views: 0,
-                                  name: `${event.region}, ${event.country}`,
-                                  region: event.region!,
-                                  country: event.country!,
-                                  avgTimeOnPage: 0,
-                                  _totalTime: 0,
-                                  _count: 0
-                                };
-                              }
-                              acc[key].visitors++;
-                              acc[key].views += event.totalViews || 0;
-                              acc[key]._totalTime += (event.numMinutes || 0) * 60; // Convert to seconds
-                              acc[key]._count++;
-                              acc[key].avgTimeOnPage = acc[key]._totalTime / acc[key]._count;
-                              return acc;
-                            }, {} as Record<string, any>);
-                          return Object.values(geoMap) as GeographicMapData[];
-                        })()}
-                        height={450}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Pie Chart */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Visitors by Region</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ReportPieChart
-                          data={(data as ComprehensivePageData).geographicDistribution!.slice(0, 8).map(geo => ({
-                            name: `${geo.region}, ${geo.country}`,
-                            users: geo.visitors,
-                            percentage: geo.percentage
-                          }))}
-                          dataKey="users"
-                        />
-                      </CardContent>
-                    </Card>
-
-                    {/* Table */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Top Regions by Engagement</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-sm">
-                            <thead>
-                              <tr className="border-b text-gray-600">
-                                <th className="text-left py-2">Location</th>
-                                <th className="text-right py-2">Visitors</th>
-                                <th className="text-right py-2">Views</th>
-                                <th className="text-right py-2">Avg Time</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {(data as ComprehensivePageData).geographicDistribution!.slice(0, 10).map((geo, idx) => (
-                                <tr key={idx} className="border-b border-gray-100">
-                                  <td className="py-2">{geo.region}, {geo.country}</td>
-                                  <td className="text-right py-2">{geo.visitors.toLocaleString()}</td>
-                                  <td className="text-right py-2">{geo.views.toLocaleString()}</td>
-                                  <td className="text-right py-2">{geo.avgTimeOnPage.toFixed(0)}s</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              )}
-
-              {/* NEW: Session Timing Distribution */}
-              {(data as ComprehensivePageData).eventBreakdown && (data as ComprehensivePageData).eventBreakdown!.length > 0 && (
-                <div className="space-y-6 mt-12">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold text-gray-900">Session Duration Analysis</h2>
-                    <DataQualityBadge type="real" tooltip="Real session timing data from Pendo page events" />
-                  </div>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <ClockIcon className="h-5 w-5 text-purple-600" />
-                        Session Timing Distribution
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <SessionTimingDistribution
-                        events={(data as ComprehensivePageData).eventBreakdown!}
-                        height={300}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              {/* NEW: Improved Daily Time Series with Toggle */}
-              {(data as ComprehensivePageData).dailyTimeSeries && (data as ComprehensivePageData).dailyTimeSeries!.length > 0 && (
-                <div className="space-y-6 mt-12">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <h2 className="text-2xl font-bold text-gray-900">Time Series Trends</h2>
-                      <DataQualityBadge type="real" tooltip="Daily aggregated data from all page events" />
-                    </div>
-
-                    {/* View Toggle Buttons */}
-                    <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
-                      <Button
-                        variant={timeSeriesView === 'daily' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => setTimeSeriesView('daily')}
-                        className={timeSeriesView === 'daily' ? 'shadow-sm' : ''}
-                      >
-                        Daily
-                      </Button>
-                      <Button
-                        variant={timeSeriesView === 'weekly' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => setTimeSeriesView('weekly')}
-                        className={timeSeriesView === 'weekly' ? 'shadow-sm' : ''}
-                      >
-                        Weekly
-                      </Button>
-                      <Button
-                        variant={timeSeriesView === 'monthly' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => setTimeSeriesView('monthly')}
-                        className={timeSeriesView === 'monthly' ? 'shadow-sm' : ''}
-                      >
-                        Monthly
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle>
-                          {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Page Views & Visitors
-                        </CardTitle>
-                        <div className="text-xs text-gray-500">
-                          Last updated: {new Date().toLocaleString()}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <ReportLineChart
-                        data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
-                        dataKey="views"
-                        showBrush={timeSeriesView === 'daily'}
-                        showAverage={true}
-                        height={350}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle>
-                          {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Frustration Events
-                        </CardTitle>
-                        <div className="text-xs text-gray-500">
-                          Last updated: {new Date().toLocaleString()}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <ReportLineChart
-                        data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
-                        dataKey="frustrationCount"
-                        showBrush={timeSeriesView === 'daily'}
-                        showAverage={true}
-                        height={350}
-                        colors={{
-                          primary: '#EF4444',
-                          secondary: '#F59E0B',
-                          tertiary: '#10B981'
-                        }}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              {/* NEW: Device/Browser Breakdown Section */}
-              {(data as ComprehensivePageData).deviceBrowserBreakdown && (data as ComprehensivePageData).deviceBrowserBreakdown!.length > 0 && (
-                <div className="space-y-6 mt-12">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold text-gray-900">Device & Browser Breakdown (Real Data)</h2>
-                    <DataQualityBadge type="real" tooltip="Real device, OS, and browser data parsed from userAgent strings" />
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Device Type Pie Chart */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Users by Device Type</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ReportPieChart
-                          data={(() => {
-                            const deviceGroups = new Map();
-                            (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
-                              const existing = deviceGroups.get(item.device) || {name: item.device, users: 0, percentage: 0};
-                              existing.users += item.users;
-                              existing.percentage += item.percentage;
-                              deviceGroups.set(item.device, existing);
-                            });
-                            return Array.from(deviceGroups.values());
-                          })()}
-                          dataKey="users"
-                        />
-                      </CardContent>
-                    </Card>
-
-                    {/* Browser Pie Chart */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Users by Browser</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ReportPieChart
-                          data={(() => {
-                            const browserGroups = new Map();
-                            (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
-                              const existing = browserGroups.get(item.browser) || {name: item.browser, users: 0, percentage: 0};
-                              existing.users += item.users;
-                              existing.percentage += item.percentage;
-                              browserGroups.set(item.browser, existing);
-                            });
-                            return Array.from(browserGroups.values()).sort((a, b) => b.users - a.users);
-                          })()}
-                          dataKey="users"
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Detailed Breakdown Table */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Detailed Device, OS & Browser Breakdown</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b text-gray-600">
-                              <th className="text-left py-2">Device</th>
-                              <th className="text-left py-2">Operating System</th>
-                              <th className="text-left py-2">Browser</th>
-                              <th className="text-right py-2">Users</th>
-                              <th className="text-right py-2">Percentage</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(data as ComprehensivePageData).deviceBrowserBreakdown!.slice(0, 15).map((item, idx) => (
-                              <tr key={idx} className="border-b border-gray-100">
-                                <td className="py-2">{item.device}</td>
-                                <td className="py-2">{item.os} {item.osVersion && `(${item.osVersion})`}</td>
-                                <td className="py-2">{item.browser} {item.browserVersion && `(${item.browserVersion})`}</td>
-                                <td className="text-right py-2">{item.users.toLocaleString()}</td>
-                                <td className="text-right py-2">{item.percentage.toFixed(1)}%</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
             </div>
           )}
 
-          {/* Technical Details Section */}
+          {/* POSITION 13: Guides Targeting Section (for pages type) - REMOVED DUPLICATES */}
+          {/* The Guides Targeting section already appears above after Features */}
+
+          {/* POSITION 14: Technical Details Section (keep at bottom) */}
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Technical Details</h2>
             <Card>
