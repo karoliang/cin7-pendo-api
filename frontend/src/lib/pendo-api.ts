@@ -2079,6 +2079,33 @@ class PendoAPIClient {
 
         console.log(`   ✓ Completed in ${Date.now() - additionalDataStart}ms - ${successfulCalls.length}/5 successful`);
         console.log(`   Data summary:`, {
+          visitors: comprehensiveData.topVisitors?.length || 0,
+          accounts: comprehensiveData.topAccounts?.length || 0,
+          events: comprehensiveData.eventBreakdown?.length || 0,
+          features: comprehensiveData.featuresTargeting?.length || 0,
+          guides: comprehensiveData.guidesTargeting?.length || 0,
+        });
+      } catch (error) {
+        console.error(`❌ Unexpected error in Promise.allSettled (this should never happen):`, error);
+        // Initialize with empty arrays if fetch fails
+        comprehensiveData.topVisitors = [];
+        comprehensiveData.topAccounts = [];
+        comprehensiveData.eventBreakdown = [];
+        comprehensiveData.featuresTargeting = [];
+        comprehensiveData.guidesTargeting = [];
+      }
+
+      const totalTime = Date.now() - startTime;
+      console.log(`✅ Page analytics completed successfully in ${totalTime}ms`);
+      console.log(`📊 Final data: ${totals.viewedCount} views, ${totals.visitorCount} visitors, ${timeSeriesData.length} time points`);
+      return comprehensiveData;
+
+    } catch (error) {
+      console.error(`❌ Error fetching page analytics for ${id}:`, error);
+      throw error;
+    }
+  }
+
   /**
    * Get comprehensive feature analytics using Pendo's featureEvents API
    * Fetches real data including totals, time series, top users, top accounts, and device/geographic breakdowns
@@ -2607,32 +2634,6 @@ class PendoAPIClient {
     } catch (error) {
       console.error(`❌ Error fetching top accounts for feature ${featureId}:`, error);
       return [];
-    }
-  }
-          visitors: comprehensiveData.topVisitors?.length || 0,
-          accounts: comprehensiveData.topAccounts?.length || 0,
-          events: comprehensiveData.eventBreakdown?.length || 0,
-          features: comprehensiveData.featuresTargeting?.length || 0,
-          guides: comprehensiveData.guidesTargeting?.length || 0,
-        });
-      } catch (error) {
-        console.error(`❌ Unexpected error in Promise.allSettled (this should never happen):`, error);
-        // Initialize with empty arrays if fetch fails
-        comprehensiveData.topVisitors = [];
-        comprehensiveData.topAccounts = [];
-        comprehensiveData.eventBreakdown = [];
-        comprehensiveData.featuresTargeting = [];
-        comprehensiveData.guidesTargeting = [];
-      }
-
-      const totalTime = Date.now() - startTime;
-      console.log(`✅ Page analytics completed successfully in ${totalTime}ms`);
-      console.log(`📊 Final data: ${totals.viewedCount} views, ${totals.visitorCount} visitors, ${timeSeriesData.length} time points`);
-      return comprehensiveData;
-
-    } catch (error) {
-      console.error(`❌ Error fetching page analytics for ${id}:`, error);
-      throw error;
     }
   }
 

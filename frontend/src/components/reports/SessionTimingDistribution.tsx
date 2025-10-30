@@ -1,6 +1,6 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { PageEventRow } from '@/types/enhanced-pendo';
+import type { PageEventRow } from '@/types/enhanced-pendo';
 
 interface SessionTimingDistributionProps {
   events: PageEventRow[];

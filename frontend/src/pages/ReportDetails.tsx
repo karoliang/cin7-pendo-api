@@ -24,6 +24,7 @@ import {
   MapPinIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
+  VideoCameraIcon,
 } from '@heroicons/react/24/outline';
 
 // Import report hooks
@@ -35,7 +36,8 @@ import { useReportReport } from '@/hooks/useReportData';
 // Import chart components
 import { ReportLineChart } from '@/components/reports/ReportLineChart';
 import { ReportPieChart } from '@/components/reports/ReportPieChart';
-import { GeographicMap, GeographicMapData } from '@/components/reports/GeographicMap';
+import { GeographicMap } from '@/components/reports/GeographicMap';
+import type { GeographicMapData } from '@/components/reports/GeographicMap';
 import { SessionTimingDistribution } from '@/components/reports/SessionTimingDistribution';
 
 // Import comprehensive types
