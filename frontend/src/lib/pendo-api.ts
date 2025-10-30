@@ -8,6 +8,7 @@ import type {
   FrustrationMetricsSummary,
   GeographicDistribution,
   DailyTimeSeries,
+  DeviceBrowserBreakdown,
 } from '@/types/enhanced-pendo';
 
 // Internal API types
@@ -1915,7 +1916,7 @@ class PendoAPIClient {
         const results = await Promise.allSettled([
           this.getTopVisitorsForPage(id, 10),
           this.getTopAccountsForPage(id, 10),
-          this.getPageEventBreakdown(id, 20), // Limit to 20 for initial display
+          this.getPageEventBreakdown(id, 5000), // Fetch more events for accurate aggregations (display will slice to 20)
           this.getFeaturesTargetingPage(id, 7),
           this.getGuidesTargetingPage(id, 10), // Limit to 10 for initial display
         ]);
@@ -1955,10 +1956,12 @@ class PendoAPIClient {
           comprehensiveData.frustrationMetrics = this.calculateFrustrationMetrics(comprehensiveData.eventBreakdown);
           comprehensiveData.geographicDistribution = this.aggregateGeographicData(comprehensiveData.eventBreakdown);
           comprehensiveData.dailyTimeSeries = this.aggregateDailyTimeSeries(comprehensiveData.eventBreakdown);
+          comprehensiveData.deviceBrowserBreakdown = this.aggregateDeviceBrowserData(comprehensiveData.eventBreakdown);
 
           console.log(`   ✓ Frustration metrics: ${comprehensiveData.frustrationMetrics.frustrationRate.toFixed(1)}% frustration rate`);
           console.log(`   ✓ Geographic: ${comprehensiveData.geographicDistribution.length} regions`);
           console.log(`   ✓ Daily time series: ${comprehensiveData.dailyTimeSeries.length} days`);
+          console.log(`   ✓ Device/Browser: ${comprehensiveData.deviceBrowserBreakdown.length} combinations`);
         }
 
         console.log(`   ✓ Completed in ${Date.now() - additionalDataStart}ms - ${successfulCalls.length}/5 successful`);
@@ -2343,6 +2346,111 @@ class PendoAPIClient {
         frustrationCount: day.frustrationCount
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }
+
+  /**
+   * Parse device, OS, and browser from userAgent string
+   * @private
+   */
+  private parseDeviceFromUserAgent(userAgent: string): {device: string, os: string, browser: string, osVersion: string, browserVersion: string} {
+    if (!userAgent) return {device: 'Unknown', os: 'Unknown', browser: 'Unknown', osVersion: '', browserVersion: ''};
+
+    // Detect device type
+    let device = 'Desktop';
+    if (/Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
+      if (/iPad/i.test(userAgent)) {
+        device = 'Tablet';
+      } else {
+        device = 'Mobile';
+      }
+    }
+
+    // Detect OS
+    let os = 'Unknown';
+    let osVersion = '';
+    if (/Windows NT (\d+\.\d+)/i.test(userAgent)) {
+      os = 'Windows';
+      const match = userAgent.match(/Windows NT (\d+\.\d+)/i);
+      osVersion = match ? match[1] : '';
+    } else if (/Mac OS X (\d+[._]\d+)/i.test(userAgent)) {
+      os = 'macOS';
+      const match = userAgent.match(/Mac OS X (\d+[._]\d+)/i);
+      osVersion = match ? match[1].replace('_', '.') : '';
+    } else if (/Android (\d+\.\d+)/i.test(userAgent)) {
+      os = 'Android';
+      const match = userAgent.match(/Android (\d+\.\d+)/i);
+      osVersion = match ? match[1] : '';
+    } else if (/iPhone OS (\d+[._]\d+)/i.test(userAgent)) {
+      os = 'iOS';
+      const match = userAgent.match(/iPhone OS (\d+[._]\d+)/i);
+      osVersion = match ? match[1].replace('_', '.') : '';
+    } else if (/Linux/i.test(userAgent)) {
+      os = 'Linux';
+    }
+
+    // Detect browser
+    let browser = 'Unknown';
+    let browserVersion = '';
+    if (/Edg\/(\d+\.\d+)/i.test(userAgent)) {
+      browser = 'Edge';
+      const match = userAgent.match(/Edg\/(\d+\.\d+)/i);
+      browserVersion = match ? match[1] : '';
+    } else if (/Chrome\/(\d+\.\d+)/i.test(userAgent) && !/Edg/i.test(userAgent)) {
+      browser = 'Chrome';
+      const match = userAgent.match(/Chrome\/(\d+\.\d+)/i);
+      browserVersion = match ? match[1] : '';
+    } else if (/Safari\/(\d+\.\d+)/i.test(userAgent) && !/Chrome/i.test(userAgent)) {
+      browser = 'Safari';
+      const match = userAgent.match(/Version\/(\d+\.\d+)/i);
+      browserVersion = match ? match[1] : '';
+    } else if (/Firefox\/(\d+\.\d+)/i.test(userAgent)) {
+      browser = 'Firefox';
+      const match = userAgent.match(/Firefox\/(\d+\.\d+)/i);
+      browserVersion = match ? match[1] : '';
+    }
+
+    return {device, os, browser, osVersion, browserVersion};
+  }
+
+  /**
+   * Aggregate device/browser breakdown from page events
+   * @private
+   */
+  private aggregateDeviceBrowserData(events: PageEventRow[]): DeviceBrowserBreakdown[] {
+    const deviceMap = new Map();
+
+    events.forEach(event => {
+      if (!event.userAgent) return;
+
+      const parsed = this.parseDeviceFromUserAgent(event.userAgent);
+      const key = `${parsed.device}|${parsed.os}|${parsed.browser}`;
+
+      const existing = deviceMap.get(key) || {
+        device: parsed.device,
+        os: parsed.os,
+        osVersion: parsed.osVersion,
+        browser: parsed.browser,
+        browserVersion: parsed.browserVersion,
+        users: new Set()
+      };
+
+      existing.users.add(event.visitorId);
+      deviceMap.set(key, existing);
+    });
+
+    const totalUsers = new Set(events.map(e => e.visitorId)).size;
+
+    return Array.from(deviceMap.values())
+      .map(item => ({
+        device: item.device,
+        os: item.os,
+        osVersion: item.osVersion,
+        browser: item.browser,
+        browserVersion: item.browserVersion,
+        users: item.users.size,
+        percentage: totalUsers > 0 ? (item.users.size / totalUsers) * 100 : 0
+      }))
+      .sort((a, b) => b.users - a.users);
   }
 
   /**

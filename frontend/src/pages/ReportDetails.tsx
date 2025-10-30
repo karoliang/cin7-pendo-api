@@ -1116,14 +1116,14 @@ export const ReportDetails: React.FC = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <ChartBarIcon className="h-5 w-5 text-indigo-600" />
-                      <CardTitle className="m-0">Event breakdown (5000)</CardTitle>
+                      <CardTitle className="m-0">Event breakdown (Showing top 20 of {(data as ComprehensivePageData).eventBreakdown?.length.toLocaleString() || 0})</CardTitle>
                       <DataQualityBadge
                         type="real"
-                        tooltip="Real page event data from Pendo API including frustration metrics (U-turns, dead clicks, error clicks, rage clicks)"
+                        tooltip="Real page event data from Pendo API including frustration metrics. Aggregations use all events, table shows top 20."
                       />
                     </div>
                     <div className="text-xs text-gray-500">
-                      This table reflects the date range and segment filters above (up to 5,000 values).
+                      Displaying top 20 rows. All {(data as ComprehensivePageData).eventBreakdown?.length.toLocaleString() || 0} events are used for aggregations below.
                     </div>
                   </div>
                 </CardHeader>
@@ -1372,6 +1372,95 @@ export const ReportDetails: React.FC = () => {
                         data={(data as ComprehensivePageData).dailyTimeSeries!}
                         dataKey="frustrationCount"
                       />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* NEW: Device/Browser Breakdown Section */}
+              {(data as ComprehensivePageData).deviceBrowserBreakdown && (data as ComprehensivePageData).deviceBrowserBreakdown!.length > 0 && (
+                <div className="space-y-6 mt-12">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-bold text-gray-900">Device & Browser Breakdown (Real Data)</h2>
+                    <DataQualityBadge type="real" tooltip="Real device, OS, and browser data parsed from userAgent strings" />
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Device Type Pie Chart */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Users by Device Type</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ReportPieChart
+                          data={(() => {
+                            const deviceGroups = new Map();
+                            (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
+                              const existing = deviceGroups.get(item.device) || {name: item.device, users: 0, percentage: 0};
+                              existing.users += item.users;
+                              existing.percentage += item.percentage;
+                              deviceGroups.set(item.device, existing);
+                            });
+                            return Array.from(deviceGroups.values());
+                          })()}
+                          dataKey="users"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    {/* Browser Pie Chart */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Users by Browser</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ReportPieChart
+                          data={(() => {
+                            const browserGroups = new Map();
+                            (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
+                              const existing = browserGroups.get(item.browser) || {name: item.browser, users: 0, percentage: 0};
+                              existing.users += item.users;
+                              existing.percentage += item.percentage;
+                              browserGroups.set(item.browser, existing);
+                            });
+                            return Array.from(browserGroups.values()).sort((a, b) => b.users - a.users);
+                          })()}
+                          dataKey="users"
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Detailed Breakdown Table */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Detailed Device, OS & Browser Breakdown</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b text-gray-600">
+                              <th className="text-left py-2">Device</th>
+                              <th className="text-left py-2">Operating System</th>
+                              <th className="text-left py-2">Browser</th>
+                              <th className="text-right py-2">Users</th>
+                              <th className="text-right py-2">Percentage</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(data as ComprehensivePageData).deviceBrowserBreakdown!.slice(0, 15).map((item, idx) => (
+                              <tr key={idx} className="border-b border-gray-100">
+                                <td className="py-2">{item.device}</td>
+                                <td className="py-2">{item.os} {item.osVersion && `(${item.osVersion})`}</td>
+                                <td className="py-2">{item.browser} {item.browserVersion && `(${item.browserVersion})`}</td>
+                                <td className="text-right py-2">{item.users.toLocaleString()}</td>
+                                <td className="text-right py-2">{item.percentage.toFixed(1)}%</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
