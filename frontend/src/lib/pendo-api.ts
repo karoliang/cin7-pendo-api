@@ -1638,15 +1638,16 @@ class PendoAPIClient {
           pipeline: [
             {
               source: {
-                pageEvents: {
-                  pageId: id  // Filter at source level for efficiency
-                },
+                pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
-                  first: "now()",        // Use now() expression
-                  count: -_daysBack,     // Negative count looks backward
+                  first: "now()",
+                  count: _daysBack,  // Positive count (not negative)
                   period: "dayRange"
                 }
               }
+            },
+            {
+              filter: `pageId == "${id}"`  // Filter as separate pipeline step
             },
             {
               identified: "visitorId"  // Required by Pendo API to filter out anonymous visitors
@@ -1710,15 +1711,16 @@ class PendoAPIClient {
           pipeline: [
             {
               source: {
-                pageEvents: {
-                  pageId: id  // Filter at source level
-                },
+                pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
                   first: "now()",
-                  count: -days,  // Negative count looks backward
+                  count: days,  // Positive count (not negative)
                   period: "dayRange"
                 }
               }
+            },
+            {
+              filter: `pageId == "${id}"`  // Filter as separate pipeline step
             },
             {
               identified: "visitorId"  // Required by Pendo API to filter out anonymous visitors
