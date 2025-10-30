@@ -1,7 +1,10 @@
-import type { Guide, Feature, Page, Report, PageFeature, PageGuide } from '@/types/pendo';
+import type { Guide, Feature, Page, Report, PageFeature, PageGuide, ReportConfiguration } from '@/types/pendo';
 import type {
   ComprehensiveGuideData,
   ComprehensivePageData,
+  PageVisitor,
+  PageAccount,
+  PageEventRow,
 } from '@/types/enhanced-pendo';
 
 // Internal API types
@@ -214,37 +217,6 @@ interface GuideStepData {
   dropOffCount: number;
   dropOffRate: number;
   elementPath?: string;
-}
-
-// Page analytics interfaces (exported for external use)
-export interface PageVisitor {
-  visitorId: string | number;
-  email?: string;
-  name?: string;
-  viewCount: number;
-}
-
-export interface PageAccount {
-  accountId: string | number;
-  name?: string;
-  arr?: number;
-  planlevel?: string;
-  viewCount: number;
-}
-
-// Page Event Breakdown interface
-export interface PageEventRow {
-  visitorId: string;
-  accountId?: string;
-  date: string;
-  totalViews: number;
-  uTurns?: number;
-  deadClicks?: number;
-  errorClicks?: number;
-  rageClicks?: number;
-  serverName?: string;
-  browserName?: string;
-  browserVersion?: string;
 }
 
 const PENDO_BASE_URL = 'https://app.pendo.io';
@@ -933,8 +905,8 @@ class PendoAPIClient {
       console.log(`📊 Fetching time series analytics for guide ${id} from Pendo Aggregation API`);
 
       // Calculate time range in milliseconds
-      const startTime = new Date(period.start).getTime();
-      const endTime = new Date(period.end).getTime();
+      const startTime = new Date(_period.start).getTime();
+      const endTime = new Date(_period.end).getTime();
       const days = Math.ceil((endTime - startTime) / (24 * 60 * 60 * 1000));
 
       // Use the flat format that works (from test_aggregation.js)
@@ -965,19 +937,20 @@ class PendoAPIClient {
         if (response.results && Array.isArray(response.results)) {
           // Process real API results
           for (const result of response.results) {
-            const date = new Date(result.day || result.eventTime || startTime);
+            const dateValue = result.day || result.eventTime || startTime;
+            const date = new Date(typeof dateValue === 'number' || typeof dateValue === 'string' ? dateValue : startTime);
 
             // Count views and completions from guide events
-            const views = result.numEvents || result.views || 0;
-            const completions = result.completions ||
-              (result.events?.filter((e: PendoAggregationEvent) => e.type === 'guideActivity' && e.action === 'completed')?.length || 0);
+            const views = Number(result.numEvents || result.views || 0);
+            const completions = Number(result.completions ||
+              (result.events?.filter((e: PendoAggregationEvent) => e.type === 'guideActivity' && e.action === 'completed')?.length || 0));
 
             timeSeriesData.push({
               date: date.toISOString().split('T')[0],
               views,
               completions,
-              dismissed: result.dismissed || Math.floor(views * 0.15),
-              timeouts: result.timeouts || Math.floor(views * 0.05),
+              dismissed: Number(result.dismissed) || Math.floor(views * 0.15),
+              timeouts: Number(result.timeouts) || Math.floor(views * 0.05),
             });
           }
 
@@ -1000,7 +973,7 @@ class PendoAPIClient {
 
       const timeSeriesData = [];
       for (let i = 0; i < days; i++) {
-        const date = new Date(period.start);
+        const date = new Date(_period.start);
         date.setDate(date.getDate() + i);
 
         // Create realistic distribution with recent activity bias
@@ -1032,14 +1005,20 @@ class PendoAPIClient {
   }
 
   private transformTimeSeriesData(response: PendoAggregationResult[]): TimeSeriesDataPoint[] {
-    return response.map(item => ({
-      date: new Date(item.eventTime || item.serverTime || item.firstResponseTime || item._id).toISOString().split('T')[0],
-      views: item.visitorId || item.numUsers || 0,
-      completions: item.eventType === 'guideCompleted' ? (item.eventType || 0) : Math.floor((item.visitorId || 0) * 0.6),
-      uniqueVisitors: item.accountId || item.numAccounts || 0,
-      averageTimeSpent: item.duration || item.timeOnPage || 0,
-      dropOffRate: Math.max(0, ((item.visitorId || 0) - (item.eventType === 'guideCompleted' ? (item.eventType || 0) : Math.floor((item.visitorId || 0) * 0.6))) / (item.visitorId || 1) * 100)
-    }));
+    return response.map(item => {
+      const dateValue = item.eventTime || item.serverTime || item.firstResponseTime || item._id;
+      const views = Number(item.visitorId || item.numUsers || 0);
+      const completions = item.eventType === 'guideCompleted' ? Number(item.eventType || 0) : Math.floor(views * 0.6);
+
+      return {
+        date: new Date(typeof dateValue === 'number' || typeof dateValue === 'string' ? dateValue : Date.now()).toISOString().split('T')[0],
+        views,
+        completions,
+        uniqueVisitors: Number(item.accountId || item.numAccounts || 0),
+        averageTimeSpent: Number(item.duration || item.timeOnPage || 0),
+        dropOffRate: Math.max(0, ((views - completions) / (views || 1)) * 100)
+      };
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1151,12 +1130,12 @@ class PendoAPIClient {
 
     for (let stepNum = 1; stepNum <= maxStep; stepNum++) {
       const stepEvents = response.filter(r => (r.stepNumber || r.guideStepNum) === stepNum);
-      const viewed = stepEvents.find(r => r.eventType === 'guideAdvanced')?.visitorId ||
-                   stepEvents.find(r => r.eventType === 'guideAdvanced')?.numUsers || 0;
-      const completed = stepEvents.find(r => r.eventType === 'guideCompleted')?.visitorId ||
-                       stepEvents.find(r => r.eventType === 'guideCompleted')?.numUsers || 0;
-      const avgTime = stepEvents.find(r => r.eventType === 'guideAdvanced')?.duration ||
-                     stepEvents.find(r => r.eventType === 'guideAdvanced')?.timeOnPage || 0;
+      const viewed = Number(stepEvents.find(r => r.eventType === 'guideAdvanced')?.visitorId ||
+                   stepEvents.find(r => r.eventType === 'guideAdvanced')?.numUsers || 0);
+      const completed = Number(stepEvents.find(r => r.eventType === 'guideCompleted')?.visitorId ||
+                       stepEvents.find(r => r.eventType === 'guideCompleted')?.numUsers || 0);
+      const avgTime = Number(stepEvents.find(r => r.eventType === 'guideAdvanced')?.duration ||
+                     stepEvents.find(r => r.eventType === 'guideAdvanced')?.timeOnPage || 0);
 
       stepData.push({
         id: `step-${stepNum}`,
@@ -1540,12 +1519,12 @@ class PendoAPIClient {
       const totalCompletions = guide.completedCount || 0;
 
       // Calculate weekly averages based on the total metrics
-      const weeks = Math.ceil((new Date(period.end).getTime() - new Date(period.start).getTime()) / (7 * 24 * 60 * 60 * 1000));
+      const weeks = Math.ceil((new Date(_period.end).getTime() - new Date(_period.start).getTime()) / (7 * 24 * 60 * 60 * 1000));
       const avgWeeklyViews = totalViews / Math.max(1, weeks);
       const avgWeeklyCompletions = totalCompletions / Math.max(1, weeks);
 
       return Array.from({ length: Math.min(12, weeks) }, (_, i) => {
-        const date = new Date(period.end);
+        const date = new Date(_period.end);
         date.setDate(date.getDate() - i * 7);
 
         // Add some variation with recent bias
@@ -1701,7 +1680,8 @@ class PendoAPIClient {
 
         for (const result of response.results) {
           if (result.day) {
-            const dateStr = new Date(result.day).toISOString().split('T')[0];
+            const dayValue = typeof result.day === 'number' || typeof result.day === 'string' ? result.day : Date.now();
+            const dateStr = new Date(dayValue).toISOString().split('T')[0];
             dailyData.set(dateStr, (dailyData.get(dateStr) || 0) + 1);
           }
         }
@@ -1990,10 +1970,10 @@ class PendoAPIClient {
         const visitors: PageVisitor[] = response.results
           .slice(0, limit)
           .map(result => ({
-            visitorId: result.visitorId || result[0]?.visitorId || 'unknown',
+            visitorId: String(result.visitorId || result[0]?.visitorId || 'unknown'),
             email: result.email || result[1]?.email,
             name: result.name || result[1]?.name,
-            viewCount: result.viewCount || result[0]?.viewCount || 0
+            viewCount: Number(result.viewCount || result[0]?.viewCount || 0)
           }));
 
         console.log(`📊 Top visitors:`, visitors);
@@ -2101,11 +2081,11 @@ class PendoAPIClient {
         const accounts: PageAccount[] = response.results
           .slice(0, limit)
           .map(result => ({
-            accountId: result.accountId || result[0]?.accountId || 'unknown',
+            accountId: String(result.accountId || result[0]?.accountId || 'unknown'),
             name: result.name || result[1]?.name,
-            arr: result.arr || result[1]?.arr,
+            arr: Number(result.arr || result[1]?.arr || 0),
             planlevel: result.planlevel || result[1]?.planlevel,
-            viewCount: result.viewCount || result[0]?.viewCount || 0
+            viewCount: Number(result.viewCount || result[0]?.viewCount || 0)
           }));
 
         console.log(`📊 Top accounts:`, accounts);
@@ -2184,15 +2164,15 @@ class PendoAPIClient {
         const visitorDateMap = new Map<string, PageEventRow>();
 
         for (const event of response.results) {
-          const visitorId = event.visitorId || 'unknown';
-          const accountId = event.accountId;
+          const visitorId = String(event.visitorId || 'unknown');
+          const accountId = event.accountId ? String(event.accountId) : undefined;
 
           // Extract date from day field (timestamp in milliseconds)
           const dateValue = event.day;
-          const date = dateValue ? new Date(dateValue).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+          const date = dateValue ? new Date(typeof dateValue === 'number' || typeof dateValue === 'string' ? dateValue : Date.now()).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
           // Parse browser info from userAgent
-          const userAgent = event.userAgent || '';
+          const userAgent = typeof event.userAgent === 'string' ? event.userAgent : '';
           const browserInfo = this.parseBrowserFromUserAgent(userAgent);
 
           // Create unique key for visitor + date combination
@@ -2214,20 +2194,20 @@ class PendoAPIClient {
               // Browser metadata
               browserName: browserInfo.name,
               browserVersion: browserInfo.version,
-              serverName: event.server,
+              serverName: event.server ? String(event.server) : undefined,
             };
             visitorDateMap.set(key, row);
           }
 
           // Increment view count (numEvents represents the number of page views in this session)
-          row.totalViews += (event.numEvents || 1);
+          row.totalViews += Number(event.numEvents || 1);
 
           // Accumulate frustration metrics
           // Using the correct field names from Pendo API response
-          row.uTurns = (row.uTurns || 0) + (event.uTurnCount || 0);
-          row.deadClicks = (row.deadClicks || 0) + (event.deadClickCount || 0);
-          row.errorClicks = (row.errorClicks || 0) + (event.errorClickCount || 0);
-          row.rageClicks = (row.rageClicks || 0) + (event.rageClickCount || 0);
+          row.uTurns = (row.uTurns || 0) + Number(event.uTurnCount || 0);
+          row.deadClicks = (row.deadClicks || 0) + Number(event.deadClickCount || 0);
+          row.errorClicks = (row.errorClicks || 0) + Number(event.errorClickCount || 0);
+          row.rageClicks = (row.rageClicks || 0) + Number(event.rageClickCount || 0);
         }
 
         // Convert to array and sort by date (desc), then by views
