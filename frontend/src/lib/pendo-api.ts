@@ -115,6 +115,34 @@ class PendoAPIClient {
     return `${method || 'GET'}:${endpoint}:${JSON.stringify(params || {})}`;
   }
 
+  /**
+   * Parse browser name and version from user agent string
+   * @param userAgent - The user agent string to parse
+   * @returns Object with browser name and version
+   */
+  private parseBrowserFromUserAgent(userAgent: string): { name?: string; version?: string } {
+    if (!userAgent) return {};
+
+    // Common browser patterns
+    const patterns = [
+      { name: 'Chrome', regex: /Chrome\/(\d+\.\d+)/ },
+      { name: 'Firefox', regex: /Firefox\/(\d+\.\d+)/ },
+      { name: 'Safari', regex: /Version\/(\d+\.\d+).*Safari/ },
+      { name: 'Edge', regex: /Edg\/(\d+\.\d+)/ },
+      { name: 'Opera', regex: /OPR\/(\d+\.\d+)/ },
+      { name: 'IE', regex: /MSIE (\d+\.\d+)/ },
+    ];
+
+    for (const pattern of patterns) {
+      const match = userAgent.match(pattern.regex);
+      if (match) {
+        return { name: pattern.name, version: match[1] };
+      }
+    }
+
+    return { name: 'Unknown' };
+  }
+
   async request<T>(endpoint: string, params?: Record<string, unknown>, method: string = 'GET'): Promise<T> {
     // Check cache first
     const cacheKey = this.generateCacheKey(endpoint, params, method);
@@ -1872,15 +1900,16 @@ class PendoAPIClient {
       const startTime = endTime - (30 * 24 * 60 * 60 * 1000); // 30 days ago
       const days = 30;
 
-      // Build aggregation request using events source with pipeline format
-      // The API now requires a pipeline structure (similar to getTopVisitorsForPage)
+      // Build aggregation request using pageEvents source with pipeline format
+      // Note: Using pageEvents (not events) as that's where page view data is stored
+      // The API requires a pipeline structure (similar to getTopVisitorsForPage)
       const aggregationRequest = {
         response: { mimeType: "application/json" },
         request: {
           pipeline: [
             {
               source: {
-                events: null,
+                pageEvents: null,
                 timeSeries: {
                   first: startTime,
                   count: days,
@@ -1892,14 +1921,14 @@ class PendoAPIClient {
               filter: `pageId == "${pageId}"`
             },
             {
-              sort: ["-day", "-numEvents"]
+              sort: ["-day"]
             }
           ],
           requestId: `page_event_breakdown_${Date.now()}`
         }
       };
 
-      console.log(`🌐 Making aggregation request with events source (pipeline format)`);
+      console.log(`🌐 Making aggregation request with pageEvents source (pipeline format)`);
       console.log(`📅 Time range: ${new Date(startTime).toISOString()} to ${new Date(endTime).toISOString()}`);
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
@@ -1917,12 +1946,16 @@ class PendoAPIClient {
         const visitorDateMap = new Map<string, PageEventRow>();
 
         for (const event of response.results) {
-          const visitorId = event.visitorId || event.visitor_id || 'unknown';
-          const accountId = event.accountId || event.account_id;
+          const visitorId = event.visitorId || 'unknown';
+          const accountId = event.accountId;
 
-          // Extract date from different possible fields
-          const dateValue = event.day || event.date || event.browserTime || event.remoteTime;
+          // Extract date from day field (timestamp in milliseconds)
+          const dateValue = event.day;
           const date = dateValue ? new Date(dateValue).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+          // Parse browser info from userAgent
+          const userAgent = event.userAgent || '';
+          const browserInfo = this.parseBrowserFromUserAgent(userAgent);
 
           // Create unique key for visitor + date combination
           const key = `${visitorId}_${date}`;
@@ -1935,36 +1968,28 @@ class PendoAPIClient {
               accountId,
               date,
               totalViews: 0,
-              // TODO: Frustration metrics - need to research if these are available in events source
-              // For now, checking if fields exist in response, otherwise setting to 0
-              uTurns: event.uTurns || event.u_turns || 0,
-              deadClicks: event.deadClicks || event.dead_clicks || 0,
-              errorClicks: event.errorClicks || event.error_clicks || 0,
-              rageClicks: event.rageClicks || event.rage_clicks || 0,
+              // Frustration metrics from pageEvents response
+              uTurns: 0,
+              deadClicks: 0,
+              errorClicks: 0,
+              rageClicks: 0,
               // Browser metadata
-              browserName: event.browserName || event.browser_name || event.browser,
-              browserVersion: event.browserVersion || event.browser_version,
-              serverName: event.serverName || event.server_name || event.server,
+              browserName: browserInfo.name,
+              browserVersion: browserInfo.version,
+              serverName: event.server,
             };
             visitorDateMap.set(key, row);
           }
 
-          // Increment view count
-          row.totalViews += (event.numEvents || event.num_events || 1);
+          // Increment view count (numEvents represents the number of page views in this session)
+          row.totalViews += (event.numEvents || 1);
 
-          // Accumulate frustration metrics if they exist
-          if (event.uTurns || event.u_turns) {
-            row.uTurns = (row.uTurns || 0) + (event.uTurns || event.u_turns || 0);
-          }
-          if (event.deadClicks || event.dead_clicks) {
-            row.deadClicks = (row.deadClicks || 0) + (event.deadClicks || event.dead_clicks || 0);
-          }
-          if (event.errorClicks || event.error_clicks) {
-            row.errorClicks = (row.errorClicks || 0) + (event.errorClicks || event.error_clicks || 0);
-          }
-          if (event.rageClicks || event.rage_clicks) {
-            row.rageClicks = (row.rageClicks || 0) + (event.rageClicks || event.rage_clicks || 0);
-          }
+          // Accumulate frustration metrics
+          // Using the correct field names from Pendo API response
+          row.uTurns = (row.uTurns || 0) + (event.uTurnCount || 0);
+          row.deadClicks = (row.deadClicks || 0) + (event.deadClickCount || 0);
+          row.errorClicks = (row.errorClicks || 0) + (event.errorClickCount || 0);
+          row.rageClicks = (row.rageClicks || 0) + (event.rageClickCount || 0);
         }
 
         // Convert to array and sort by date (desc), then by views
