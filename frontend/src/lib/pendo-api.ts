@@ -1717,7 +1717,7 @@ class PendoAPIClient {
               source: {
                 pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
-                  first: startTime,  // Use actual timestamp from 30 days ago
+                  first: "now()",  // Use "now()" string format - works with Pendo API
                   count: days,  // Positive count (not negative)
                   period: "dayRange"
                 }
@@ -1728,6 +1728,18 @@ class PendoAPIClient {
             },
             {
               identified: "visitorId"  // Required by Pendo API to filter out anonymous visitors
+            },
+            {
+              group: {
+                group: ["day"],  // Group by day to get daily aggregates
+                fields: {
+                  views: { count: "visitorId" },
+                  uniqueVisitors: { uniqueCount: "visitorId" }
+                }
+              }
+            },
+            {
+              sort: ["day"]  // Sort by day ascending
             }
           ],
           requestId: `page_timeseries_${Date.now()}`
@@ -1739,27 +1751,23 @@ class PendoAPIClient {
       if (response.results && Array.isArray(response.results)) {
         console.log(`✅ Retrieved ${response.results.length} time series data points for page`);
 
-        // Transform to daily view counts
-        const dailyData = new Map<string, number>();
-
-        for (const result of response.results) {
-          if (result.day) {
+        // Results are now grouped by day with aggregate fields
+        return response.results
+          .map(result => {
             const dayValue = typeof result.day === 'number' || typeof result.day === 'string' ? result.day : Date.now();
-            const dateStr = new Date(dayValue).toISOString().split('T')[0];
-            dailyData.set(dateStr, (dailyData.get(dateStr) || 0) + 1);
-          }
-        }
+            const date = new Date(dayValue).toISOString().split('T')[0];
+            const views = Number(result.views || 0);
+            const uniqueVisitors = Number(result.uniqueVisitors || 0);
 
-        // Convert to array format with all required fields
-        return Array.from(dailyData.entries())
-          .map(([date, views]) => ({
-            date,
-            views,
-            uniqueVisitors: Math.floor(views * 0.7),
-            completions: Math.floor(views * 0.5),
-            averageTimeSpent: 180,
-            dropOffRate: 30,
-          }))
+            return {
+              date,
+              views,
+              uniqueVisitors,
+              completions: Math.floor(views * 0.5),  // Estimate
+              averageTimeSpent: 180,  // Estimate
+              dropOffRate: 30,  // Estimate
+            };
+          })
           .sort((a, b) => a.date.localeCompare(b.date));
       }
 
@@ -2483,7 +2491,7 @@ class PendoAPIClient {
               source: {
                 pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
-                  first: startTime,  // Use actual timestamp from 30 days ago
+                  first: "now()",  // Use "now()" string format - works with Pendo API
                   count: days,  // Positive count (not negative)
                   period: "dayRange"
                 }
