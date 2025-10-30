@@ -105,9 +105,10 @@ export const ReportDetails: React.FC = () => {
   const error = currentReport?.error;
 
   // Check if this is a "no data" scenario vs "not found"
-  const hasZeroData = data &&
-    type === 'guides' &&
-    (data as ComprehensiveGuideData).viewedCount === 0;
+  // DISABLED: User wants to see charts with 0 values, not a "no data" screen
+  const hasZeroData = false; // data &&
+    // type === 'guides' &&
+    // (data as ComprehensiveGuideData).viewedCount === 0;
 
   if (isLoading) {
     return (

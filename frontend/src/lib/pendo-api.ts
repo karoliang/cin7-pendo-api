@@ -427,27 +427,13 @@ class PendoAPIClient {
     try {
       console.log(`📊 Fetching total analytics for guide ${id} from aggregation API`);
 
-      const endTime = Date.now();
-      const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
-
-      // Build proper Pendo aggregation request (per official docs)
-      // https://engageapi.pendo.io/
+      // Use the flat format that works (from test_aggregation.js)
       const aggregationRequest = {
-        response: {
-          mimeType: "application/json"
+        source: {
+          guideEvents: null
         },
-        request: {
-          pipeline: [
-            {
-              source: {
-                guideEvents: null
-              }
-            },
-            {
-              filter: `guideId == "${id}"`
-            }
-          ]
-        }
+        filter: `guideId == "${id}"`,
+        requestId: `totals_${Date.now()}`
       };
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
@@ -711,29 +697,18 @@ class PendoAPIClient {
       const endTime = new Date(period.end).getTime();
       const days = Math.ceil((endTime - startTime) / (24 * 60 * 60 * 1000));
 
-      // Build proper Pendo aggregation request for time series (per official docs)
-      // https://engageapi.pendo.io/
+      // Use the flat format that works (from test_aggregation.js)
       const aggregationRequest = {
-        response: {
-          mimeType: "application/json"
+        source: {
+          guideEvents: null,
+          timeSeries: {
+            first: startTime,
+            count: days,
+            period: "dayRange"
+          }
         },
-        request: {
-          pipeline: [
-            {
-              source: {
-                guideEvents: null,
-                timeSeries: {
-                  first: startTime,
-                  count: days,
-                  period: "dayRange"
-                }
-              }
-            },
-            {
-              filter: `guideId == "${id}"`
-            }
-          ]
-        }
+        filter: `guideId == "${id}"`,
+        requestId: `timeseries_${Date.now()}`
       };
 
       console.log(`🔍 Aggregation request:`, JSON.stringify(aggregationRequest, null, 2));
