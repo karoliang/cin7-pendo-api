@@ -489,17 +489,20 @@ class PendoAPIClient {
 
       // Use pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
-        pipeline: [
-          {
-            source: {
-              guideEvents: null
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                guideEvents: null
+              }
+            },
+            {
+              filter: `guideId == "${id}"`
             }
-          },
-          {
-            filter: `guideId == "${id}"`
-          }
-        ],
-        requestId: `totals_${Date.now()}`
+          ],
+          requestId: `totals_${Date.now()}`
+        }
       };
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
@@ -1435,17 +1438,20 @@ class PendoAPIClient {
 
       // Use pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
-        pipeline: [
-          {
-            source: {
-              pageEvents: null
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                pageEvents: null
+              }
+            },
+            {
+              filter: `pageId == "${id}"`
             }
-          },
-          {
-            filter: `pageId == "${id}"`
-          }
-        ],
-        requestId: `page_totals_${Date.now()}`
+          ],
+          requestId: `page_totals_${Date.now()}`
+        }
       };
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
@@ -1488,22 +1494,25 @@ class PendoAPIClient {
 
       // Use pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
-        pipeline: [
-          {
-            source: {
-              pageEvents: null,
-              timeSeries: {
-                first: startTime,
-                count: days,
-                period: "dayRange"
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                pageEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: days,
+                  period: "dayRange"
+                }
               }
+            },
+            {
+              filter: `pageId == "${id}"`
             }
-          },
-          {
-            filter: `pageId == "${id}"`
-          }
-        ],
-        requestId: `page_timeseries_${Date.now()}`
+          ],
+          requestId: `page_timeseries_${Date.now()}`
+        }
       };
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
@@ -2697,14 +2706,17 @@ class PendoAPIClient {
       try {
         // Query featureEvents to get click counts
         const aggregationRequest = {
-          pipeline: [
-            {
-              source: {
-                featureEvents: null
+          response: { mimeType: "application/json" },
+          request: {
+            pipeline: [
+              {
+                source: {
+                  featureEvents: null
+                }
               }
-            }
-          ],
-          requestId: `features_events_${Date.now()}`
+            ],
+            requestId: `features_events_${Date.now()}`
+          }
         };
 
         const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
