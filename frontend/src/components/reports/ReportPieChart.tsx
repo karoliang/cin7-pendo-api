@@ -65,7 +65,11 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
     const { active, payload } = props;
     if (active && payload && payload.length) {
       const dataPoint = payload[0].payload as PieChartDataPoint;
-      const displayName = dataPoint.name ?? dataPoint.segment ?? dataPoint.source ?? dataPoint.device ?? 'Unknown';
+      const displayName = dataPoint.name ??
+                         dataPoint.segment ??
+                         (typeof dataPoint.source === 'string' ? dataPoint.source : undefined) ??
+                         dataPoint.device ??
+                         'Unknown';
       const displayValue = typeof dataPoint.users === 'number'
         ? dataPoint.users.toLocaleString()
         : dataPoint.value ?? dataPoint.percentage ?? 0;
@@ -144,7 +148,7 @@ export const ReportPieChart: React.FC<ReportPieChartProps> = ({
               const displayName =
                 legendEntry.payload.name ??
                 legendEntry.payload.segment ??
-                legendEntry.payload.source ??
+                (typeof legendEntry.payload.source === 'string' ? legendEntry.payload.source : undefined) ??
                 legendEntry.payload.device ??
                 'Unknown';
 
