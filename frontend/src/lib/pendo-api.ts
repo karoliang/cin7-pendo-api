@@ -2966,11 +2966,24 @@ class PendoAPIClient {
                 source: {
                   featureEvents: null,
                   timeSeries: {
-                    first: startTime,
+                    first: "now()",
                     count: 90,
                     period: "dayRange"
                   }
                 }
+              },
+              {
+                group: {
+                  group: ["featureId"],
+                  fields: {
+                    eventCount: {
+                      sum: "numEvents"
+                    }
+                  }
+                }
+              },
+              {
+                sort: ["-eventCount"]
               }
             ],
             requestId: `features_events_${Date.now()}`
@@ -2980,18 +2993,17 @@ class PendoAPIClient {
         const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
         if (response.results && Array.isArray(response.results)) {
-          // Group events by featureId and count
-          response.results.forEach((event: PendoAggregationResult) => {
-            const featureId = event.featureId as string | undefined;
-            const eventCount = event.numEvents as number | undefined || 1;
+          // Results are already grouped by featureId with eventCount summed
+          response.results.forEach((result: PendoAggregationResult) => {
+            const featureId = result.featureId as string | undefined;
+            const eventCount = result.eventCount as number | undefined || 0;
 
             if (featureId) {
-              const currentCount = featureEventCounts.get(featureId) || 0;
-              featureEventCounts.set(featureId, currentCount + eventCount);
+              featureEventCounts.set(featureId, eventCount);
             }
           });
 
-          console.log(`✅ Processed ${response.results.length} feature events`);
+          console.log(`✅ Processed ${response.results.length} feature aggregations`);
         }
       } catch (aggError) {
         console.warn(`⚠️ Could not fetch feature event counts from aggregation API:`, aggError);
