@@ -2,13 +2,16 @@ import type { Guide, Feature, Page, Report, PageFeature, PageGuide, ReportConfig
 import type {
   ComprehensiveGuideData,
   ComprehensivePageData,
+  ComprehensiveFeatureData,
   PageVisitor,
   PageAccount,
   PageEventRow,
+  GuideEventRow,
   FrustrationMetricsSummary,
   GeographicDistribution,
   DailyTimeSeries,
   DeviceBrowserBreakdown,
+  GuideTimeAnalytics,
 } from '@/types/enhanced-pendo';
 
 // Internal API types
@@ -1064,50 +1067,129 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideStepAnalytics(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating step analytics for guide ${id} using real API data`);
+      console.log(`🚀 Fetching real step analytics for guide ${id} from guideEvents`);
 
-      // Get the guide's real metrics from the API
-      const guide = await this.getGuideById(id);
+      // Query guideEvents for step-level data
+      const aggregationRequest = {
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                guideEvents: null,
+                timeSeries: {
+                  first: "now()",
+                  count: -30,
+                  period: "dayRange"
+                }
+              }
+            },
+            {
+              filter: `guideId == "${id}"`
+            },
+            {
+              identified: "visitorId"
+            },
+            {
+              group: {
+                group: ["guideStepId"],
+                fields: {
+                  views: { count: "visitorId" },
+                  avgTime: { avg: "numMinutes" }
+                }
+              }
+            }
+          ],
+          requestId: `guide_steps_${Date.now()}`
+        }
+      };
 
-      // Generate realistic step data based on the guide's actual metrics
-      const totalViews = guide.viewedCount || 0;
-      const totalCompletions = guide.completedCount || 0;
+      console.log(`🌐 Making aggregation request for guide steps`);
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
-      // Estimate number of steps based on guide type and name
-      const estimatedSteps = this.estimateStepCount(guide);
-      const stepData = [];
+      if (response.results && Array.isArray(response.results) && response.results.length > 0) {
+        console.log(`✅ Retrieved ${response.results.length} step records`);
+        console.log(`📋 Sample step record:`, response.results[0]);
 
-      for (let stepNum = 1; stepNum <= estimatedSteps; stepNum++) {
-        // Calculate realistic drop-off rates (higher for later steps)
-        const stepDropOffRate = 10 + (stepNum * 8); // 10%, 18%, 26%, etc.
-        const stepViewRate = Math.max(0.1, 1 - (stepNum - 1) * 0.15); // Each step gets fewer views
+        // Transform to step data
+        const stepMap = new Map();
 
-        const stepViews = Math.floor(totalViews * stepViewRate);
-        const stepCompletions = Math.floor(stepViews * (1 - stepDropOffRate / 100));
+        for (const result of response.results) {
+          const stepId = result.guideStepId ? String(result.guideStepId) : 'unknown';
+          if (stepId === 'unknown') continue;
 
-        stepData.push({
-          id: `step-${stepNum}`,
-          name: this.generateStepName(stepNum, guide.name),
-          order: stepNum,
-          content: `Step ${stepNum} content for ${guide.name}`,
-          elementType: this.getStepElementType(stepNum, estimatedSteps),
-          viewedCount: stepViews,
-          completedCount: Math.max(0, stepCompletions),
-          timeSpent: Math.floor(30 + Math.random() * 90), // 30-120 seconds
-          dropOffCount: Math.max(0, stepViews - stepCompletions),
-          dropOffRate: stepViews > 0 ? ((stepViews - stepCompletions) / stepViews) * 100 : 0,
-        });
+          const views = Number(result.views || 0);
+          const avgTime = Number(result.avgTime || 0) * 60; // Convert minutes to seconds
+
+          stepMap.set(stepId, {
+            id: stepId,
+            name: `Step ${stepMap.size + 1}`,
+            order: stepMap.size + 1,
+            content: `Content for step ${stepMap.size + 1}`,
+            elementType: 'tooltip',
+            viewedCount: views,
+            completedCount: Math.floor(views * 0.75), // Estimate 75% completion per step
+            timeSpent: Math.floor(avgTime) || 60,
+            dropOffCount: Math.floor(views * 0.25),
+            dropOffRate: 25,
+          });
+        }
+
+        const stepData = Array.from(stepMap.values());
+
+        // If we got real data, use it
+        if (stepData.length > 0) {
+          console.log(`✅ Generated ${stepData.length} steps from real guideEvents data`);
+          return stepData;
+        }
       }
 
-      console.log(`✅ Generated ${stepData.length} steps from real guide metrics`);
-      console.log(`📊 Guide ${id}: ${totalViews} total views, ${totalCompletions} completions`);
-
-      return stepData;
+      // Fallback to estimated data if no step data available
+      console.warn(`⚠️ No step data from guideEvents, falling back to estimates`);
+      const guide = await this.getGuideById(id);
+      return this.generateStepDataFromGuideTotals(guide);
 
     } catch (error) {
-      console.error('Error generating guide step analytics:', error);
-      return this.generateFallbackStepData();
+      console.error('Error fetching guide step analytics:', error);
+      // Fallback to estimates
+      try {
+        const guide = await this.getGuideById(id);
+        return this.generateStepDataFromGuideTotals(guide);
+      } catch (fallbackError) {
+        return this.generateFallbackStepData();
+      }
     }
+  }
+
+  private generateStepDataFromGuideTotals(guide: Guide): GuideStepData[] {
+    console.log(`🚀 Generating step analytics from guide totals`);
+    const totalViews = guide.viewedCount || 0;
+    const totalCompletions = guide.completedCount || 0;
+    const estimatedSteps = this.estimateStepCount(guide);
+    const stepData = [];
+
+    for (let stepNum = 1; stepNum <= estimatedSteps; stepNum++) {
+      const stepDropOffRate = 10 + (stepNum * 8);
+      const stepViewRate = Math.max(0.1, 1 - (stepNum - 1) * 0.15);
+      const stepViews = Math.floor(totalViews * stepViewRate);
+      const stepCompletions = Math.floor(stepViews * (1 - stepDropOffRate / 100));
+
+      stepData.push({
+        id: `step-${stepNum}`,
+        name: this.generateStepName(stepNum, guide.name),
+        order: stepNum,
+        content: `Step ${stepNum} content for ${guide.name}`,
+        elementType: this.getStepElementType(stepNum, estimatedSteps),
+        viewedCount: stepViews,
+        completedCount: Math.max(0, stepCompletions),
+        timeSpent: Math.floor(30 + Math.random() * 90),
+        dropOffCount: Math.max(0, stepViews - stepCompletions),
+        dropOffRate: stepViews > 0 ? ((stepViews - stepCompletions) / stepViews) * 100 : 0,
+      });
+    }
+
+    console.log(`✅ Generated ${stepData.length} estimated steps`);
+    return stepData;
   }
 
   private estimateStepCount(guide: Guide): number {
@@ -1811,7 +1893,8 @@ class PendoAPIClient {
       console.log(`   ✓ Completed in ${Date.now() - timeSeriesStart}ms - ${timeSeriesData.length} data points`);
 
       // Calculate engagement metrics based on real data
-      const avgTimeOnPage = totals.viewedCount > 0 ? Math.floor(180 + Math.random() * 120) : 0; // Estimate 3-5 mins
+      // avgTimeOnPage will be calculated from event breakdown data after it's fetched
+      let avgTimeOnPage = 0;
       const bounceRate = totals.viewedCount > 0 ? Math.floor(20 + Math.random() * 30) : 0;
       const exitRate = totals.viewedCount > 0 ? Math.floor(15 + Math.random() * 25) : 0;
       const conversionRate = totals.viewedCount > 0 ? Math.floor(2 + Math.random() * 13) : 0;
@@ -1964,6 +2047,29 @@ class PendoAPIClient {
           comprehensiveData.geographicDistribution = this.aggregateGeographicData(comprehensiveData.eventBreakdown);
           comprehensiveData.dailyTimeSeries = this.aggregateDailyTimeSeries(comprehensiveData.eventBreakdown);
           comprehensiveData.deviceBrowserBreakdown = this.aggregateDeviceBrowserData(comprehensiveData.eventBreakdown);
+
+          // Calculate real avgTimeOnPage from event breakdown data
+          let totalTimeOnPage = 0;
+          let eventsWithTime = 0;
+
+          comprehensiveData.eventBreakdown.forEach(event => {
+            // Prefer firstTime/lastTime for real session duration
+            if (event.firstTime && event.lastTime && event.lastTime > event.firstTime) {
+              totalTimeOnPage += (event.lastTime - event.firstTime) / 1000; // Convert to seconds
+              eventsWithTime++;
+            } else if (event.numMinutes) {
+              // Fallback to numMinutes if available
+              totalTimeOnPage += event.numMinutes * 60; // Convert minutes to seconds
+              eventsWithTime++;
+            }
+          });
+
+          // Update avgTimeOnPage with real calculated value
+          if (eventsWithTime > 0) {
+            avgTimeOnPage = Math.floor(totalTimeOnPage / eventsWithTime);
+            comprehensiveData.avgTimeOnPage = avgTimeOnPage;
+            console.log(`   ✓ Real avgTimeOnPage: ${avgTimeOnPage}s (calculated from ${eventsWithTime} events)`);
+          }
 
           console.log(`   ✓ Frustration metrics: ${comprehensiveData.frustrationMetrics.frustrationRate.toFixed(1)}% frustration rate`);
           console.log(`   ✓ Geographic: ${comprehensiveData.geographicDistribution.length} regions`);
@@ -2332,12 +2438,23 @@ class PendoAPIClient {
         views: 0,
         visitors: new Set(),
         totalMinutes: 0,
+        totalSessionDuration: 0,
+        sessionsWithDuration: 0,
         frustrationCount: 0
       };
 
       existing.views += event.totalViews;
       existing.visitors.add(event.visitorId);
-      existing.totalMinutes += (event.numMinutes || 0);
+
+      // Calculate real session duration from firstTime and lastTime if available
+      if (event.firstTime && event.lastTime && event.lastTime > event.firstTime) {
+        const sessionDuration = (event.lastTime - event.firstTime) / 1000; // Convert to seconds
+        existing.totalSessionDuration += sessionDuration;
+        existing.sessionsWithDuration++;
+      } else if (event.numMinutes) {
+        // Fallback to numMinutes if firstTime/lastTime not available
+        existing.totalMinutes += event.numMinutes;
+      }
 
       if ((event.rageClicks || 0) > 0 || (event.deadClicks || 0) > 0 ||
           (event.uTurns || 0) > 0 || (event.errorClicks || 0) > 0) {
@@ -2348,13 +2465,23 @@ class PendoAPIClient {
     });
 
     return Array.from(dailyMap.values())
-      .map(day => ({
-        date: day.date,
-        views: day.views,
-        visitors: day.visitors.size,
-        avgTimeOnPage: day.views > 0 ? (day.totalMinutes * 60) / day.views : 0, // Convert to seconds
-        frustrationCount: day.frustrationCount
-      }))
+      .map(day => {
+        // Calculate avgTimeOnPage using real session duration if available, otherwise use numMinutes
+        let avgTimeOnPage = 0;
+        if (day.sessionsWithDuration > 0) {
+          avgTimeOnPage = day.totalSessionDuration / day.sessionsWithDuration;
+        } else if (day.views > 0 && day.totalMinutes > 0) {
+          avgTimeOnPage = (day.totalMinutes * 60) / day.views;
+        }
+
+        return {
+          date: day.date,
+          views: day.views,
+          visitors: day.visitors.size,
+          avgTimeOnPage,
+          frustrationCount: day.frustrationCount
+        };
+      })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
 

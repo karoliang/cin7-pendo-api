@@ -27,6 +27,7 @@ import {
   ExclamationTriangleIcon,
   ArrowPathIcon,
   SparklesIcon,
+  VideoCameraIcon,
 } from '@heroicons/react/24/outline';
 
 // Import report hooks
@@ -39,6 +40,8 @@ import { useReportReport } from '@/hooks/useReportData';
 import { ReportLineChart } from '@/components/reports/ReportLineChart';
 import { ReportBarChart } from '@/components/reports/ReportBarChart';
 import { ReportPieChart } from '@/components/reports/ReportPieChart';
+import { GeographicMap, GeographicMapData } from '@/components/reports/GeographicMap';
+import { SessionTimingDistribution } from '@/components/reports/SessionTimingDistribution';
 
 // Import comprehensive types
 import type {
@@ -64,6 +67,9 @@ export const ReportDetails: React.FC = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const navigate = useNavigate();
   // Removed activeTab state - showing all content on single page
+
+  // State for time series view toggle (daily, weekly, monthly)
+  const [timeSeriesView, setTimeSeriesView] = React.useState<'daily' | 'weekly' | 'monthly'>('daily');
 
   // Type guards
   const isValidType = (t: string): t is ReportType =>
@@ -104,6 +110,92 @@ export const ReportDetails: React.FC = () => {
   const data = currentReport?.data as ReportDataType;
   const isLoading = currentReport?.isLoading ?? false;
   const error = currentReport?.error;
+
+  // Helper function to aggregate time series data by week
+  const aggregateByWeek = React.useCallback((dailyData: any[]) => {
+    if (!dailyData || dailyData.length === 0) return [];
+
+    const weeklyMap = new Map<string, any>();
+
+    dailyData.forEach(day => {
+      const date = new Date(day.date);
+      const weekStart = new Date(date);
+      weekStart.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
+      const weekKey = weekStart.toISOString().split('T')[0];
+
+      if (!weeklyMap.has(weekKey)) {
+        weeklyMap.set(weekKey, {
+          date: weekKey,
+          views: 0,
+          visitors: 0,
+          avgTimeOnPage: 0,
+          frustrationCount: 0,
+          _count: 0,
+          _totalTime: 0
+        });
+      }
+
+      const weekData = weeklyMap.get(weekKey)!;
+      weekData.views += day.views || 0;
+      weekData.visitors += day.visitors || 0;
+      weekData.frustrationCount += day.frustrationCount || 0;
+      weekData._totalTime += day.avgTimeOnPage || 0;
+      weekData._count++;
+    });
+
+    return Array.from(weeklyMap.values()).map(week => ({
+      ...week,
+      avgTimeOnPage: week._count > 0 ? week._totalTime / week._count : 0
+    })).sort((a, b) => a.date.localeCompare(b.date));
+  }, []);
+
+  // Helper function to aggregate time series data by month
+  const aggregateByMonth = React.useCallback((dailyData: any[]) => {
+    if (!dailyData || dailyData.length === 0) return [];
+
+    const monthlyMap = new Map<string, any>();
+
+    dailyData.forEach(day => {
+      const date = new Date(day.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+
+      if (!monthlyMap.has(monthKey)) {
+        monthlyMap.set(monthKey, {
+          date: monthKey,
+          views: 0,
+          visitors: 0,
+          avgTimeOnPage: 0,
+          frustrationCount: 0,
+          _count: 0,
+          _totalTime: 0
+        });
+      }
+
+      const monthData = monthlyMap.get(monthKey)!;
+      monthData.views += day.views || 0;
+      monthData.visitors += day.visitors || 0;
+      monthData.frustrationCount += day.frustrationCount || 0;
+      monthData._totalTime += day.avgTimeOnPage || 0;
+      monthData._count++;
+    });
+
+    return Array.from(monthlyMap.values()).map(month => ({
+      ...month,
+      avgTimeOnPage: month._count > 0 ? month._totalTime / month._count : 0
+    })).sort((a, b) => a.date.localeCompare(b.date));
+  }, []);
+
+  // Get aggregated time series data based on selected view
+  const getTimeSeriesData = React.useCallback((dailyData: any[]) => {
+    switch (timeSeriesView) {
+      case 'weekly':
+        return aggregateByWeek(dailyData);
+      case 'monthly':
+        return aggregateByMonth(dailyData);
+      default:
+        return dailyData;
+    }
+  }, [timeSeriesView, aggregateByWeek, aggregateByMonth]);
 
   // Check if this is a "no data" scenario vs "not found"
   // DISABLED: User wants to see charts with 0 values, not a "no data" screen
@@ -383,6 +475,45 @@ export const ReportDetails: React.FC = () => {
           </div>
         </div>
 
+        {/* Reports Warning Banner */}
+        {type === 'reports' && (
+          <Card className="border-orange-200 bg-orange-50">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <ExclamationTriangleIcon className="h-8 w-8 text-orange-600 flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-orange-900 mb-2">
+                    Reports Analytics Not Available via Pendo API
+                  </h3>
+                  <p className="text-orange-800 mb-4">
+                    The Pendo Reports API only provides report metadata (name, description, configuration).
+                    <strong> No analytics data</strong> (views, engagement, user metrics) is available through the API.
+                  </p>
+                  <div className="bg-white rounded-lg p-4 border border-orange-200">
+                    <h4 className="font-semibold text-orange-900 mb-2">What is Available:</h4>
+                    <ul className="list-disc list-inside text-orange-800 space-y-1 text-sm mb-4">
+                      <li>Report Name: {data.name}</li>
+                      <li>Report ID: {data.id}</li>
+                      <li>Description: {(data as ComprehensiveReportData).description || 'N/A'}</li>
+                      <li>Last Updated: {new Date(data.updatedAt).toLocaleDateString()}</li>
+                    </ul>
+                    <h4 className="font-semibold text-orange-900 mb-2">To Track Report Analytics:</h4>
+                    <ol className="list-decimal list-inside text-orange-800 space-y-1 text-sm">
+                      <li>Use Pendo Track Events to log report views</li>
+                      <li>Tag report interactions as custom events</li>
+                      <li>Query custom events via Aggregation API</li>
+                      <li>Consider using Data Sync for export to external analytics</li>
+                    </ol>
+                  </div>
+                  <p className="text-xs text-orange-700 mt-3">
+                    <strong>Note:</strong> All analytics shown below are simulated for demonstration purposes only.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* All Analytics Sections - Single Page View */}
         <div className="space-y-12">
           {/* Overview Section */}
@@ -395,7 +526,7 @@ export const ReportDetails: React.FC = () => {
                   type === 'guides' ? 'Real-time data from Pendo Aggregation API' :
                   type === 'features' ? 'Real-time data from Pendo Events API' :
                   type === 'pages' ? 'Real-time data from Pendo Pages API' :
-                  'Simulated data - not available via Pendo API'
+                  'Simulated data - Pendo Reports API does not provide analytics data'
                 }
               />
             </div>
@@ -568,17 +699,43 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
-                      <div className="grid grid-cols-2 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
+                      <div className="grid grid-cols-4 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
                         <div>Account</div>
+                        <div>Plan</div>
+                        <div className="text-right">ARR</div>
                         <div className="text-right">Number of views</div>
                       </div>
                       {/* Real data from Pendo API */}
                       {((data as ComprehensivePageData).topAccounts && (data as ComprehensivePageData).topAccounts!.length > 0) ? (
                         (data as ComprehensivePageData).topAccounts!.map((account, index) => (
-                          <div key={account.accountId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
+                          <div key={account.accountId || index} className="grid grid-cols-4 gap-4 py-2 text-sm border-b border-gray-100 items-center">
                             <div className="text-purple-600 hover:underline cursor-pointer">
                               {account.name || account.accountId}
-                              {account.planlevel && <span className="ml-2 text-xs text-gray-500">({account.planlevel})</span>}
+                            </div>
+                            <div>
+                              {account.planlevel ? (
+                                <Badge
+                                  variant="secondary"
+                                  className={
+                                    account.planlevel.toLowerCase().includes('enterprise') ? 'bg-purple-100 text-purple-800' :
+                                    account.planlevel.toLowerCase().includes('professional') || account.planlevel.toLowerCase().includes('pro') ? 'bg-blue-100 text-blue-800' :
+                                    'bg-gray-100 text-gray-800'
+                                  }
+                                >
+                                  {account.planlevel}
+                                </Badge>
+                              ) : (
+                                <span className="text-gray-400">--</span>
+                              )}
+                            </div>
+                            <div className="text-right font-medium">
+                              {account.arr ? (
+                                account.arr >= 1000000 ? `$${(account.arr / 1000000).toFixed(1)}M` :
+                                account.arr >= 1000 ? `$${(account.arr / 1000).toFixed(0)}K` :
+                                `$${account.arr.toLocaleString()}`
+                              ) : (
+                                <span className="text-gray-400">N/A</span>
+                              )}
                             </div>
                             <div className="text-right font-medium">
                               {account.viewCount.toLocaleString()}
@@ -740,6 +897,7 @@ export const ReportDetails: React.FC = () => {
                           <th className="text-right py-2 px-2 font-medium">Dead clicks</th>
                           <th className="text-right py-2 px-2 font-medium">Error clicks</th>
                           <th className="text-right py-2 px-2 font-medium">Rage clicks</th>
+                          <th className="text-center py-2 px-2 font-medium">Recording</th>
                           <th className="text-left py-2 px-2 font-medium">Page parameter</th>
                           <th className="text-left py-2 px-2 font-medium">Server name</th>
                           <th className="text-left py-2 px-2 font-medium">Browser Name</th>
@@ -760,6 +918,21 @@ export const ReportDetails: React.FC = () => {
                               <td className="text-right py-2 px-2">{event.deadClicks?.toLocaleString() || 0}</td>
                               <td className="text-right py-2 px-2">{event.errorClicks?.toLocaleString() || 0}</td>
                               <td className="text-right py-2 px-2">{event.rageClicks?.toLocaleString() || 0}</td>
+                              <td className="text-center py-2 px-2">
+                                {event.recordingId ? (
+                                  <a
+                                    href={`https://app.pendo.io/session/${event.recordingId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                                    title="View Session Recording"
+                                  >
+                                    <VideoCameraIcon className="h-4 w-4" />
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-400">--</span>
+                                )}
+                              </td>
                               <td className="py-2 px-2 text-gray-400">--</td>
                               <td className="py-2 px-2">{event.serverName || '--'}</td>
                               <td className="py-2 px-2">{event.browserName || '--'}</td>
@@ -768,7 +941,7 @@ export const ReportDetails: React.FC = () => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={12} className="py-4 text-center text-gray-500 text-sm">
+                            <td colSpan={13} className="py-4 text-center text-gray-500 text-sm">
                               No event data available
                             </td>
                           </tr>
@@ -788,7 +961,7 @@ export const ReportDetails: React.FC = () => {
                   </div>
 
                   {/* Summary KPI Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                     <Card>
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
@@ -827,6 +1000,20 @@ export const ReportDetails: React.FC = () => {
                             </p>
                           </div>
                           <ArrowPathIcon className="h-8 w-8 text-yellow-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Error Clicks</p>
+                            <p className="text-2xl font-bold text-red-900">
+                              {(data as ComprehensivePageData).frustrationMetrics!.totalErrorClicks.toLocaleString()}
+                            </p>
+                          </div>
+                          <ExclamationTriangleIcon className="h-8 w-8 text-red-500" />
                         </div>
                       </CardContent>
                     </Card>
@@ -890,6 +1077,50 @@ export const ReportDetails: React.FC = () => {
                     <h2 className="text-2xl font-bold text-gray-900">Geographic Distribution (Real Data)</h2>
                     <DataQualityBadge type="real" tooltip="Real geographic data aggregated from Pendo page events" />
                   </div>
+
+                  {/* Interactive Map - NEW */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPinIcon className="h-5 w-5 text-blue-600" />
+                        Interactive Geographic Map
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <GeographicMap
+                        data={(() => {
+                          const eventBreakdown = (data as ComprehensivePageData).eventBreakdown || [];
+                          const geoMap = eventBreakdown
+                            .filter(e => e.latitude !== undefined && e.longitude !== undefined && e.region && e.country)
+                            .reduce((acc, event) => {
+                              const key = `${event.region}-${event.country}`;
+                              if (!acc[key]) {
+                                acc[key] = {
+                                  lat: event.latitude!,
+                                  lon: event.longitude!,
+                                  visitors: 0,
+                                  views: 0,
+                                  name: `${event.region}, ${event.country}`,
+                                  region: event.region!,
+                                  country: event.country!,
+                                  avgTimeOnPage: 0,
+                                  _totalTime: 0,
+                                  _count: 0
+                                };
+                              }
+                              acc[key].visitors++;
+                              acc[key].views += event.totalViews || 0;
+                              acc[key]._totalTime += (event.numMinutes || 0) * 60; // Convert to seconds
+                              acc[key]._count++;
+                              acc[key].avgTimeOnPage = acc[key]._totalTime / acc[key]._count;
+                              return acc;
+                            }, {} as Record<string, any>);
+                          return Object.values(geoMap) as GeographicMapData[];
+                        })()}
+                        height={450}
+                      />
+                    </CardContent>
+                  </Card>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Pie Chart */}
