@@ -25,12 +25,22 @@ export const Dashboard: React.FC = () => {
   console.log('Dashboard render:', {
     isLoading,
     hasError: !!error,
+    errorMessage: error?.message,
     dataLengths: {
       guides: guides?.length,
       features: features?.length,
       pages: pages?.length,
       reports: reports?.length
     }
+  });
+
+  // Log the raw query states for debugging
+  console.log('Raw query states:', {
+    guidesLoading: useDashboardOverview === undefined,
+    guidesData: guides !== undefined ? `${guides.length} items` : 'undefined',
+    featuresData: features !== undefined ? `${features.length} items` : 'undefined',
+    pagesData: pages !== undefined ? `${pages.length} items` : 'undefined',
+    reportsData: reports !== undefined ? `${reports.length} items` : 'undefined'
   });
 
   const handleAdvancedSearch = (query: string, searchFilters?: SearchFilters) => {

@@ -12,6 +12,8 @@ export const useGuides = (params?: {
     queryFn: () => pendoAPI.getGuides(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime)
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -25,6 +27,8 @@ export const useFeatures = (params?: {
     queryFn: () => pendoAPI.getFeatures(params),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -38,6 +42,8 @@ export const usePages = (params?: {
     queryFn: () => pendoAPI.getPages(params),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -51,6 +57,8 @@ export const useReports = (params?: {
     queryFn: () => pendoAPI.getReports(params),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -60,6 +68,14 @@ export const useDashboardOverview = () => {
   const featuresQuery = useFeatures({ limit: 1000 });
   const pagesQuery = usePages({ limit: 1000 });
   const reportsQuery = useReports({ limit: 1000 });
+
+  // Debug logging to identify stuck queries
+  console.log('📊 Dashboard queries status:', {
+    guides: { isLoading: guidesQuery.isLoading, hasData: !!guidesQuery.data, hasError: !!guidesQuery.error },
+    features: { isLoading: featuresQuery.isLoading, hasData: !!featuresQuery.data, hasError: !!featuresQuery.error },
+    pages: { isLoading: pagesQuery.isLoading, hasData: !!pagesQuery.data, hasError: !!pagesQuery.error },
+    reports: { isLoading: reportsQuery.isLoading, hasData: !!reportsQuery.data, hasError: !!reportsQuery.error }
+  });
 
   return {
     guides: guidesQuery.data || [],
