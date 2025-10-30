@@ -3,8 +3,8 @@
 
 # Build configuration
 [build]
-  # Build command - TypeScript compilation + Vite build
-  command = "cd frontend && npm run build"
+  # Build command - Install dependencies + TypeScript compilation + Vite build
+  command = "cd frontend && npm ci && npm run build"
 
   # Publish directory - where Vite outputs built files
   publish = "frontend/dist"
@@ -93,15 +93,15 @@
 
 # Deploy Preview context (for pull requests)
 [context.deploy-preview]
-  command = "cd frontend && npm run build"
+  command = "cd frontend && npm ci && npm run build"
 
 # Branch deploy context (for branch deployments)
 [context.branch-deploy]
-  command = "cd frontend && npm run build"
+  command = "cd frontend && npm ci && npm run build"
 
 # Production context
 [context.production]
-  command = "cd frontend && npm run build"
+  command = "cd frontend && npm ci && npm run build"
 
 # Development configuration (for netlify dev)
 [dev]
