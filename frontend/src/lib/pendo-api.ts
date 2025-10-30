@@ -1717,7 +1717,7 @@ class PendoAPIClient {
               source: {
                 pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
-                  first: "now()",
+                  first: startTime,  // Use actual timestamp from 30 days ago
                   count: days,  // Positive count (not negative)
                   period: "dayRange"
                 }
@@ -2277,12 +2277,15 @@ class PendoAPIClient {
     const geoMap = new Map();
 
     events.forEach(event => {
-      if (!event.region || !event.country) return;
+      // Skip only if BOTH region AND country are missing (use Unknown for partial data)
+      if (!event.region && !event.country) return;
 
-      const key = `${event.region}|${event.country}`;
+      const region = event.region || 'Unknown';
+      const country = event.country || 'Unknown';
+      const key = `${region}|${country}`;
       const existing = geoMap.get(key) || {
-        region: event.region,
-        country: event.country,
+        region,
+        country,
         visitors: new Set(),
         views: 0,
         totalMinutes: 0
@@ -2480,7 +2483,7 @@ class PendoAPIClient {
               source: {
                 pageEvents: null,  // Don't filter in source - use separate filter step
                 timeSeries: {
-                  first: "now()",
+                  first: startTime,  // Use actual timestamp from 30 days ago
                   count: days,  // Positive count (not negative)
                   period: "dayRange"
                 }
@@ -2512,6 +2515,24 @@ class PendoAPIClient {
         if (response.results.length > 0) {
           console.log(`📋 Sample event record structure:`, response.results[0]);
           console.log(`📋 Available fields:`, Object.keys(response.results[0]));
+
+          // NEW: Diagnostic logging for date distribution
+          const uniqueDays = new Set(response.results.map(r => {
+            const dayVal = r.day;
+            if (dayVal) {
+              return new Date(typeof dayVal === 'number' || typeof dayVal === 'string' ? dayVal : Date.now()).toISOString().split('T')[0];
+            }
+            return 'unknown';
+          }));
+          console.log(`📊 Date distribution: ${uniqueDays.size} unique days`, Array.from(uniqueDays).sort().slice(0, 10));
+
+          // NEW: Diagnostic logging for geographic data
+          const withGeo = response.results.filter(r => r.region || r.country).length;
+          console.log(`🌍 Geographic data: ${withGeo}/${response.results.length} events have region/country (${(withGeo/response.results.length*100).toFixed(1)}%)`);
+          if (withGeo > 0) {
+            const sampleGeo = response.results.find(r => r.region || r.country);
+            console.log(`🗺️ Sample geographic data:`, {region: sampleGeo?.region, country: sampleGeo?.country, lat: sampleGeo?.latitude, lon: sampleGeo?.longitude});
+          }
         }
 
         // Group events by visitor and date, aggregate views
