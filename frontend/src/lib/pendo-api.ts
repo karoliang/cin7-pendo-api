@@ -567,9 +567,27 @@ class PendoAPIClient {
         throw new Error(`Aggregation API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
-      const result = await response.json();
-      console.log(`✅ Aggregation response:`, result);
-      return result;
+      // First get the response as text to check if it's empty
+      const responseText = await response.text();
+
+      if (!responseText || responseText.trim() === '') {
+        console.error(`❌ Pendo API returned empty response body`);
+        console.error(`   Status: ${response.status} ${response.statusText}`);
+        console.error(`   Content-Type: ${response.headers.get('Content-Type')}`);
+        console.error(`   This could indicate: (1) API rate limiting, (2) Invalid request parameters, (3) API service issue`);
+        throw new Error(`Pendo API returned empty response - Status: ${response.status}`);
+      }
+
+      try {
+        const result = JSON.parse(responseText);
+        console.log(`✅ Aggregation response:`, result);
+        return result;
+      } catch (parseError) {
+        console.error(`❌ Failed to parse Pendo API response as JSON`);
+        console.error(`   Response text (first 500 chars):`, responseText.substring(0, 500));
+        console.error(`   Parse error:`, parseError);
+        throw new Error(`Invalid JSON response from Pendo API: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+      }
     } catch (error) {
       clearTimeout(timeoutId); // Clear timeout on error
 
