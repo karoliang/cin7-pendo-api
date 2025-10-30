@@ -3070,7 +3070,7 @@ class PendoAPIClient {
           const pageGuide: PageGuide = {
             guideId: guide.id,
             name: guide.name,
-            segment: guide.audience?.[0] || undefined, // Using audience as segment approximation
+            segment: (typeof guide.audience?.[0] === 'string' ? guide.audience[0] : undefined), // Using audience as segment approximation (ensure string)
             status: guide.state,
           };
 
