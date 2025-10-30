@@ -1653,6 +1653,42 @@ class PendoAPIClient {
         isSuggested: false,
       };
 
+      // Fetch additional real data from new API methods
+      console.log(`🔄 Fetching additional page analytics data...`);
+
+      try {
+        const [topVisitors, topAccounts, eventBreakdown, featuresTargeting, guidesTargeting] = await Promise.allSettled([
+          this.getTopVisitorsForPage(id, 10),
+          this.getTopAccountsForPage(id, 10),
+          this.getPageEventBreakdown(id, 20), // Limit to 20 for initial display
+          this.getFeaturesTargetingPage(id, 7),
+          this.getGuidesTargetingPage(id, 10), // Limit to 10 for initial display
+        ]);
+
+        // Add data if successful, empty arrays if failed
+        comprehensiveData.topVisitors = topVisitors.status === 'fulfilled' ? topVisitors.value : [];
+        comprehensiveData.topAccounts = topAccounts.status === 'fulfilled' ? topAccounts.value : [];
+        comprehensiveData.eventBreakdown = eventBreakdown.status === 'fulfilled' ? eventBreakdown.value : [];
+        comprehensiveData.featuresTargeting = featuresTargeting.status === 'fulfilled' ? featuresTargeting.value : [];
+        comprehensiveData.guidesTargeting = guidesTargeting.status === 'fulfilled' ? guidesTargeting.value : [];
+
+        console.log(`✅ Additional data fetched:`, {
+          visitors: comprehensiveData.topVisitors?.length || 0,
+          accounts: comprehensiveData.topAccounts?.length || 0,
+          events: comprehensiveData.eventBreakdown?.length || 0,
+          features: comprehensiveData.featuresTargeting?.length || 0,
+          guides: comprehensiveData.guidesTargeting?.length || 0,
+        });
+      } catch (error) {
+        console.warn(`⚠️ Some additional data failed to fetch:`, error);
+        // Initialize with empty arrays if fetch fails
+        comprehensiveData.topVisitors = [];
+        comprehensiveData.topAccounts = [];
+        comprehensiveData.eventBreakdown = [];
+        comprehensiveData.featuresTargeting = [];
+        comprehensiveData.guidesTargeting = [];
+      }
+
       console.log(`✅ Page analytics assembled successfully`);
       return comprehensiveData;
 

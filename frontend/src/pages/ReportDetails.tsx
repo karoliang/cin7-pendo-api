@@ -884,17 +884,23 @@ export const ReportDetails: React.FC = () => {
                         <div>Visitor</div>
                         <div className="text-right">Number of views</div>
                       </div>
-                      {/* Placeholder data - will be replaced with real API data */}
-                      {Array.from({ length: 10 }).map((_, index) => (
-                        <div key={index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
-                          <div className="text-blue-600 hover:underline cursor-pointer">
-                            visitor{index + 1}@example.com
+                      {/* Real data from Pendo API */}
+                      {((data as ComprehensivePageData).topVisitors && (data as ComprehensivePageData).topVisitors!.length > 0) ? (
+                        (data as ComprehensivePageData).topVisitors!.map((visitor, index) => (
+                          <div key={visitor.visitorId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
+                            <div className="text-blue-600 hover:underline cursor-pointer">
+                              {visitor.email || visitor.name || visitor.visitorId}
+                            </div>
+                            <div className="text-right font-medium">
+                              {visitor.viewCount.toLocaleString()}
+                            </div>
                           </div>
-                          <div className="text-right font-medium">
-                            {Math.floor(Math.random() * 5000) + 1000}
-                          </div>
+                        ))
+                      ) : (
+                        <div className="py-4 text-center text-gray-500 text-sm">
+                          No visitor data available
                         </div>
-                      ))}
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -918,17 +924,24 @@ export const ReportDetails: React.FC = () => {
                         <div>Account</div>
                         <div className="text-right">Number of views</div>
                       </div>
-                      {/* Placeholder data - will be replaced with real API data */}
-                      {Array.from({ length: 10 }).map((_, index) => (
-                        <div key={index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
-                          <div className="text-purple-600 hover:underline cursor-pointer">
-                            Company {index + 1}
+                      {/* Real data from Pendo API */}
+                      {((data as ComprehensivePageData).topAccounts && (data as ComprehensivePageData).topAccounts!.length > 0) ? (
+                        (data as ComprehensivePageData).topAccounts!.map((account, index) => (
+                          <div key={account.accountId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
+                            <div className="text-purple-600 hover:underline cursor-pointer">
+                              {account.name || account.accountId}
+                              {account.planlevel && <span className="ml-2 text-xs text-gray-500">({account.planlevel})</span>}
+                            </div>
+                            <div className="text-right font-medium">
+                              {account.viewCount.toLocaleString()}
+                            </div>
                           </div>
-                          <div className="text-right font-medium">
-                            {Math.floor(Math.random() * 10000) + 2000}
-                          </div>
+                        ))
+                      ) : (
+                        <div className="py-4 text-center text-gray-500 text-sm">
+                          No account data available
                         </div>
-                      ))}
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -960,18 +973,25 @@ export const ReportDetails: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {/* Placeholder data - will be replaced with real API data */}
-                        {Array.from({ length: 7 }).map((_, index) => (
-                          <tr key={index} className="border-b border-gray-100">
-                            <td className="py-2 text-blue-600 hover:underline cursor-pointer">
-                              Feature {index + 1}
+                        {((data as ComprehensivePageData).featuresTargeting && (data as ComprehensivePageData).featuresTargeting!.length > 0) ? (
+                          (data as ComprehensivePageData).featuresTargeting!.slice(0, 7).map((feature, index) => (
+                            <tr key={feature.featureId || index} className="border-b border-gray-100">
+                              <td className="py-2 text-blue-600 hover:underline cursor-pointer">
+                                {feature.name}
+                              </td>
+                              <td className="text-right py-2">{feature.eventCount.toLocaleString()}</td>
+                              <td className="text-right py-2">{feature.deadClicks?.toLocaleString() || 0}</td>
+                              <td className="text-right py-2">{feature.errorClicks?.toLocaleString() || 0}</td>
+                              <td className="text-right py-2">{feature.rageClicks?.toLocaleString() || 0}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={5} className="py-4 text-center text-gray-500 text-sm">
+                              No feature data available
                             </td>
-                            <td className="text-right py-2">{Math.floor(Math.random() * 100000)}</td>
-                            <td className="text-right py-2">{Math.floor(Math.random() * 10)}</td>
-                            <td className="text-right py-2">{Math.floor(Math.random() * 100)}</td>
-                            <td className="text-right py-2">{Math.floor(Math.random() * 1000)}</td>
                           </tr>
-                        ))}
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -1003,29 +1023,41 @@ export const ReportDetails: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {/* Placeholder data - will be replaced with real API data */}
-                        {Array.from({ length: 10 }).map((_, index) => (
-                          <tr key={index} className="border-b border-gray-100">
-                            <td className="py-2 text-blue-600 hover:underline cursor-pointer">
-                              Guide {index + 1}
-                            </td>
-                            <td className="py-2">
-                              <Badge variant={index % 3 === 0 ? 'default' : index % 3 === 1 ? 'secondary' : 'outline'}>
-                                Product Area {index % 3 + 1}
-                              </Badge>
-                            </td>
-                            <td className="py-2">Custom Segment</td>
-                            <td className="py-2">
-                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                index % 3 === 0 ? 'bg-green-100 text-green-800' :
-                                index % 3 === 1 ? 'bg-gray-100 text-gray-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {index % 3 === 0 ? 'Public' : index % 3 === 1 ? 'Disabled' : 'Draft'}
-                              </span>
+                        {((data as ComprehensivePageData).guidesTargeting && (data as ComprehensivePageData).guidesTargeting!.length > 0) ? (
+                          (data as ComprehensivePageData).guidesTargeting!.slice(0, 10).map((guide, index) => (
+                            <tr key={guide.guideId || index} className="border-b border-gray-100">
+                              <td className="py-2 text-blue-600 hover:underline cursor-pointer">
+                                {guide.name}
+                              </td>
+                              <td className="py-2">
+                                {guide.productArea ? (
+                                  <Badge variant="default">
+                                    {guide.productArea}
+                                  </Badge>
+                                ) : (
+                                  <span className="text-gray-400">--</span>
+                                )}
+                              </td>
+                              <td className="py-2">{guide.segment || '--'}</td>
+                              <td className="py-2">
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  guide.status === 'published' || guide.status === 'Public' ? 'bg-green-100 text-green-800' :
+                                  guide.status === 'disabled' || guide.status === 'Disabled' ? 'bg-gray-100 text-gray-800' :
+                                  guide.status === 'draft' || guide.status === 'Draft' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {guide.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} className="py-4 text-center text-gray-500 text-sm">
+                              No guide data available
                             </td>
                           </tr>
-                        ))}
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -1065,25 +1097,32 @@ export const ReportDetails: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {/* Placeholder data - will be replaced with real API data */}
-                        {Array.from({ length: 20 }).map((_, index) => (
-                          <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                            <td className="py-2 px-2 text-blue-600 hover:underline cursor-pointer">
-                              {Math.random().toString(36).substring(7)}@{index % 3 === 0 ? 'mon' : index % 3 === 1 ? 'foremi' : 'jabane'}
+                        {((data as ComprehensivePageData).eventBreakdown && (data as ComprehensivePageData).eventBreakdown!.length > 0) ? (
+                          (data as ComprehensivePageData).eventBreakdown!.slice(0, 20).map((event, index) => (
+                            <tr key={`${event.visitorId}-${event.date}-${index}`} className="border-b border-gray-100 hover:bg-gray-50">
+                              <td className="py-2 px-2 text-blue-600 hover:underline cursor-pointer">
+                                {event.visitorId}
+                              </td>
+                              <td className="py-2 px-2">{event.accountId || '--'}</td>
+                              <td className="py-2 px-2">{event.date}</td>
+                              <td className="text-right py-2 px-2">{event.totalViews.toLocaleString()}</td>
+                              <td className="text-right py-2 px-2">{event.uTurns?.toLocaleString() || 0}</td>
+                              <td className="text-right py-2 px-2">{event.deadClicks?.toLocaleString() || 0}</td>
+                              <td className="text-right py-2 px-2">{event.errorClicks?.toLocaleString() || 0}</td>
+                              <td className="text-right py-2 px-2">{event.rageClicks?.toLocaleString() || 0}</td>
+                              <td className="py-2 px-2 text-gray-400">--</td>
+                              <td className="py-2 px-2">{event.serverName || '--'}</td>
+                              <td className="py-2 px-2">{event.browserName || '--'}</td>
+                              <td className="py-2 px-2">{event.browserVersion || '--'}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={12} className="py-4 text-center text-gray-500 text-sm">
+                              No event data available
                             </td>
-                            <td className="py-2 px-2">{`${['B480CA45', 'B33F0290', '92B99F89'][index % 3]}-...`}</td>
-                            <td className="py-2 px-2">Oct {29 - index}</td>
-                            <td className="text-right py-2 px-2">{Math.floor(Math.random() * 5) + 1}</td>
-                            <td className="text-right py-2 px-2">0</td>
-                            <td className="text-right py-2 px-2">0</td>
-                            <td className="text-right py-2 px-2">0</td>
-                            <td className="text-right py-2 px-2">0</td>
-                            <td className="py-2 px-2 text-gray-400">--</td>
-                            <td className="py-2 px-2">inventory.deals...</td>
-                            <td className="py-2 px-2">{['Chrome', 'Edge', 'Safari'][index % 3]}</td>
-                            <td className="py-2 px-2">{['141.0.0', '141.0.0', '109.0.0'][index % 3]}</td>
                           </tr>
-                        ))}
+                        )}
                       </tbody>
                     </table>
                   </div>

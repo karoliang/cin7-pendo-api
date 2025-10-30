@@ -398,6 +398,60 @@ export interface ComprehensivePageData {
   rules: object;
   isCoreEvent: boolean;
   isSuggested: boolean;
+
+  // New Real Data from Pendo API
+  topVisitors?: PageVisitor[];
+  topAccounts?: PageAccount[];
+  eventBreakdown?: PageEventRow[];
+  featuresTargeting?: PageFeature[];
+  guidesTargeting?: PageGuide[];
+}
+
+// Page-specific interfaces for new data
+export interface PageVisitor {
+  visitorId: string;
+  email?: string;
+  name?: string;
+  viewCount: number;
+}
+
+export interface PageAccount {
+  accountId: string;
+  name?: string;
+  arr?: number;
+  planlevel?: string;
+  viewCount: number;
+}
+
+export interface PageEventRow {
+  visitorId: string;
+  accountId?: string;
+  date: string;
+  totalViews: number;
+  uTurns?: number;
+  deadClicks?: number;
+  errorClicks?: number;
+  rageClicks?: number;
+  serverName?: string;
+  browserName?: string;
+  browserVersion?: string;
+}
+
+export interface PageFeature {
+  featureId: string;
+  name: string;
+  eventCount: number;
+  deadClicks?: number;
+  errorClicks?: number;
+  rageClicks?: number;
+}
+
+export interface PageGuide {
+  guideId: string;
+  name: string;
+  productArea?: string;
+  segment?: string;
+  status: string;
 }
 
 // ===== COMPREHENSIVE REPORT INTERFACES =====
