@@ -430,11 +430,21 @@ class PendoAPIClient {
       const endTime = Date.now();
       const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
 
+      // Build proper MongoDB-style aggregation pipeline
       const aggregationRequest = {
-        source: {
-          guideEvents: null,
-        },
-        filter: `guideId == "${id}"`,
+        pipeline: [
+          {
+            source: {
+              guideEvents: null
+            }
+          },
+          {
+            filter: `guideId == "${id}"`
+          },
+          {
+            sort: ["eventTime"]
+          }
+        ],
         requestId: `guide_totals_${id}_${Date.now()}`
       };
 
@@ -699,17 +709,39 @@ class PendoAPIClient {
       const endTime = new Date(period.end).getTime();
       const days = Math.ceil((endTime - startTime) / (24 * 60 * 60 * 1000));
 
-      // Build Pendo aggregation request for guide events
+      // Build proper MongoDB-style aggregation pipeline for time series
       const aggregationRequest = {
-        source: {
-          guideEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: days,
-            period: "dayRange"
+        pipeline: [
+          {
+            source: {
+              guideEvents: null,
+              timeSeries: {
+                first: startTime,
+                count: days,
+                period: "dayRange"
+              }
+            }
+          },
+          {
+            filter: `guideId == "${id}"`
+          },
+          {
+            group: {
+              keys: ["day"],
+              accumulator: {
+                views: { count: "visitorId" },
+                completions: {
+                  count: {
+                    $if: {
+                      "==": ["$type", "guideActivity"],
+                      then: { "==": ["$action", "completed"] }
+                    }
+                  }
+                }
+              }
+            }
           }
-        },
-        filter: `guideId == "${id}"`,
+        ],
         requestId: `guide_timeseries_${id}_${Date.now()}`
       };
 
