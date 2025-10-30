@@ -37,26 +37,195 @@ interface AggregationParams {
 
 type PendoApiResponse = unknown;
 
-// Pendo API returns untyped JSON responses. Using 'unknown' for safety.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PendoGuideResponse = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PendoFeatureResponse = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PendoPageResponse = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PendoReportResponse = any;
+/**
+ * Pendo API Guide response interface
+ * Based on Pendo API v1 guide endpoint response structure
+ */
+interface PendoGuideResponse {
+  id: string;
+  name: string;
+  state: 'published' | 'draft' | 'archived' | '_pendingReview_' | 'public' | 'staging' | 'disabled';
+  lastShownCount?: number;
+  viewedCount?: number;
+  completedCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  description?: string;
+  audience?: string[] | unknown;
+  type?: string;
+  // Additional fields that may be present in API response
+  kind?: string;
+  launchMethod?: string;
+  steps?: unknown[];
+  [key: string]: unknown; // Index signature for additional dynamic fields
+}
+
+/**
+ * Pendo API Feature response interface
+ * Based on Pendo API v1 feature endpoint response structure
+ */
+interface PendoFeatureResponse {
+  id: string;
+  name: string;
+  visitorCount?: number;
+  accountCount?: number;
+  usageCount?: number;
+  eventType?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  description?: string;
+  applicationId?: string;
+  elementId?: string;
+  // Additional fields that may be present in API response
+  kind?: string;
+  appId?: string;
+  eventCount?: number;
+  [key: string]: unknown; // Index signature for additional dynamic fields
+}
+
+/**
+ * Pendo API Page response interface
+ * Based on Pendo API v1 page endpoint response structure
+ */
+interface PendoPageResponse {
+  id: string;
+  url?: string;
+  name?: string;
+  viewedCount?: number;
+  visitorCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  applicationId?: string;
+  // Additional fields that may be present in API response
+  kind?: string;
+  appId?: string;
+  title?: string;
+  [key: string]: unknown; // Index signature for additional dynamic fields
+}
+
+/**
+ * Pendo API Report response interface
+ * Based on Pendo API v1 report endpoint response structure
+ */
+interface PendoReportResponse {
+  id: string;
+  name: string;
+  description?: string;
+  lastSuccessRunAt?: string;
+  configuration?: ReportConfiguration;
+  createdAt?: string;
+  updatedAt?: string;
+  // Additional fields that may be present in API response
+  kind?: string;
+  type?: string;
+  shared?: boolean;
+  ownedByUser?: unknown;
+  [key: string]: unknown; // Index signature for additional dynamic fields
+}
+
+/**
+ * Pendo Aggregation API response structure
+ * Used for analytics and metrics aggregation endpoints
+ */
+interface PendoAggregationResponse {
+  results?: PendoAggregationResult[];
+  [key: string]: unknown;
+}
+
+/**
+ * Individual result item from Pendo Aggregation API
+ */
+interface PendoAggregationResult {
+  type?: string;
+  eventType?: string;
+  action?: string;
+  guideId?: string;
+  visitorId?: string | number; // Can be string ID or numeric count
+  accountId?: string | number; // Can be string ID or numeric count
+  eventTime?: string | number;
+  serverTime?: string | number;
+  firstResponseTime?: string | number;
+  _id?: string | number;
+  duration?: number;
+  timeOnPage?: number;
+  numUsers?: number;
+  numAccounts?: number;
+  stepNumber?: number;
+  guideStepNum?: number;
+  events?: PendoAggregationEvent[];
+  // Additional aggregation fields
+  email?: string;
+  name?: string;
+  viewCount?: number;
+  arr?: number;
+  planlevel?: string;
+  featureId?: string;
+  numEvents?: number;
+  date?: string;
+  totalViews?: number;
+  uTurns?: number;
+  deadClicks?: number;
+  errorClicks?: number;
+  rageClicks?: number;
+  serverName?: string;
+  browserName?: string;
+  browserVersion?: string;
+  // Array access for nested aggregation results
+  0?: PendoAggregationResult;
+  1?: PendoAggregationResult;
+  [key: string]: unknown; // Index signature for flexible aggregation fields
+}
+
+/**
+ * Event data within aggregation results
+ */
+interface PendoAggregationEvent {
+  type?: string;
+  action?: string;
+  eventType?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Transformed time series data point
+ */
+interface TimeSeriesDataPoint {
+  date: string;
+  views: number;
+  completions: number;
+  uniqueVisitors: number;
+  averageTimeSpent: number;
+  dropOffRate: number;
+}
+
+/**
+ * Transformed guide step data
+ */
+interface GuideStepData {
+  id: string;
+  name: string;
+  order: number;
+  content: string;
+  elementType: string;
+  viewedCount: number;
+  completedCount: number;
+  timeSpent: number;
+  dropOffCount: number;
+  dropOffRate: number;
+  elementPath?: string;
+}
 
 // Page analytics interfaces (exported for external use)
 export interface PageVisitor {
-  visitorId: string;
+  visitorId: string | number;
   email?: string;
   name?: string;
   viewCount: number;
 }
 
 export interface PageAccount {
-  accountId: string;
+  accountId: string | number;
   name?: string;
   arr?: number;
   planlevel?: string;
@@ -483,7 +652,8 @@ class PendoAPIClient {
   // ===== COMPREHENSIVE ANALYTICS API METHODS =====
 
   // Fetch guide analytics totals from aggregation API
-  private async getGuideTotals(id: string, daysBack: number = 90): Promise<{ viewedCount: number; completedCount: number; lastShownCount: number }> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getGuideTotals(id: string, _daysBack: number = 90): Promise<{ viewedCount: number; completedCount: number; lastShownCount: number }> {
     try {
       console.log(`📊 Fetching total analytics for guide ${id} from aggregation API`);
 
@@ -505,7 +675,7 @@ class PendoAPIClient {
         }
       };
 
-      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
         let viewedCount = 0;
@@ -756,8 +926,9 @@ class PendoAPIClient {
       return fallback;
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-  private async getGuideTimeSeries(id: string, period: { start: string; end: string }) {
+  private async getGuideTimeSeries(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`📊 Fetching time series analytics for guide ${id} from Pendo Aggregation API`);
 
@@ -784,7 +955,7 @@ class PendoAPIClient {
 
       try {
         // Make the aggregation API call
-        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
         console.log(`✅ Aggregation API response:`, response);
 
@@ -799,7 +970,7 @@ class PendoAPIClient {
             // Count views and completions from guide events
             const views = result.numEvents || result.views || 0;
             const completions = result.completions ||
-              (result.events?.filter((e: any) => e.type === 'guideActivity' && e.action === 'completed')?.length || 0);
+              (result.events?.filter((e: PendoAggregationEvent) => e.type === 'guideActivity' && e.action === 'completed')?.length || 0);
 
             timeSeriesData.push({
               date: date.toISOString().split('T')[0],
@@ -860,9 +1031,7 @@ class PendoAPIClient {
     }
   }
 
-  // Pendo API returns untyped time series data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private transformTimeSeriesData(response: any[]): any[] {
+  private transformTimeSeriesData(response: PendoAggregationResult[]): TimeSeriesDataPoint[] {
     return response.map(item => ({
       date: new Date(item.eventTime || item.serverTime || item.firstResponseTime || item._id).toISOString().split('T')[0],
       views: item.visitorId || item.numUsers || 0,
@@ -872,8 +1041,9 @@ class PendoAPIClient {
       dropOffRate: Math.max(0, ((item.visitorId || 0) - (item.eventType === 'guideCompleted' ? (item.eventType || 0) : Math.floor((item.visitorId || 0) * 0.6))) / (item.visitorId || 1) * 100)
     }));
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-  private async getGuideStepAnalytics(id: string, period: { start: string; end: string }) {
+  private async getGuideStepAnalytics(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating step analytics for guide ${id} using real API data`);
 
@@ -898,7 +1068,7 @@ class PendoAPIClient {
 
         stepData.push({
           id: `step-${stepNum}`,
-          name: this.generateStepName(stepNum, guide.name, guide.type),
+          name: this.generateStepName(stepNum, guide.name),
           order: stepNum,
           content: `Step ${stepNum} content for ${guide.name}`,
           elementType: this.getStepElementType(stepNum, estimatedSteps),
@@ -936,7 +1106,7 @@ class PendoAPIClient {
     }
   }
 
-  private generateStepName(stepNum: number, guideName: string, _guideType?: string): string {
+  private generateStepName(stepNum: number, guideName: string): string {
     const stepNames = [
       'Welcome & Introduction',
       'Feature Overview',
@@ -969,11 +1139,8 @@ class PendoAPIClient {
     return 'tooltip';
   }
 
-  // Pendo API returns untyped step data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private transformStepData(response: any[]): any[] {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const stepData: any[] = [];
+  private transformStepData(response: PendoAggregationResult[]): GuideStepData[] {
+    const stepData: GuideStepData[] = [];
     const maxStep = Math.max(...response.map(r => r.stepNumber || r.guideStepNum || 0));
 
     // If no step data found, create default step structure
@@ -1007,8 +1174,9 @@ class PendoAPIClient {
 
     return stepData.length > 0 ? stepData : this.generateFallbackStepData();
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-  private async getGuideSegmentPerformance(id: string, period: { start: string; end: string }) {
+  private async getGuideSegmentPerformance(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating segment performance for guide ${id} using alternative approach`);
 
@@ -1077,7 +1245,8 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideDeviceBreakdown(id: string, period: { start: string; end: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getGuideDeviceBreakdown(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating device breakdown for guide ${id} using realistic data`);
 
@@ -1143,7 +1312,8 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideGeographicData(id: string, period: { start: string; end: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getGuideGeographicData(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating geographic data for guide ${id} using realistic distributions`);
 
@@ -1236,7 +1406,8 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuidePollData(id: string, period: { start: string; end: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getGuidePollData(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating poll data for guide ${id} using alternative approach`);
 
@@ -1285,7 +1456,8 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideUserBehavior(id: string, period: { start: string; end: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getGuideUserBehavior(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating user behavior data for guide ${id} using alternative approach`);
 
@@ -1320,7 +1492,8 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideHourlyAnalytics(id: string, period: { start: string; end: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getGuideHourlyAnalytics(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating hourly analytics for guide ${id} using alternative approach`);
 
@@ -1356,7 +1529,8 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideWeeklyAnalytics(id: string, period: { start: string; end: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getGuideWeeklyAnalytics(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating weekly analytics for guide ${id} using alternative approach`);
 
@@ -1396,7 +1570,8 @@ class PendoAPIClient {
     }
   }
 
-  private async getGuideVariantPerformance(id: string, period: { start: string; end: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getGuideVariantPerformance(id: string, _period: { start: string; end: string }) {
     try {
       console.log(`🚀 Generating variant performance for guide ${id} using alternative approach`);
 
@@ -1432,7 +1607,8 @@ class PendoAPIClient {
   // ===== PAGE ANALYTICS API METHODS =====
 
   // Fetch page analytics totals from aggregation API
-  private async getPageTotals(id: string, daysBack: number = 90): Promise<{ viewedCount: number; visitorCount: number; uniqueVisitors: number }> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getPageTotals(id: string, _daysBack: number = 90): Promise<{ viewedCount: number; visitorCount: number; uniqueVisitors: number }> {
     try {
       console.log(`📊 Fetching total analytics for page ${id} from aggregation API`);
 
@@ -1454,7 +1630,7 @@ class PendoAPIClient {
         }
       };
 
-      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
         // Count unique visitors and total page views
@@ -1515,7 +1691,7 @@ class PendoAPIClient {
         }
       };
 
-      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
         console.log(`✅ Retrieved ${response.results.length} time series data points for page`);
@@ -1806,7 +1982,7 @@ class PendoAPIClient {
 
       console.log(`🔍 Request pipeline:`, JSON.stringify(aggregationRequest, null, 2));
 
-      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
         console.log(`✅ Found ${response.results.length} visitors`);
@@ -1917,7 +2093,7 @@ class PendoAPIClient {
 
       console.log(`🔍 Request pipeline:`, JSON.stringify(aggregationRequest, null, 2));
 
-      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
         console.log(`✅ Found ${response.results.length} accounts`);
@@ -1993,7 +2169,7 @@ class PendoAPIClient {
       console.log(`🌐 Making aggregation request with pageEvents source (pipeline format)`);
       console.log(`📅 Time range: ${new Date(startTime).toISOString()} to ${new Date(endTime).toISOString()}`);
 
-      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
         console.log(`✅ Retrieved ${response.results.length} raw event records`);
@@ -2088,9 +2264,8 @@ class PendoAPIClient {
     }
   }
 
-  // Transform methods for Pendo API responses (untyped JSON)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private transformGuide = (guide: any): Guide => ({
+  // Transform methods for Pendo API responses
+  private transformGuide = (guide: PendoGuideResponse): Guide => ({
     id: guide.id || '',
     name: guide.name || '',
     state: guide.state || 'draft',
@@ -2101,12 +2276,11 @@ class PendoAPIClient {
     updatedAt: guide.updatedAt || new Date().toISOString(),
     publishedAt: guide.publishedAt,
     description: guide.description,
-    audience: guide.audience,
+    audience: Array.isArray(guide.audience) ? guide.audience : undefined,
     type: guide.type,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private transformFeature = (feature: any): Feature => ({
+  private transformFeature = (feature: PendoFeatureResponse): Feature => ({
     id: feature.id || '',
     name: feature.name || '',
     visitorCount: feature.visitorCount || 0,
@@ -2120,8 +2294,7 @@ class PendoAPIClient {
     elementId: feature.elementId,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private transformPage = (page: any): Page => ({
+  private transformPage = (page: PendoPageResponse): Page => ({
     id: page.id || '',
     url: page.url || '',
     name: page.name || page.url || 'Untitled',
@@ -2132,8 +2305,7 @@ class PendoAPIClient {
     applicationId: page.applicationId,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private transformReport = (report: any): Report => ({
+  private transformReport = (report: PendoReportResponse): Report => ({
     id: report.id || '',
     name: report.name || '',
     description: report.description,
@@ -2719,13 +2891,13 @@ class PendoAPIClient {
           }
         };
 
-        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as { results?: any[] };
+        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
         if (response.results && Array.isArray(response.results)) {
           // Group events by featureId and count
-          response.results.forEach((event: any) => {
-            const featureId = event.featureId;
-            const eventCount = event.numEvents || 1;
+          response.results.forEach((event: PendoAggregationResult) => {
+            const featureId = event.featureId as string | undefined;
+            const eventCount = event.numEvents as number | undefined || 1;
 
             if (featureId) {
               const currentCount = featureEventCounts.get(featureId) || 0;
@@ -2806,9 +2978,6 @@ class PendoAPIClient {
 
       for (const guide of allGuides) {
         try {
-          // Get guide view count from aggregation API
-          const viewCounts = await this.getGuideTotals(guide.id, 90);
-
           // Create PageGuide object
           // Note: segment is not a standard field in Pendo API
           // Using audience as segment approximation
@@ -3102,7 +3271,7 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
         guideId: testGuideId,
         timeSeries: 'daily'
       }, 'POST');
-      console.log(`✅ Aggregation API result:`, (aggregationResult as any)?.message || 'Success');
+      console.log(`✅ Aggregation API result:`, (aggregationResult as { message?: string })?.message || 'Success');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.log(`⚠️ Aggregation API test: ${errorMessage}`);
@@ -3234,7 +3403,7 @@ export async function testSpecificErrors() {
       guideId: "test-guide",
       timeSeries: 'daily'
     }, 'POST');
-    console.log(`✅ Enhanced handler result:`, (result as any)?.message || 'Success');
+    console.log(`✅ Enhanced handler result:`, (result as { message?: string })?.message || 'Success');
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.log(`❌ Enhanced handler failed:`, errorMessage);
