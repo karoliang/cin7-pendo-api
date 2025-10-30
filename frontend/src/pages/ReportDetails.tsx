@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { DataQualityBadge } from '@/components/ui/DataQualityBadge';
 // Tabs removed - showing all content on single page
 import {
   ArrowLeftIcon,
@@ -387,6 +388,18 @@ export const ReportDetails: React.FC = () => {
         <div className="space-y-12">
           {/* Overview Section */}
           <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900">Overview</h2>
+              <DataQualityBadge
+                type={type === 'reports' ? 'mock' : 'real'}
+                tooltip={
+                  type === 'guides' ? 'Real-time data from Pendo Aggregation API' :
+                  type === 'features' ? 'Real-time data from Pendo Events API' :
+                  type === 'pages' ? 'Real-time data from Pendo Pages API' :
+                  'Simulated data - not available via Pendo API'
+                }
+              />
+            </div>
             {/* Primary KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {primaryKPIs.map((kpi, index) => (
@@ -426,7 +439,13 @@ export const ReportDetails: React.FC = () => {
               {/* Time Series Chart */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Performance Over Time</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Performance Over Time</span>
+                    <DataQualityBadge
+                      type={type === 'reports' ? 'mock' : 'real'}
+                      tooltip="Daily time series data from Pendo Aggregation API"
+                    />
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ReportLineChart
@@ -449,11 +468,14 @@ export const ReportDetails: React.FC = () => {
               {/* Distribution Chart */}
               <Card>
                 <CardHeader>
-                  <CardTitle>
-                    {type === 'guides' ? 'Device Breakdown' :
-                     type === 'features' ? 'Geographic Distribution' :
-                     type === 'pages' ? 'Traffic Sources' :
-                     'User Engagement'}
+                  <CardTitle className="flex items-center justify-between">
+                    <span>
+                      {type === 'guides' ? 'Device Breakdown' :
+                       type === 'features' ? 'Geographic Distribution' :
+                       type === 'pages' ? 'Traffic Sources' :
+                       'User Engagement'}
+                    </span>
+                    <DataQualityBadge type="mock" tooltip="Simulated distribution data" />
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -478,7 +500,10 @@ export const ReportDetails: React.FC = () => {
 
           {/* Trends Section */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Trends</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-gray-900">Trends</h2>
+              <DataQualityBadge type="mock" tooltip="Calculated trends and forecasts based on simulated patterns" />
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Trending Metrics */}
               <Card>
@@ -591,7 +616,10 @@ export const ReportDetails: React.FC = () => {
 
           {/* Analytics Section */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Analytics</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-gray-900">Analytics</h2>
+              <DataQualityBadge type="mock" tooltip="Simulated conversion and segment analytics" />
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Conversion Funnel */}
               <Card>
@@ -656,7 +684,13 @@ export const ReportDetails: React.FC = () => {
           {/* Type-Specific Sections */}
           {type === 'guides' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900">Guide Steps</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Guide Steps</h2>
+                <DataQualityBadge
+                  type="estimated"
+                  tooltip="Step analytics calculated from real guide totals with estimated step distribution"
+                />
+              </div>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -723,7 +757,10 @@ export const ReportDetails: React.FC = () => {
 
           {type === 'features' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900">Cohort Analysis</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Cohort Analysis</h2>
+                <DataQualityBadge type="mock" tooltip="Simulated cohort analytics - not available via Pendo API" />
+              </div>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -775,7 +812,10 @@ export const ReportDetails: React.FC = () => {
               {/* Feature Correlations */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Feature Correlations</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Feature Correlations</span>
+                    <DataQualityBadge type="mock" tooltip="Simulated feature correlation data" />
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -801,7 +841,10 @@ export const ReportDetails: React.FC = () => {
 
           {type === 'pages' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900">User Flow</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">User Flow</h2>
+                <DataQualityBadge type="mock" tooltip="Simulated navigation flow data" />
+              </div>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -853,7 +896,10 @@ export const ReportDetails: React.FC = () => {
               {/* Traffic Sources */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Traffic Sources</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Traffic Sources</span>
+                    <DataQualityBadge type="mock" tooltip="Simulated traffic source distribution" />
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ReportPieChart
@@ -868,15 +914,16 @@ export const ReportDetails: React.FC = () => {
                 {/* Top Visitors */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span className="flex items-center">
-                        <UsersIcon className="h-5 w-5 mr-2 text-blue-600" />
-                        Top Visitors (10)
-                      </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <UsersIcon className="h-5 w-5 text-blue-600" />
+                        <CardTitle className="m-0">Top Visitors (10)</CardTitle>
+                        <DataQualityBadge type="real" tooltip="Real visitor data from Pendo Aggregation API" />
+                      </div>
                       <Button variant="ghost" size="sm" className="text-blue-600">
                         View all Visitors →
                       </Button>
-                    </CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
@@ -908,15 +955,16 @@ export const ReportDetails: React.FC = () => {
                 {/* Top Accounts */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span className="flex items-center">
-                        <UserGroupIcon className="h-5 w-5 mr-2 text-purple-600" />
-                        Top Accounts (10)
-                      </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <UserGroupIcon className="h-5 w-5 text-purple-600" />
+                        <CardTitle className="m-0">Top Accounts (10)</CardTitle>
+                        <DataQualityBadge type="real" tooltip="Real account data from Pendo Aggregation API" />
+                      </div>
                       <Button variant="ghost" size="sm" className="text-purple-600">
                         View all Accounts →
                       </Button>
-                    </CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
@@ -950,15 +998,19 @@ export const ReportDetails: React.FC = () => {
               {/* Features - All (API Limitation) */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center">
-                      <CubeIcon className="h-5 w-5 mr-2 text-green-600" />
-                      Top Features by Usage (7)
-                    </span>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <CubeIcon className="h-5 w-5 text-green-600" />
+                      <CardTitle className="m-0">Top Features by Usage (7)</CardTitle>
+                      <DataQualityBadge
+                        type="real"
+                        tooltip="Real feature event counts from Pendo API (all features, not page-specific)"
+                      />
+                    </div>
                     <Button variant="ghost" size="sm" className="text-green-600">
                       View in Data Explorer →
                     </Button>
-                  </CardTitle>
+                  </div>
                   <p className="text-xs text-gray-500 mt-2">
                     Note: Pendo API does not support filtering features by page. Showing top features by usage across all pages.
                   </p>
@@ -998,15 +1050,19 @@ export const ReportDetails: React.FC = () => {
               {/* Guides - All (API Limitation) */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center">
-                      <DocumentTextIcon className="h-5 w-5 mr-2 text-orange-600" />
-                      Active Guides (175)
-                    </span>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <DocumentTextIcon className="h-5 w-5 text-orange-600" />
+                      <CardTitle className="m-0">Active Guides (175)</CardTitle>
+                      <DataQualityBadge
+                        type="real"
+                        tooltip="Real guide data from Pendo API (all guides, not page-specific)"
+                      />
+                    </div>
                     <Button variant="ghost" size="sm" className="text-orange-600">
                       View in Data Explorer →
                     </Button>
-                  </CardTitle>
+                  </div>
                   <p className="text-xs text-gray-500 mt-2">
                     Note: Pendo API does not support filtering guides by page. Showing all active guides across the system.
                   </p>
@@ -1057,15 +1113,19 @@ export const ReportDetails: React.FC = () => {
               {/* Event Breakdown */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center">
-                      <ChartBarIcon className="h-5 w-5 mr-2 text-indigo-600" />
-                      Event breakdown (5000)
-                    </span>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <ChartBarIcon className="h-5 w-5 text-indigo-600" />
+                      <CardTitle className="m-0">Event breakdown (5000)</CardTitle>
+                      <DataQualityBadge
+                        type="real"
+                        tooltip="Real page event data from Pendo API including frustration metrics (U-turns, dead clicks, error clicks, rage clicks)"
+                      />
+                    </div>
                     <div className="text-xs text-gray-500">
                       This table reflects the date range and segment filters above (up to 5,000 values).
                     </div>
-                  </CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
@@ -1123,7 +1183,10 @@ export const ReportDetails: React.FC = () => {
 
           {type === 'reports' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900">User Feedback</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">User Feedback</h2>
+                <DataQualityBadge type="mock" tooltip="Simulated user feedback data - not available via Pendo API" />
+              </div>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -1201,7 +1264,10 @@ export const ReportDetails: React.FC = () => {
               {/* Collaboration Metrics */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Collaboration Metrics</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Collaboration Metrics</span>
+                    <DataQualityBadge type="mock" tooltip="Simulated collaboration data" />
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -1229,7 +1295,10 @@ export const ReportDetails: React.FC = () => {
 
           {/* Performance Section */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Performance Metrics</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-gray-900">Performance Metrics</h2>
+              <DataQualityBadge type="mock" tooltip="Simulated performance metrics" />
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -1298,7 +1367,10 @@ export const ReportDetails: React.FC = () => {
 
           {/* Insights Section */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">AI-Powered Insights</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-gray-900">AI-Powered Insights</h2>
+              <DataQualityBadge type="mock" tooltip="Simulated AI insights and recommendations" />
+            </div>
             {/* AI Summary Placeholder */}
             <Card className="border-dashed border-blue-200 bg-blue-50">
               <CardHeader>
@@ -1458,9 +1530,12 @@ export const ReportDetails: React.FC = () => {
             {/* Geographic Distribution */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <GlobeAltIcon className="h-5 w-5 mr-2 text-blue-600" />
-                  Geographic Insights
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <GlobeAltIcon className="h-5 w-5 mr-2 text-blue-600" />
+                    Geographic Insights
+                  </span>
+                  <DataQualityBadge type="mock" tooltip="Simulated geographic distribution data" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
