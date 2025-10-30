@@ -1598,17 +1598,17 @@ class PendoAPIClient {
           pipeline: [
             {
               source: {
-                pageEvents: null,
+                pageEvents: {
+                  pageId: id  // Filter at source level for efficiency
+                },
                 timeSeries: {
-                  first: startTime,
-                  count: _daysBack,
+                  first: "now()",        // Use now() expression
+                  count: -_daysBack,     // Negative count looks backward
                   period: "dayRange"
                 }
               }
-            },
-            {
-              filter: `pageId == "${id}"`
             }
+            // No filter step needed - already filtered at source
           ],
           requestId: `page_totals_${Date.now()}`
         }
@@ -1659,17 +1659,17 @@ class PendoAPIClient {
           pipeline: [
             {
               source: {
-                pageEvents: null,
+                pageEvents: {
+                  pageId: id  // Filter at source level
+                },
                 timeSeries: {
-                  first: startTime,
-                  count: days,
+                  first: "now()",
+                  count: -days,  // Negative count looks backward
                   period: "dayRange"
                 }
               }
-            },
-            {
-              filter: `pageId == "${id}"`
             }
+            // No filter needed - already filtered at source
           ],
           requestId: `page_timeseries_${Date.now()}`
         }
@@ -1910,16 +1910,15 @@ class PendoAPIClient {
                 [
                   {
                     source: {
-                      pageEvents: null,
+                      pageEvents: {
+                        pageId: pageId  // Filter at source level
+                      },
                       timeSeries: {
-                        first: startTime,
-                        count: 90,
+                        first: "now()",
+                        count: -90,  // Negative count looks backward
                         period: "dayRange"
                       }
                     }
-                  },
-                  {
-                    filter: `pageId == "${pageId}"`
                   },
                   {
                     identified: "visitorId"
@@ -2020,16 +2019,15 @@ class PendoAPIClient {
                 [
                   {
                     source: {
-                      pageEvents: null,
+                      pageEvents: {
+                        pageId: pageId  // Filter at source level
+                      },
                       timeSeries: {
-                        first: startTime,
-                        count: 90,
+                        first: "now()",
+                        count: -90,  // Negative count looks backward
                         period: "dayRange"
                       }
                     }
-                  },
-                  {
-                    filter: `pageId == "${pageId}"`
                   },
                   {
                     identified: "accountId"
@@ -2132,16 +2130,15 @@ class PendoAPIClient {
           pipeline: [
             {
               source: {
-                pageEvents: null,
+                pageEvents: {
+                  pageId: pageId  // Filter at source level
+                },
                 timeSeries: {
-                  first: startTime,
-                  count: days,
+                  first: "now()",
+                  count: -days,  // Negative count looks backward
                   period: "dayRange"
                 }
               }
-            },
-            {
-              filter: `pageId == "${pageId}"`
             },
             {
               sort: ["-day"]
