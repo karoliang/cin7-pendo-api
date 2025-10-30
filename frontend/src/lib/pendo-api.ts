@@ -425,80 +425,29 @@ class PendoAPIClient {
   // Guide Analytics - Complete Real Data Implementation
   async getGuideById(id: string): Promise<Guide> {
     try {
-      console.log(`🔍 Fetching guide with ID: ${id}`);
-      console.log(`🌐 Making request to: ${PENDO_BASE_URL}/api/v1/guide/${id}`);
+      console.log(`🔍 Fetching guide metadata for ID: ${id}`);
 
-      // First try individual guide endpoint
-      try {
-        const response = await this.request<PendoGuideResponse>(`/api/v1/guide/${id}`);
-        console.log(`✅ Successfully fetched guide: ${response.name || 'No name'}`);
-        return this.transformGuide(response);
-      } catch (individualError) {
-        console.warn(`⚠️ Individual guide endpoint failed, trying list approach...`);
-        console.warn(`📋 Individual endpoint error: ${individualError.message}`);
+      // NOTE: Pendo API does NOT support GET /api/v1/guide/:id endpoint (always returns 404)
+      // We must fetch from the list endpoint instead
+      const guides = await this.request<PendoGuideResponse[]>('/api/v1/guide', { limit: 1000 });
+      console.log(`📊 Retrieved ${guides.length} total guides from Pendo`);
 
-        // Enhanced fallback strategy with multiple attempts
-        const fallbackStrategies = [
-          { name: 'Large limit fetch', params: { limit: 1000 } },
-          { name: 'Medium limit fetch', params: { limit: 500 } },
-          { name: 'Small limit fetch', params: { limit: 100 } },
-          { name: 'No limit fetch', params: {} }
-        ];
-
-        for (const strategy of fallbackStrategies) {
-          try {
-            console.log(`🔄 Trying fallback strategy: ${strategy.name}`);
-            const guides = await this.request<PendoGuideResponse[]>('/api/v1/guide', strategy.params);
-            console.log(`📊 Retrieved ${guides.length} guides from list`);
-
-            // Log available guides for debugging
-            if (guides.length > 0) {
-              console.log('📋 Available guides (first 10):');
-              guides.slice(0, 10).forEach((guide: PendoGuideResponse, index: number) => {
-                console.log(`  ${index + 1}. ID: ${guide.id}, Name: "${guide.name}", State: ${guide.state}`);
-              });
-
-              const guide = guides.find(g => g.id === id);
-              if (guide) {
-                console.log(`✅ Successfully found guide in list (${strategy.name}): ${guide.name || 'No name'}`);
-                return this.transformGuide(guide);
-              }
-            }
-
-            console.log(`🔍 Guide ${id} not found in ${strategy.name}`);
-          } catch (strategyError) {
-            console.log(`❌ Fallback strategy failed: ${strategy.name} - ${strategyError.message}`);
-            continue;
-          }
-        }
-
-        // If all strategies fail, try to find similar guide IDs
-        console.log(`🔍 Trying to find similar guide IDs...`);
-        const allGuides = await this.request<PendoGuideResponse[]>('/api/v1/guide', { limit: 100 });
-        const similarGuides = allGuides.filter(g =>
-          g.id.includes(id.substring(0, 10)) ||
-          id.includes(g.id.substring(0, 10))
-        );
-
-        if (similarGuides.length > 0) {
-          console.log(`💡 Found similar guide IDs that might be relevant:`);
-          similarGuides.forEach((guide: PendoGuideResponse) => {
-            console.log(`   Similar: ${guide.id} - "${guide.name}"`);
-          });
-        }
-
-        throw new Error(`Guide ${id} not found in Pendo system after trying all approaches`);
+      const guide = guides.find(g => g.id === id);
+      if (guide) {
+        console.log(`✅ Found guide: "${guide.name}" (${guide.state})`);
+        return this.transformGuide(guide);
       }
+
+      // Guide not found - provide helpful debug info
+      console.error(`❌ Guide ${id} not found in ${guides.length} available guides`);
+      console.log(`📋 Available guide IDs (first 10):`);
+      guides.slice(0, 10).forEach((g: PendoGuideResponse, i: number) => {
+        console.log(`  ${i + 1}. ${g.id} - "${g.name}" (${g.state})`);
+      });
+
+      throw new Error(`Guide ${id} not found. Check console for available guide IDs.`);
     } catch (error) {
       console.error(`❌ Error fetching guide ${id}:`, error);
-      if (error instanceof Error && error.message.includes('404')) {
-        console.error(`🚨 Guide ${id} not found (404 error). This could mean:`);
-        console.error(`   1. The guide ID doesn't exist in your Pendo instance`);
-        console.error(`   2. The guide exists but isn't accessible via API`);
-        console.error(`   3. The guide has been deleted or archived`);
-        console.error(`   4. API key doesn't have permission to access this guide`);
-        console.error(`   💡 Check the console output for available guide IDs`);
-      }
       throw error;
     }
   }
