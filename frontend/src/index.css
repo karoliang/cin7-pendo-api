@@ -99,3 +99,17 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* Override Polaris Page max-width to allow full 1440px width */
+.Polaris-Page {
+  max-width: 100% !important;
+}
+
+.Polaris-Page__Content {
+  max-width: 100% !important;
+}
+
+/* Ensure Polaris Page uses full available width */
+.Polaris-Page-Header {
+  max-width: 100% !important;
+}
