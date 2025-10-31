@@ -12,7 +12,7 @@ export interface Cin7CardProps extends Omit<PolarisCardProps, 'children'> {
 export const Cin7Card = React.forwardRef<HTMLDivElement, Cin7CardProps>(
   ({ className, children, ...props }, ref) => {
     return (
-      <div ref={ref} className={cn('polaris-card-wrapper h-full', className)}>
+      <div ref={ref} className={cn('polaris-card-wrapper', className)} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <PolarisCard {...props}>
           <div className="h-full flex flex-col">
             {children}

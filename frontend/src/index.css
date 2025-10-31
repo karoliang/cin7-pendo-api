@@ -92,3 +92,10 @@ body {
   color: rgb(21 21 21);
   background-color: rgb(255 255 255);
 }
+
+/* Force Polaris Card to stretch to full height in flex containers */
+.polaris-card-wrapper > * {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
