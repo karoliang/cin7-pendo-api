@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Dashboard } from '@/pages/Dashboard';
 import { DataTables } from '@/pages/DataTables';
 import { ReportDetails } from '@/pages/ReportDetails';
@@ -17,7 +17,7 @@ function RouteDebugger() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <>
       <RouteDebugger />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -25,7 +25,7 @@ function App() {
         <Route path="/tables" element={<DataTables />} />
         <Route path="/report/:type/:id" element={<ReportDetails />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 

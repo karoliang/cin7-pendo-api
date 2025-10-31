@@ -29,8 +29,14 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
     e.preventDefault();
     e.stopPropagation();
     console.log('🔘 Data Tables button clicked - navigating to /tables');
-    navigate('/tables', { replace: false });
-  }, [navigate]);
+    console.log('Current location before navigate:', location.pathname);
+    try {
+      navigate('/tables', { replace: false });
+      console.log('✅ navigate() called successfully');
+    } catch (error) {
+      console.error('❌ navigate() failed:', error);
+    }
+  }, [navigate, location]);
 
   // Base styles for navigation buttons
   const baseStyles = 'inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer';
