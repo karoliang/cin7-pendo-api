@@ -776,11 +776,11 @@ export const ReportDetails: React.FC = () => {
                 <DataQualityBadge type="real" tooltip="Real frustration metrics from Pendo page events (rage clicks, dead clicks, U-turns, error clicks)" />
               </div>
 
-              {/* Summary KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+              {/* Summary KPI Cards - Equal Height */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-stretch">
+                <Card className="h-full">
+                  <CardContent className="p-6 h-full flex items-center">
+                    <div className="flex items-center justify-between w-full">
                       <div>
                         <p className="text-sm font-medium text-gray-600">Rage Clicks</p>
                         <p className="text-2xl font-bold text-red-900">
@@ -792,9 +792,9 @@ export const ReportDetails: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+                <Card className="h-full">
+                  <CardContent className="p-6 h-full flex items-center">
+                    <div className="flex items-center justify-between w-full">
                       <div>
                         <p className="text-sm font-medium text-gray-600">Dead Clicks</p>
                         <p className="text-2xl font-bold text-orange-900">
@@ -806,9 +806,9 @@ export const ReportDetails: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+                <Card className="h-full">
+                  <CardContent className="p-6 h-full flex items-center">
+                    <div className="flex items-center justify-between w-full">
                       <div>
                         <p className="text-sm font-medium text-gray-600">U-Turns</p>
                         <p className="text-2xl font-bold text-yellow-900">
@@ -820,9 +820,9 @@ export const ReportDetails: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+                <Card className="h-full">
+                  <CardContent className="p-6 h-full flex items-center">
+                    <div className="flex items-center justify-between w-full">
                       <div>
                         <p className="text-sm font-medium text-gray-600">Error Clicks</p>
                         <p className="text-2xl font-bold text-red-900">
@@ -834,9 +834,9 @@ export const ReportDetails: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+                <Card className="h-full">
+                  <CardContent className="p-6 h-full flex items-center">
+                    <div className="flex items-center justify-between w-full">
                       <div>
                         <p className="text-sm font-medium text-gray-600">Frustration Rate</p>
                         <p className="text-2xl font-bold text-purple-900">
@@ -1061,13 +1061,13 @@ export const ReportDetails: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 {/* Pie Chart */}
-                <Card>
-                  <CardHeader>
+                <Card className="flex flex-col h-full">
+                  <CardHeader className="flex-shrink-0">
                     <CardTitle>Visitors by Region</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="flex-1">
                     <ReportPieChart
                       data={(data as ComprehensivePageData).geographicDistribution!.slice(0, 8).map(geo => ({
                         name: `${geo.region}, ${geo.country}`,
@@ -1080,11 +1080,11 @@ export const ReportDetails: React.FC = () => {
                 </Card>
 
                 {/* Table */}
-                <Card>
-                  <CardHeader>
+                <Card className="flex flex-col h-full">
+                  <CardHeader className="flex-shrink-0">
                     <CardTitle>Top Regions by Engagement</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="flex-1">
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
@@ -1121,13 +1121,13 @@ export const ReportDetails: React.FC = () => {
                 <DataQualityBadge type="real" tooltip="Real device, OS, and browser data parsed from userAgent strings" />
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 {/* Device Type Pie Chart */}
-                <Card>
-                  <CardHeader>
+                <Card className="flex flex-col h-full">
+                  <CardHeader className="flex-shrink-0">
                     <CardTitle>Users by Device Type</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="flex-1">
                     <ReportPieChart
                       data={(() => {
                         const deviceGroups = new Map();
@@ -1145,11 +1145,11 @@ export const ReportDetails: React.FC = () => {
                 </Card>
 
                 {/* Browser Pie Chart */}
-                <Card>
-                  <CardHeader>
+                <Card className="flex flex-col h-full">
+                  <CardHeader className="flex-shrink-0">
                     <CardTitle>Users by Browser</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="flex-1">
                     <ReportPieChart
                       data={(() => {
                         const browserGroups = new Map();
