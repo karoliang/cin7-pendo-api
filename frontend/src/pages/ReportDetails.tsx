@@ -886,9 +886,9 @@ export const ReportDetails: React.FC = () => {
             </div>
           )}
 
-          {/* POSITION 6: Top Visitors & Top Accounts Tables - Equal Height */}
+          {/* POSITION 6: Top Visitors & Top Accounts Tables - Full Width Stacked */}
           {type === 'pages' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <div className="grid grid-cols-1 gap-6 items-stretch">
               {/* Top Visitors */}
               <Card className="flex flex-col h-full">
                 <CardHeader className="flex-shrink-0">
