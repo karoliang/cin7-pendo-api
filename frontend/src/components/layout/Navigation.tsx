@@ -12,29 +12,18 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
   const isDashboard = location.pathname === '/' || location.pathname === '/dashboard';
   const isDataTables = location.pathname === '/tables';
 
-  console.log('🧭 Navigation render:', {
-    pathname: location.pathname,
-    isDashboard,
-    isDataTables
-  });
-
   const handleDashboardClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('🔘 Dashboard button clicked - navigating to /dashboard');
     navigate('/dashboard', { replace: false });
   }, [navigate]);
 
   const handleTablesClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('🔘 Data Tables button clicked - navigating to /tables');
-    console.log('Current location before navigate:', location.pathname);
-
-    // Try direct window navigation as workaround for React Router v7 issue
-    console.log('🔄 Using window.location.href as workaround');
+    // Workaround: Use window.location for React Router v7 navigation issue
     window.location.href = '/tables';
-  }, [location]);
+  }, []);
 
   // Base styles for navigation buttons
   const baseStyles = 'inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer';
