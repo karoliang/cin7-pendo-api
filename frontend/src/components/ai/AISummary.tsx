@@ -129,7 +129,6 @@ export const AISummary: React.FC<AISummaryProps> = ({
           {/* Prominent spinner for AI generation */}
           <div className="flex flex-col items-center justify-center py-8">
             <InlineSpinner message="AI is generating insights..." size="md" />
-            <p className="text-xs text-purple-600 mt-4">This may take a few moments</p>
           </div>
 
           {/* Skeleton lines */}
