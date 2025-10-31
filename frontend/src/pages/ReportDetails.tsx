@@ -244,7 +244,9 @@ export const ReportDetails: React.FC = () => {
   }, [data, type, currentPage, pageSize]);
 
   const handleRecordingClick = (recordingId: string, visitorId: string, date: string) => {
+    console.log('🎬 Recording clicked:', { recordingId, visitorId, date });
     setSelectedRecording({ recordingId, visitorId, date });
+    console.log('✅ Selected recording state updated');
   };
 
   if (isLoading) {
