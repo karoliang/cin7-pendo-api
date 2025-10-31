@@ -15,8 +15,8 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
 
   return (
     <div className={className}>
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex gap-2 py-2">
+      <div className="px-4 sm:px-6 lg:px-8" style={{ maxWidth: '1440px', margin: '0 auto' }}>
+        <div className="flex gap-2 py-3 items-center">
           <Cin7Button
             variant={isDashboard ? 'primary' : 'plain'}
             onClick={() => navigate('/dashboard')}
