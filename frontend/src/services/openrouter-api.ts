@@ -79,7 +79,10 @@ const DEFAULT_MODEL = (import.meta.env.VITE_AI_MODEL as OpenRouterModel) || 'ant
 
 // ===== PROMPT TEMPLATES =====
 
-const SYSTEM_PROMPT = `You are an expert data analyst specializing in product analytics and user behavior insights. Your role is to analyze Pendo analytics data and provide clear, actionable insights for product managers and executives.
+// Expert mode toggle - can be controlled via environment variable or user setting
+const EXPERT_MODE = import.meta.env.VITE_AI_EXPERT_MODE !== 'false'; // Default to true
+
+const SYSTEM_PROMPT_STANDARD = `You are an expert data analyst specializing in product analytics and user behavior insights. Your role is to analyze Pendo analytics data and provide clear, actionable insights for product managers and executives.
 
 Guidelines:
 - Be concise yet comprehensive
@@ -89,7 +92,35 @@ Guidelines:
 - Focus on business impact
 - Structure insights logically with bullet points`;
 
-const getReportPromptTemplate = (type: string, data: ReportDataForSummary): string => {
+const SYSTEM_PROMPT_EXPERT = `You are a senior product analytics consultant with 15+ years of experience analyzing user behavior, product adoption, and digital experience optimization. You've advised Fortune 500 companies and high-growth startups on data-driven product strategy.
+
+Your analysis style:
+- Lead with a compelling narrative that tells the story behind the data
+- Connect metrics to business outcomes and strategic implications
+- Benchmark against industry standards (SaaS: 40-60% feature adoption, 25-35% guide completion, 2-3 min avg session)
+- Identify causal relationships and root causes, not just correlations
+- Quantify impact and prioritize recommendations by ROI
+- Use analogies and metaphors to make complex patterns accessible
+- Be opinionated but evidence-based in your conclusions
+- Think like a McKinsey consultant presenting to a CEO
+
+Format every response with this structure:
+📊 Executive Summary - One powerful sentence capturing the key finding and its business impact
+🔍 Deep Dive Analysis - 3-5 insights with context, interpretation, and implications
+⚡ Strategic Recommendations - Prioritized actions with impact/effort/timeline
+🎯 Success Metrics - KPIs to track progress`;
+
+const SYSTEM_PROMPT = EXPERT_MODE ? SYSTEM_PROMPT_EXPERT : SYSTEM_PROMPT_STANDARD;
+
+const getReportPromptTemplate = (type: string, data: ReportDataForSummary, expertMode = EXPERT_MODE): string => {
+  if (expertMode) {
+    return getExpertPromptTemplate(type, data);
+  }
+  return getStandardPromptTemplate(type, data);
+};
+
+// Standard prompts (original, concise format)
+const getStandardPromptTemplate = (type: string, data: ReportDataForSummary): string => {
   const templates = {
     guides: `Analyze this Pendo Guide analytics data and provide:
 1. Overall Performance Summary (2-3 sentences)
@@ -147,6 +178,377 @@ Metrics:
 ${formatMetrics(data.metrics)}
 
 ${data.trends ? `\nTrends:\n${formatTrends(data.trends)}` : ''}`,
+  };
+
+  return templates[type as keyof typeof templates] || templates.guides;
+};
+
+// Expert prompts (enhanced storytelling with deep analysis)
+const getExpertPromptTemplate = (type: string, data: ReportDataForSummary): string => {
+  const templates = {
+    guides: `You are analyzing in-app guide performance for a critical user onboarding initiative. This guide represents hundreds of hours of UX research, design, and development investment. The executive team wants to know: Is this guide driving the intended behavior change?
+
+📋 GUIDE CONTEXT
+Name: ${data.name}
+Type: ${data.type}
+Analysis Period: ${data.period?.start} to ${data.period?.end}
+
+📊 PERFORMANCE DATA
+${formatMetrics(data.metrics)}
+${data.trends ? `\n📈 TREND SIGNALS:\n${formatTrends(data.trends)}` : ''}
+${data.topInsights ? `\n💡 PRELIMINARY OBSERVATIONS:\n${data.topInsights.map(i => `- ${i}`).join('\n')}` : ''}
+
+🎯 YOUR ANALYSIS MISSION:
+Tell the story of this guide's performance. Start with a hook that captures attention - is this a success story, a warning sign, or an optimization opportunity?
+
+📊 EXECUTIVE SUMMARY
+Write one powerful sentence that captures:
+- The guide's current state (performing above/below expectations)
+- The key metric that matters most (completion rate, engagement, drop-off)
+- The business impact (users successfully onboarded, revenue at risk, efficiency gained)
+
+Example: "This onboarding guide is achieving a 45% completion rate - 15 points above industry benchmark - but losing 30% of users at step 3, suggesting a critical friction point that's costing us ~150 activated users per month."
+
+🔍 DEEP DIVE ANALYSIS (3-5 insights)
+For each insight, follow this pattern:
+• [DATA POINT] → [INTERPRETATION] → [IMPLICATION]
+
+Consider:
+- Completion rate vs. industry benchmark (25-35% is typical for multi-step guides)
+- Drop-off patterns: Where and why are users leaving? Is it intentional (guide completed task) or frustration?
+- Engagement rate: Are users actually reading or just clicking through?
+- Step analysis: Which steps have highest drop-off? What makes them different?
+- Timing: Are users seeing this at the right moment in their journey?
+- User segmentation clues: Do metrics suggest different user cohorts are experiencing this differently?
+
+Connect the dots:
+- "The 60% drop-off at step 4 coincides with asking users to integrate a third-party tool - this suggests the integration complexity is overwhelming new users who haven't yet experienced core product value."
+
+⚡ STRATEGIC RECOMMENDATIONS (Prioritized by impact)
+For each recommendation, specify:
+
+1. [ACTION ITEM]
+   - Impact: [High/Medium/Low]
+   - Effort: [Low/Medium/High]
+   - Timeline: [Quick win <1 week / Short-term 2-4 weeks / Strategic 1-3 months]
+   - Expected Outcome: [Specific metric improvement, e.g., "Increase completion rate from 45% to 55%"]
+   - Why This Works: [Root cause this addresses]
+
+2. [ACTION ITEM]
+   - ROI Estimate: [Revenue impact, efficiency gain, or risk mitigation]
+   - Dependencies: [What's needed - engineering, design, content, data]
+   - Risk If Not Addressed: [What happens if we ignore this]
+
+🎯 SUCCESS METRICS TO TRACK
+Define 2-3 KPIs that will measure improvement:
+- Primary: [e.g., "Completion rate reaches 50%+"]
+- Secondary: [e.g., "Step 3 drop-off reduces to <15%"]
+- Leading indicator: [e.g., "Average time per step decreases 20%"]
+
+Remember: Your audience includes the CPO, Head of Product, and UX leadership. They need to make a decision: continue, optimize, or sunset this guide. Give them the insight to decide confidently.`,
+
+    features: `You are conducting a feature adoption analysis for a product capability that the engineering team invested significant resources to build. Leadership wants to understand: Is this feature delivering on its promise, or is it underutilized potential?
+
+🛠️ FEATURE CONTEXT
+Name: ${data.name}
+Type: ${data.type}
+Analysis Period: ${data.period?.start} to ${data.period?.end}
+
+📊 USAGE DATA
+${formatMetrics(data.metrics)}
+${data.trends ? `\n📈 TREND SIGNALS:\n${formatTrends(data.trends)}` : ''}
+
+🎯 YOUR ANALYSIS MISSION:
+Craft a narrative that explains this feature's journey from launch to current state. Begin with a compelling insight about whether this feature has found product-market fit.
+
+📊 EXECUTIVE SUMMARY
+Write one compelling sentence that captures:
+- Adoption status (breakthrough, emerging, stagnant, or at-risk)
+- The headline metric (adoption rate, usage frequency, or retention)
+- Business implications (revenue driver, efficiency multiplier, or investment needing course correction)
+
+Example: "This automation feature has achieved 47% adoption among active users - surpassing our 40% target - but showing a concerning 3-week usage cliff where 40% of early adopters churned, signaling a value realization gap."
+
+🔍 DEEP DIVE ANALYSIS (3-5 insights)
+For each insight, unpack the story:
+• [METRIC] → [CONTEXT] → [CAUSAL FACTOR] → [STRATEGIC IMPLICATION]
+
+Analyze through multiple lenses:
+
+1. ADOPTION TRAJECTORY
+- Adoption rate vs. benchmark (SaaS standard: 40-60% for core features, 15-25% for advanced)
+- Is adoption accelerating, plateauing, or declining?
+- What does the adoption curve shape tell us? (Rapid = strong value prop, Slow = discoverability/positioning issue)
+
+2. ENGAGEMENT DEPTH
+- Usage frequency: Are users adopting then abandoning, or building habits?
+- Stickiness index: DAU/MAU ratio (good = >20%)
+- Power user concentration: Are 20% of users driving 80% of usage? (Could indicate niche appeal)
+
+3. RETENTION SIGNALS
+- Retention rate cohort analysis: Are Week 1 adopters still using in Week 4?
+- Churn triggers: At what point do users stop using this feature?
+- Correlation with overall product retention: Does feature usage predict account retention?
+
+4. USER BEHAVIOR PATTERNS
+- Usage frequency patterns: Daily habit vs. occasional tool vs. one-time use?
+- Feature pairing: What do users do before/after using this feature?
+- Abandonment clues: High adoption but low frequency suggests friction or unmet expectations
+
+Example insight:
+"The 68% adoption rate looks strong on surface, but the 1.2x/week usage frequency is well below our 3-5x target for a 'workflow essential' feature. This suggests users see it as a nice-to-have supplement rather than a must-have tool - likely because the 5-step setup process creates friction that delays time-to-value."
+
+⚡ STRATEGIC RECOMMENDATIONS (Prioritized by ROI)
+Structure each recommendation as a mini business case:
+
+1. [OPTIMIZATION STRATEGY]
+   - Impact: [High/Medium/Low] - Quantify if possible (e.g., "Could unlock 15% more adoption = 450 new users")
+   - Effort: [Low/Medium/High] - Be specific (e.g., "2 sprint story points, design + 1 engineer-week")
+   - Timeline: [When can this ship?]
+   - Expected Outcome: [Target metric movement with confidence interval]
+   - Why This Works: [Root cause or user psychology this leverages]
+   - Quick Win or Foundation: [Is this a fast improvement or strategic investment?]
+
+2. [POSITIONING/DISCOVERABILITY PLAY]
+   - Current State: [What's broken or missing]
+   - Proposed Change: [Specific tactic]
+   - Success Looks Like: [Measurable outcome]
+   - Risk/Tradeoff: [What we might lose or complicate]
+
+3. [PRODUCT/UX ENHANCEMENT]
+   - Problem This Solves: [User pain point or friction]
+   - User Segment Impact: [Who benefits most]
+   - Competitive Context: [How this compares to alternatives]
+
+🎯 SUCCESS METRICS TO MONITOR
+Define your north star and supporting indicators:
+- North Star: [Primary metric that signals feature success, e.g., "40%+ adoption maintained over 3 months"]
+- Adoption: [New user activation target]
+- Engagement: [Usage frequency goal]
+- Retention: [Week 4 retention benchmark]
+- Leading Indicators: [Early signals that predict success]
+
+📊 BENCHMARKING CONTEXT
+Compare against:
+- Industry standards for similar feature types
+- This product's other features (relative performance)
+- Initial projections/goals (meeting expectations?)
+
+Your audience is the product trio (PM, Design, Engineering) plus VP of Product. They need to prioritize: double down, optimize, or deprioritize. Make the path forward crystal clear.`,
+
+    pages: `You are analyzing page-level engagement for a critical user touchpoint. This page represents a key moment in the user journey where they make decisions, complete tasks, or experience product value. The UX and product teams need to understand: Is this page facilitating or frustrating users?
+
+🌐 PAGE CONTEXT
+Page: ${data.name}
+URL: ${data.metrics.url || 'N/A'}
+Analysis Period: ${data.period?.start} to ${data.period?.end}
+
+📊 ENGAGEMENT DATA
+${formatMetrics(data.metrics)}
+${data.trends ? `\n📈 TREND SIGNALS:\n${formatTrends(data.trends)}` : ''}
+
+🎯 YOUR ANALYSIS MISSION:
+Tell the story of the user experience on this page. Open with a narrative hook that captures whether this page is a strength, a bottleneck, or a hidden opportunity in the user journey.
+
+📊 EXECUTIVE SUMMARY
+Write one vivid sentence that captures:
+- Page health status (high-performing hub, conversion bottleneck, or engagement dead-zone)
+- The most telling metric (bounce rate, time on page, conversion rate, or frustration signals)
+- Business impact (revenue influenced, user satisfaction affected, efficiency gained/lost)
+
+Example: "This checkout page is experiencing a critical 58% exit rate - 23 points above our 35% target - costing an estimated $180K in monthly lost revenue, with frustration metrics (127 rage clicks/day) pinpointing the payment form as the breaking point."
+
+🔍 DEEP DIVE ANALYSIS (3-5 insights)
+Dissect the user experience through multiple dimensions:
+• [BEHAVIOR PATTERN] → [UNDERLYING CAUSE] → [USER PSYCHOLOGY] → [BUSINESS IMPACT]
+
+Key areas to explore:
+
+1. TRAFFIC & ENGAGEMENT QUALITY
+- Page views vs. unique visitors: High ratio = repeat visits (good for dashboards) or user confusion (bad for task flows)
+- Time on page context: Is this a quick-task page where 30s is success, or a content page where 3min is good?
+- Visit frequency distribution: Are users coming back intentionally or getting stuck in loops?
+
+2. CONVERSION & FLOW EFFICIENCY
+- Conversion rate benchmark: E-commerce checkout (2-3%), SaaS signup (25-40%), feature activation (40-60%)
+- Exit rate analysis: Where do users go when they leave? (Natural progression vs. abandonment)
+- Bounce rate implications: High bounce on landing page = traffic quality or value prop mismatch
+
+3. FRUSTRATION SIGNALS (Critical for UX)
+- Rage clicks: Repeatedly clicking non-responsive elements (suggests broken interactions)
+- Dead clicks: Clicking non-clickable elements (indicates misleading visual affordances)
+- U-turns: Quick back-button exits (user expected something different)
+- Error clicks: Triggering validation errors (form usability issues)
+- Frustration rate >10% is concerning, >20% is critical
+
+4. USER JOURNEY CONTEXT
+- Entry points: How do users arrive? (Direct, search, in-app navigation)
+- Exit destinations: Where do they go next? (Success paths vs. escape routes)
+- Page role: Is this a destination, waypoint, or decision point?
+
+Example insight:
+"The 4:23 average time on this settings page is 3x longer than our 1:30 benchmark, and combined with 34 dead clicks per day on non-interactive labels, this signals users are hunting for configuration options that should be more prominent. The 45% exit rate without making changes suggests users are giving up on their intended task - likely leading to support tickets or feature abandonment."
+
+⚡ STRATEGIC RECOMMENDATIONS (Prioritized by impact)
+Frame each recommendation as an investment thesis:
+
+1. [UX OPTIMIZATION]
+   - Problem: [Specific friction point with evidence]
+   - Solution: [Concrete design/interaction change]
+   - Impact: [High/Medium/Low] + quantified outcome (e.g., "Reduce exit rate by 15% = 300 more conversions/month")
+   - Effort: [Design, engineering, testing requirements]
+   - Timeline: [A/B test in 2 weeks / Ship in next sprint / Requires research first]
+   - Success Metric: [How we'll know it worked]
+   - Risk: [Potential downsides or edge cases]
+
+2. [CONTENT/INFORMATION ARCHITECTURE]
+   - Current State: [What's confusing or missing]
+   - Proposed Improvement: [Specific change to layout, copy, or hierarchy]
+   - User Benefit: [How this removes friction]
+   - Testing Approach: [How to validate before full rollout]
+
+3. [TECHNICAL/PERFORMANCE]
+   - Issue: [Speed, errors, broken interactions]
+   - User Impact: [How this affects experience and metrics]
+   - Fix Complexity: [Engineering effort required]
+   - ROI: [User experience improvement vs. development cost]
+
+🎯 SUCCESS METRICS TO TRACK
+Define measurement strategy:
+- Primary KPI: [Main metric to move, e.g., "Reduce exit rate from 58% to 35%"]
+- User Experience: [Frustration rate drops below 10%]
+- Efficiency: [Time on page decreases 30% while conversion increases]
+- Sentiment: [NPS or satisfaction score improvement]
+- Leading Indicators: [Early signals like reduced rage clicks]
+
+📊 COMPARATIVE CONTEXT
+Benchmark against:
+- Similar pages in your product (relative performance)
+- Industry standards for this page type (e.g., SaaS dashboard engagement, landing page conversion)
+- Historical performance (trending better or worse?)
+- Competitor experiences (if available)
+
+💡 DIAGNOSTIC QUESTIONS TO EXPLORE
+Raise strategic questions that guide next steps:
+- "Should we A/B test a simplified layout vs. optimize current design?"
+- "Is high time-on-page indicating engagement or confusion?"
+- "Do frustration signals correlate with specific user segments or browsers?"
+
+Your audience includes the UX Director, Product Manager, and Engineering Lead. They need to decide: quick fixes, major redesign, or deeper research. Give them confidence in the path forward.`,
+
+    reports: `You are analyzing report engagement for a data asset that the BI/analytics team created to empower stakeholders with insights. Leadership wants to know: Is this report being used as intended, driving decisions, and delivering ROI on analytics investment?
+
+📊 REPORT CONTEXT
+Report: ${data.name}
+Type: ${data.type}
+Analysis Period: ${data.period?.start} to ${data.period?.end}
+
+📈 ENGAGEMENT DATA
+${formatMetrics(data.metrics)}
+${data.trends ? `\n📈 TREND SIGNALS:\n${formatTrends(data.trends)}` : ''}
+
+🎯 YOUR ANALYSIS MISSION:
+Craft a narrative about this report's utility and impact. Lead with a compelling observation about whether this report has become an essential decision-making tool or is languishing as unused data potential.
+
+📊 EXECUTIVE SUMMARY
+Write one powerful sentence capturing:
+- Report utility status (mission-critical resource, emerging asset, underutilized potential, or candidate for deprecation)
+- Key engagement indicator (view frequency, user breadth, sharing activity, or satisfaction)
+- Organizational impact (decisions influenced, efficiency gained, or investment ROI)
+
+Example: "This sales performance dashboard has become the go-to resource for 78% of the revenue team (65 active users) with a 4.2/5.0 rating and 3.4x weekly views per user, but its 12% share rate suggests insights are staying siloed rather than driving cross-functional alignment."
+
+🔍 DEEP DIVE ANALYSIS (3-5 insights)
+Unpack the report's organizational role through multiple lenses:
+• [USAGE PATTERN] → [USER BEHAVIOR INTERPRETATION] → [ORGANIZATIONAL IMPLICATION] → [STRATEGIC OPPORTUNITY]
+
+Key dimensions to analyze:
+
+1. ADOPTION & REACH
+- Total views vs. unique viewers: High ratio = repeat utility (good) or confusion requiring multiple visits (concerning)
+- Viewer breadth: Is this reaching the intended audience? Too narrow = discoverability issue, Too broad = might be addressing diverse needs poorly
+- Growth trajectory: Is usage expanding (word-of-mouth value) or declining (losing relevance)?
+
+2. ENGAGEMENT DEPTH
+- View frequency per user: Daily habit (3-5x/week) = critical tool, Weekly (1x/week) = regular check-in, Monthly (<0.5x/week) = occasional reference
+- Time spent per view: Quick glance vs. deep analysis (context matters - executive dashboard should be scannable, analytical report should reward depth)
+- Return visitor rate: High (>60%) = sticky value, Low (<30%) = one-time-use or disappointing experience
+
+3. SOCIAL/COLLABORATIVE SIGNALS
+- Share rate: Industry benchmark ~8-15% for valuable reports
+- Low sharing: Insights might be obvious, irrelevant, or users don't trust data accuracy
+- High sharing: Report is influencing decisions and driving conversations
+- Download rate: Users want to manipulate data or present elsewhere
+
+4. SATISFACTION & QUALITY
+- Average rating context: >4.0 = strong, 3.5-4.0 = acceptable, <3.5 = needs improvement
+- Implicit satisfaction: Return rate, time spent, sharing activity
+- Trust signals: Are users making decisions based on this data?
+
+Example insight:
+"The 847 monthly views across just 23 unique users reveals a power-user pattern where the sales ops team (3-4 people) are checking this 5-8 times daily, while the broader 200-person revenue org isn't engaging. This suggests the report is operationally valuable but not strategically accessible - likely too complex or not addressing questions that managers actually need answered. The 2.8/5.0 rating reinforces that current users find it necessary but frustrating."
+
+⚡ STRATEGIC RECOMMENDATIONS (Prioritized by organizational impact)
+Structure each recommendation with business context:
+
+1. [CONTENT/DESIGN OPTIMIZATION]
+   - Current Gap: [What's missing, confusing, or irrelevant]
+   - Proposed Enhancement: [Specific change to metrics, visualizations, or filters]
+   - Target Outcome: [Engagement metric improvement + business decision quality]
+   - User Segment Impact: [Who benefits - execs, managers, analysts, operations]
+   - Effort: [BI developer time, data engineering needs, stakeholder input required]
+   - Timeline: [Quick iteration vs. major rebuild]
+
+2. [DISTRIBUTION/DISCOVERY STRATEGY]
+   - Problem: [Low awareness, wrong audience, or access friction]
+   - Solution: [Promotion tactics, embedding in workflows, email digests, Slack integration]
+   - Expected Impact: [Viewer expansion from X to Y users]
+   - Why This Matters: [Decisions being made without this data currently]
+
+3. [DATA/INSIGHTS ELEVATION]
+   - Observation: [Current report is raw data vs. synthesized insights]
+   - Enhancement: [Add benchmarks, trend arrows, anomaly detection, narrative summaries]
+   - Value Add: [Reduce time from data → insight → decision]
+   - Competitive Advantage: [How this accelerates business vs. competitors]
+
+4. [GOVERNANCE/MAINTENANCE]
+   - Issue: [Data freshness, accuracy concerns, or technical debt]
+   - Impact on Trust: [How this affects user confidence and adoption]
+   - Fix Strategy: [Automation, data quality checks, ownership assignment]
+   - ROI: [Improved utility vs. engineering investment]
+
+🎯 SUCCESS METRICS TO MONITOR
+Define report health indicators:
+- Adoption: [Target: X% of [audience segment] using monthly]
+- Engagement: [Target: Users viewing 2-3x/week on average]
+- Satisfaction: [Target: 4.0+ rating, <20% bounce rate]
+- Impact: [Leading indicator: Decisions made referencing report, projects launched from insights]
+- Efficiency: [Time saved vs. alternative reporting methods]
+
+📊 BENCHMARKING CONTEXT
+Compare against:
+- Other reports in your BI ecosystem (relative utility)
+- Industry standards:
+  - Executive dashboards: 5-10 views/week, 60%+ return rate
+  - Operational reports: Daily views by 80%+ of intended users
+  - Analytical deep-dives: Weekly/monthly views, high time-per-session
+- Original goals: Is this meeting the intent?
+
+💡 STRATEGIC QUESTIONS TO CONSIDER
+Prompt deeper thinking:
+- "Should this be 3 separate reports for different audiences vs. one complex report?"
+- "Is low engagement a signal that the business question has changed?"
+- "Could this report's insights be automated into alerts/notifications instead?"
+- "Are we measuring output (views) when we should measure outcome (decisions improved)?"
+
+🔴 RED FLAGS TO INVESTIGATE
+Call out concerning patterns:
+- Declining usage trend = losing relevance or replaced by alternative
+- Low share rate + high views = data isn't trust-worthy or actionable
+- High bounce rate = report doesn't match user expectations from title/description
+- Concentration in power users = not democratizing insights as intended
+
+Your audience includes the Chief Data Officer, BI Team Lead, and report stakeholders (sales, product, finance leaders). They need to decide: invest in expanding this asset, optimize for current users, or sunset and redirect resources. Make the strategic recommendation clear.`,
   };
 
   return templates[type as keyof typeof templates] || templates.guides;
