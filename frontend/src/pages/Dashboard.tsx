@@ -11,6 +11,7 @@ import { Cin7Button as Button } from '@/components/polaris';
 import { useDashboardOverview } from '@/hooks/usePendoData';
 import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
+import { InlineSpinner } from '@/components/ui/Spinner';
 
 // Define SearchFilters interface to match AdvancedSearch component
 interface SearchFilters {
@@ -256,6 +257,12 @@ export const Dashboard: React.FC = () => {
       }}
     >
       <div className="space-y-8">
+        {/* Loading Spinner - show on initial load */}
+        {isLoading && !guides && !features && !pages && !reports && (
+          <div className="flex justify-center items-center py-20">
+            <InlineSpinner message="Loading dashboard data..." size="lg" />
+          </div>
+        )}
 
         {/* Advanced Search */}
         <AdvancedSearch

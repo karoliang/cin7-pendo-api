@@ -36,6 +36,7 @@ import type {
   ComprehensivePageData,
   ComprehensiveReportData,
 } from '@/types/enhanced-pendo';
+import { InlineSpinner } from '@/components/ui/Spinner';
 
 // ===== TYPES =====
 
@@ -125,7 +126,14 @@ export const AISummary: React.FC<AISummaryProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          {/* Prominent spinner for AI generation */}
+          <div className="flex flex-col items-center justify-center py-8">
+            <InlineSpinner message="AI is generating insights..." size="md" />
+            <p className="text-xs text-purple-600 mt-4">This may take a few moments</p>
+          </div>
+
+          {/* Skeleton lines */}
+          <div className="space-y-3 mt-4">
             <div className="h-4 bg-purple-200 rounded animate-pulse w-full"></div>
             <div className="h-4 bg-purple-200 rounded animate-pulse w-5/6"></div>
             <div className="h-4 bg-purple-200 rounded animate-pulse w-4/6"></div>
