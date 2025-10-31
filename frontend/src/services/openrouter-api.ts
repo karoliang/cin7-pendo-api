@@ -31,8 +31,17 @@ import type {
 
 // ===== CONFIGURATION =====
 
+/**
+ * Determine if we should use the secure Netlify Function or direct API
+ * In production (deployed to Netlify), use the secure function
+ * In development, can use direct API with local env var
+ */
+const USE_NETLIFY_FUNCTION = import.meta.env.PROD || import.meta.env.VITE_USE_NETLIFY_FUNCTION === 'true';
+
 const DEFAULT_CONFIG: Required<Omit<OpenRouterConfig, 'apiKey' | 'appName' | 'appUrl'>> = {
-  baseUrl: 'https://openrouter.ai/api/v1',
+  baseUrl: USE_NETLIFY_FUNCTION
+    ? '/.netlify/functions/ai-summary' // Secure: Uses serverless function
+    : 'https://openrouter.ai/api/v1', // Dev only: Direct API call
   model: 'anthropic/claude-3.5-sonnet', // Recommended model for analytics
   timeout: 30000, // 30 seconds
   maxRetries: 2,
@@ -41,13 +50,10 @@ const DEFAULT_CONFIG: Required<Omit<OpenRouterConfig, 'apiKey' | 'appName' | 'ap
 /**
  * Get API key from environment variables
  *
- * SECURITY WARNING: API key is exposed in frontend code!
+ * SECURITY: In production, this returns empty string because we use Netlify Functions.
+ * The API key is stored securely in Netlify environment variables.
  *
- * TODO: Move this to backend environment variables:
- * 1. Create a backend endpoint: POST /api/ai/summary
- * 2. Store API key in backend .env file
- * 3. Update this service to call backend endpoint instead of OpenRouter API directly
- * 4. Add rate limiting and authentication to backend endpoint
+ * In development, you can optionally use VITE_OPENROUTER_API_KEY for local testing.
  */
 const getApiKey = (): string => {
   // Try to get from environment variables first
@@ -295,8 +301,13 @@ class OpenRouterAPIClient {
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`,
       };
+
+      // Only add Authorization header if NOT using Netlify Function
+      // (Netlify Function handles auth securely on the server)
+      if (!USE_NETLIFY_FUNCTION && this.config.apiKey) {
+        headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+      }
 
       // Add optional app identification headers for OpenRouter rankings
       if (this.config.appUrl) {
@@ -306,7 +317,12 @@ class OpenRouterAPIClient {
         headers['X-Title'] = this.config.appName;
       }
 
-      const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
+      // Determine endpoint based on whether we're using Netlify Function
+      const endpoint = USE_NETLIFY_FUNCTION
+        ? this.config.baseUrl // Netlify Function endpoint
+        : `${this.config.baseUrl}/chat/completions`; // Direct OpenRouter API
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -355,8 +371,12 @@ class OpenRouterAPIClient {
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`,
       };
+
+      // Only add Authorization header if NOT using Netlify Function
+      if (!USE_NETLIFY_FUNCTION && this.config.apiKey) {
+        headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+      }
 
       if (this.config.appUrl) {
         headers['HTTP-Referer'] = this.config.appUrl;
@@ -365,7 +385,12 @@ class OpenRouterAPIClient {
         headers['X-Title'] = this.config.appName;
       }
 
-      const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
+      // Determine endpoint based on whether we're using Netlify Function
+      const endpoint = USE_NETLIFY_FUNCTION
+        ? this.config.baseUrl // Netlify Function endpoint
+        : `${this.config.baseUrl}/chat/completions`; // Direct OpenRouter API
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers,
         body: JSON.stringify({
