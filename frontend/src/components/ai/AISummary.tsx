@@ -68,11 +68,11 @@ export const AISummary: React.FC<AISummaryProps> = ({
   reportType,
   reportData,
   additionalContext,
-  defaultExpanded = false,
+  defaultExpanded = true, // Always expanded by default
   className = '',
   onSummaryGenerated,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const [isExpanded, setIsExpanded] = useState(true); // Always start expanded
 
   const {
     summary,
@@ -180,24 +180,19 @@ export const AISummary: React.FC<AISummaryProps> = ({
 
   // Main render
   return (
-    <Card className={`border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50 transition-all duration-300 ${className}`}>
+    <Card className={`border-gray-200 bg-white transition-all duration-300 ${className}`}>
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <SparklesIcon className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg flex items-center gap-2">
-                AI-Powered Insights
-                <span className="text-xs font-normal text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">
-                  GLM-4
-                </span>
-              </CardTitle>
-              <CardDescription>
-                Intelligent analysis of your {getReportTypeName().toLowerCase()} performance
-              </CardDescription>
-            </div>
+          <div>
+            <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+              AI-Powered Insights
+              <span className="text-xs font-normal text-purple-600 bg-purple-50 px-2 py-0.5 rounded">
+                Claude 3.5 Sonnet
+              </span>
+            </CardTitle>
+            <CardDescription>
+              Strategic analysis of your {getReportTypeName().toLowerCase()} performance
+            </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -205,128 +200,45 @@ export const AISummary: React.FC<AISummaryProps> = ({
               size="sm"
               onClick={regenerate}
               disabled={isRegenerating}
-              className="text-purple-600 hover:bg-purple-100"
+              className="text-gray-600 hover:bg-gray-100"
               title="Regenerate summary"
             >
               <ArrowPathIcon className={`h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleExpanded}
-              className="text-purple-600 hover:bg-purple-100"
-            >
-              {isExpanded ? (
-                <ChevronUpIcon className="h-5 w-5" />
-              ) : (
-                <ChevronDownIcon className="h-5 w-5" />
-              )}
             </Button>
           </div>
         </div>
       </CardHeader>
 
-      {/* Collapsible Content */}
-      <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <CardContent className="space-y-6">
-          {/* Summary Section */}
-          {summary.summary && (
-            <div className="bg-white rounded-lg p-4 border border-purple-200 shadow-sm">
-              <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                <CpuChipIcon className="h-4 w-4 text-purple-600" />
-                Performance Summary
-              </h4>
-              <p className="text-gray-700 leading-relaxed">{summary.summary}</p>
-            </div>
-          )}
-
-          {/* Key Insights Section */}
-          {summary.insights && summary.insights.length > 0 && (
-            <div className="bg-white rounded-lg p-4 border border-blue-200 shadow-sm">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <LightBulbIcon className="h-4 w-4 text-blue-600" />
-                Key Insights
-              </h4>
-              <ul className="space-y-2">
-                {summary.insights.map((insight, index) => (
-                  <li key={index} className="flex items-start gap-2 text-gray-700">
-                    <CheckCircleIcon className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <span className="leading-relaxed">{insight}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Recommendations Section */}
-          {summary.recommendations && summary.recommendations.length > 0 && (
-            <div className="bg-white rounded-lg p-4 border border-green-200 shadow-sm">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <LightBulbIcon className="h-4 w-4 text-green-600" />
-                Recommendations
-              </h4>
-              <ul className="space-y-2">
-                {summary.recommendations.map((rec, index) => (
-                  <li key={index} className="flex items-start gap-2 text-gray-700">
-                    <span className="text-green-600 font-bold flex-shrink-0">{index + 1}.</span>
-                    <span className="leading-relaxed">{rec}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Metadata Footer */}
-          <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-purple-100">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <ClockIcon className="h-3 w-3" />
-                {summary.metadata.processingTime}ms
-              </span>
-              <span className="flex items-center gap-1">
-                <CpuChipIcon className="h-3 w-3" />
-                {summary.metadata.tokensUsed} tokens
-              </span>
-              <span className="text-gray-400">•</span>
-              <span>Model: {summary.metadata.model}</span>
-            </div>
-            <div className="text-gray-400">
-              {new Date(summary.metadata.generatedAt).toLocaleString()}
+      {/* Always Show Full Content */}
+      <CardContent className="space-y-4">
+        {/* Main Summary Content */}
+        {summary.summary && (
+          <div className="prose prose-sm max-w-none">
+            <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+              {summary.summary}
             </div>
           </div>
+        )}
 
-          {/* Security Warning */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-            <div className="flex items-start gap-2">
-              <ExclamationTriangleIcon className="h-4 w-4 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-yellow-800">
-                <span className="font-semibold">Development Mode:</span> API key is exposed in frontend code.
-                In production, move AI summarization to a secure backend endpoint.
-              </div>
-            </div>
+        {/* Metadata Footer */}
+        <div className="flex items-center justify-between text-xs text-gray-400 pt-4 border-t border-gray-100">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1">
+              <ClockIcon className="h-3 w-3" />
+              {summary.metadata.processingTime}ms
+            </span>
+            <span className="flex items-center gap-1">
+              <CpuChipIcon className="h-3 w-3" />
+              {summary.metadata.tokensUsed} tokens
+            </span>
+            <span className="text-gray-300">•</span>
+            <span>Model: {summary.metadata.model}</span>
           </div>
-        </CardContent>
-      </div>
-
-      {/* Collapsed Preview */}
-      {!isExpanded && summary.summary && (
-        <CardContent className="pt-0">
-          <div className="bg-white/50 rounded-lg p-3 border border-purple-100">
-            <p className="text-sm text-gray-600 line-clamp-2">{summary.summary}</p>
-            <button
-              onClick={toggleExpanded}
-              className="text-xs text-purple-600 hover:text-purple-700 font-medium mt-2 flex items-center gap-1"
-            >
-              Read more
-              <ChevronDownIcon className="h-3 w-3" />
-            </button>
+          <div className="text-gray-400">
+            {new Date(summary.metadata.generatedAt).toLocaleString()}
           </div>
-        </CardContent>
-      )}
+        </div>
+      </CardContent>
     </Card>
   );
 };

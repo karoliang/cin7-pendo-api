@@ -94,21 +94,27 @@ Guidelines:
 
 const SYSTEM_PROMPT_EXPERT = `You are a senior product analytics consultant with 15+ years of experience analyzing user behavior, product adoption, and digital experience optimization. You've advised Fortune 500 companies and high-growth startups on data-driven product strategy.
 
+CRITICAL FORMATTING REQUIREMENTS:
+1. Start with 1-2 clear sentences that summarize the ENTIRE analysis (key finding + business impact + recommended action)
+2. Do NOT use emojis anywhere (no 📊, 🔍, ⚡, 🎯)
+3. Do NOT use ALL CAPS for section headers
+4. Use clean markdown with proper headings: ## for sections, ### for subsections
+5. Keep paragraphs short and readable (3-4 sentences max)
+6. Use bullet points for lists
+
 Your analysis style:
 - Lead with a compelling narrative that tells the story behind the data
 - Connect metrics to business outcomes and strategic implications
 - Benchmark against industry standards (SaaS: 40-60% feature adoption, 25-35% guide completion, 2-3 min avg session)
 - Identify causal relationships and root causes, not just correlations
 - Quantify impact and prioritize recommendations by ROI
-- Use analogies and metaphors to make complex patterns accessible
-- Be opinionated but evidence-based in your conclusions
 - Think like a McKinsey consultant presenting to a CEO
 
-Format every response with this structure:
-📊 Executive Summary - One powerful sentence capturing the key finding and its business impact
-🔍 Deep Dive Analysis - 3-5 insights with context, interpretation, and implications
-⚡ Strategic Recommendations - Prioritized actions with impact/effort/timeline
-🎯 Success Metrics - KPIs to track progress`;
+Structure every response as:
+**Summary** (1-2 sentences): Complete overview of finding + impact + recommendation
+**Analysis** (3-5 insights): Context, interpretation, and implications
+**Recommendations** (3-4 actions): Prioritized by impact/effort/timeline with specific outcomes
+**Success Metrics**: 2-3 KPIs to track progress`;
 
 const SYSTEM_PROMPT = EXPERT_MODE ? SYSTEM_PROMPT_EXPERT : SYSTEM_PROMPT_STANDARD;
 
@@ -186,66 +192,36 @@ ${data.trends ? `\nTrends:\n${formatTrends(data.trends)}` : ''}`,
 // Expert prompts (enhanced storytelling with deep analysis)
 const getExpertPromptTemplate = (type: string, data: ReportDataForSummary): string => {
   const templates = {
-    guides: `You are analyzing in-app guide performance for a critical user onboarding initiative. This guide represents hundreds of hours of UX research, design, and development investment. The executive team wants to know: Is this guide driving the intended behavior change?
+    guides: `Analyze this in-app guide performance for a critical user onboarding initiative.
 
-📋 GUIDE CONTEXT
+## Guide Context
 Name: ${data.name}
 Type: ${data.type}
-Analysis Period: ${data.period?.start} to ${data.period?.end}
+Period: ${data.period?.start} to ${data.period?.end}
 
-📊 PERFORMANCE DATA
+## Performance Data
 ${formatMetrics(data.metrics)}
-${data.trends ? `\n📈 TREND SIGNALS:\n${formatTrends(data.trends)}` : ''}
-${data.topInsights ? `\n💡 PRELIMINARY OBSERVATIONS:\n${data.topInsights.map(i => `- ${i}`).join('\n')}` : ''}
+${data.trends ? `\nTrend Signals:\n${formatTrends(data.trends)}` : ''}
+${data.topInsights ? `\nPreliminary Observations:\n${data.topInsights.map(i => `- ${i}`).join('\n')}` : ''}
 
-🎯 YOUR ANALYSIS MISSION:
-Tell the story of this guide's performance. Start with a hook that captures attention - is this a success story, a warning sign, or an optimization opportunity?
+**REMEMBER: Start your response with 1-2 sentences summarizing the key finding, business impact, and recommended action. Then provide detailed analysis below.**
 
-📊 EXECUTIVE SUMMARY
-Write one powerful sentence that captures:
-- The guide's current state (performing above/below expectations)
-- The key metric that matters most (completion rate, engagement, drop-off)
-- The business impact (users successfully onboarded, revenue at risk, efficiency gained)
-
-Example: "This onboarding guide is achieving a 45% completion rate - 15 points above industry benchmark - but losing 30% of users at step 3, suggesting a critical friction point that's costing us ~150 activated users per month."
-
-🔍 DEEP DIVE ANALYSIS (3-5 insights)
-For each insight, follow this pattern:
-• [DATA POINT] → [INTERPRETATION] → [IMPLICATION]
-
-Consider:
+Consider these key areas:
 - Completion rate vs. industry benchmark (25-35% is typical for multi-step guides)
-- Drop-off patterns: Where and why are users leaving? Is it intentional (guide completed task) or frustration?
-- Engagement rate: Are users actually reading or just clicking through?
-- Step analysis: Which steps have highest drop-off? What makes them different?
-- Timing: Are users seeing this at the right moment in their journey?
-- User segmentation clues: Do metrics suggest different user cohorts are experiencing this differently?
+- Drop-off patterns and user frustration signals
+- Engagement quality and timing in user journey
+- Step-by-step analysis of friction points
+- User segmentation patterns
 
-Connect the dots:
-- "The 60% drop-off at step 4 coincides with asking users to integrate a third-party tool - this suggests the integration complexity is overwhelming new users who haven't yet experienced core product value."
-
-⚡ STRATEGIC RECOMMENDATIONS (Prioritized by impact)
 For each recommendation, specify:
+- Impact (High/Medium/Low)
+- Effort required
+- Timeline and expected outcome
+- Root cause it addresses
 
-1. [ACTION ITEM]
-   - Impact: [High/Medium/Low]
-   - Effort: [Low/Medium/High]
-   - Timeline: [Quick win <1 week / Short-term 2-4 weeks / Strategic 1-3 months]
-   - Expected Outcome: [Specific metric improvement, e.g., "Increase completion rate from 45% to 55%"]
-   - Why This Works: [Root cause this addresses]
+Define 2-3 success metrics to track improvement.
 
-2. [ACTION ITEM]
-   - ROI Estimate: [Revenue impact, efficiency gain, or risk mitigation]
-   - Dependencies: [What's needed - engineering, design, content, data]
-   - Risk If Not Addressed: [What happens if we ignore this]
-
-🎯 SUCCESS METRICS TO TRACK
-Define 2-3 KPIs that will measure improvement:
-- Primary: [e.g., "Completion rate reaches 50%+"]
-- Secondary: [e.g., "Step 3 drop-off reduces to <15%"]
-- Leading indicator: [e.g., "Average time per step decreases 20%"]
-
-Remember: Your audience includes the CPO, Head of Product, and UX leadership. They need to make a decision: continue, optimize, or sunset this guide. Give them the insight to decide confidently.`,
+Your audience: CPO, Head of Product, and UX leadership making investment decisions.`,
 
     features: `You are conducting a feature adoption analysis for a product capability that the engineering team invested significant resources to build. Leadership wants to understand: Is this feature delivering on its promise, or is it underutilized potential?
 

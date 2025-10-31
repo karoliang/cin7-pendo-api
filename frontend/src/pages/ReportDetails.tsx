@@ -498,7 +498,7 @@ export const ReportDetails: React.FC = () => {
         <AISummary
           reportType={type}
           reportData={data}
-          defaultExpanded={false}
+          defaultExpanded={true}
           className="mb-8"
         />
 
