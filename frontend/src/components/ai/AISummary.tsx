@@ -15,6 +15,7 @@
  */
 
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useAISummary } from '@/hooks/useAISummary';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -213,10 +214,22 @@ export const AISummary: React.FC<AISummaryProps> = ({
       <CardContent className="space-y-4">
         {/* Main Summary Content */}
         {summary.summary && (
-          <div className="prose prose-sm max-w-none">
-            <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+          <div className="prose prose-sm prose-gray max-w-none text-gray-800 leading-relaxed">
+            <ReactMarkdown
+              components={{
+                h1: ({node, ...props}) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-xl font-semibold mt-5 mb-3 text-gray-900" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-lg font-semibold mt-4 mb-2 text-gray-800" {...props} />,
+                p: ({node, ...props}) => <p className="mb-3 text-gray-700 leading-relaxed" {...props} />,
+                ul: ({node, ...props}) => <ul className="list-disc list-inside mb-3 space-y-1" {...props} />,
+                ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-3 space-y-1" {...props} />,
+                li: ({node, ...props}) => <li className="text-gray-700" {...props} />,
+                strong: ({node, ...props}) => <strong className="font-semibold text-gray-900" {...props} />,
+                em: ({node, ...props}) => <em className="italic" {...props} />,
+              }}
+            >
               {summary.summary}
-            </div>
+            </ReactMarkdown>
           </div>
         )}
 
