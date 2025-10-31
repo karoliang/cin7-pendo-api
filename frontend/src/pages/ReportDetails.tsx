@@ -913,16 +913,22 @@ export const ReportDetails: React.FC = () => {
                       {/* Real data from Pendo API */}
                       {((data as ComprehensivePageData).topVisitors && (data as ComprehensivePageData).topVisitors!.length > 0) ? (
                         <div className="space-y-1">
-                          {(data as ComprehensivePageData).topVisitors!.map((visitor, index) => (
-                            <div key={visitor.visitorId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
-                              <div className="text-blue-600 hover:underline cursor-pointer">
-                                {visitor.email || visitor.name || visitor.visitorId}
+                          {(data as ComprehensivePageData).topVisitors!.map((visitor, index) => {
+                            // Try to show the most user-friendly identifier
+                            const displayName = visitor.email || visitor.name || `Visitor ${visitor.visitorId}`;
+                            const isIdOnly = !visitor.email && !visitor.name;
+
+                            return (
+                              <div key={visitor.visitorId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
+                                <div className={`hover:underline cursor-pointer ${isIdOnly ? 'text-gray-600 font-mono text-xs' : 'text-blue-600'}`}>
+                                  {displayName}
+                                </div>
+                                <div className="text-right font-medium">
+                                  {visitor.viewCount.toLocaleString()}
+                                </div>
                               </div>
-                              <div className="text-right font-medium">
-                                {visitor.viewCount.toLocaleString()}
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       ) : (
                         <div className="py-4 text-center text-gray-500 text-sm">
@@ -960,11 +966,16 @@ export const ReportDetails: React.FC = () => {
                       {/* Real data from Pendo API */}
                       {((data as ComprehensivePageData).topAccounts && (data as ComprehensivePageData).topAccounts!.length > 0) ? (
                         <div className="space-y-1">
-                          {(data as ComprehensivePageData).topAccounts!.map((account, index) => (
-                            <div key={account.accountId || index} className="grid grid-cols-4 gap-4 py-2 text-sm border-b border-gray-100 items-center">
-                              <div className="text-purple-600 hover:underline cursor-pointer">
-                                {account.name || account.accountId}
-                              </div>
+                          {(data as ComprehensivePageData).topAccounts!.map((account, index) => {
+                            // Try to show the most user-friendly identifier
+                            const displayName = account.name || `Account ${account.accountId}`;
+                            const isIdOnly = !account.name;
+
+                            return (
+                              <div key={account.accountId || index} className="grid grid-cols-4 gap-4 py-2 text-sm border-b border-gray-100 items-center">
+                                <div className={`hover:underline cursor-pointer ${isIdOnly ? 'text-gray-600 font-mono text-xs' : 'text-purple-600'}`}>
+                                  {displayName}
+                                </div>
                               <div>
                                 {account.planlevel ? (
                                   <Badge
@@ -994,7 +1005,8 @@ export const ReportDetails: React.FC = () => {
                                 {account.viewCount.toLocaleString()}
                               </div>
                             </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       ) : (
                         <div className="py-4 text-center text-gray-500 text-sm">

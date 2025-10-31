@@ -2697,7 +2697,10 @@ class PendoAPIClient {
                     select: {
                       visitorId: "visitorId",
                       email: "metadata.auto.email",
-                      name: "metadata.agent.name"
+                      name: "metadata.agent.name",
+                      // Try multiple common name fields as fallback
+                      username: "metadata.agent.username",
+                      fullname: "metadata.agent.fullname"
                     }
                   }
                 ]
@@ -2728,8 +2731,8 @@ class PendoAPIClient {
           .slice(0, limit)
           .map(result => ({
             visitorId: String(result.visitorId || result[0]?.visitorId || 'unknown'),
-            email: result.email || result[1]?.email,
-            name: result.name || result[1]?.name,
+            email: (result.email || result[1]?.email) as string | undefined,
+            name: (result.name || result[1]?.name || result[1]?.fullname || result[1]?.username) as string | undefined,
             viewCount: Number(result.viewCount || result[0]?.viewCount || 0)
           }));
 
@@ -2807,6 +2810,9 @@ class PendoAPIClient {
                     select: {
                       accountId: "accountId",
                       name: "metadata.agent.name",
+                      // Try multiple common name fields as fallback
+                      companyname: "metadata.agent.companyname",
+                      accountname: "metadata.agent.accountname",
                       arr: "metadata.custom.arrannuallyrecurringrevenue",
                       planlevel: "metadata.custom.planlevel"
                     }
@@ -2839,9 +2845,9 @@ class PendoAPIClient {
           .slice(0, limit)
           .map(result => ({
             accountId: String(result.accountId || result[0]?.accountId || 'unknown'),
-            name: result.name || result[1]?.name,
+            name: (result.name || result[1]?.name || result[1]?.companyname || result[1]?.accountname) as string | undefined,
             arr: Number(result.arr || result[1]?.arr || 0),
-            planlevel: result.planlevel || result[1]?.planlevel,
+            planlevel: (result.planlevel || result[1]?.planlevel) as string | undefined,
             viewCount: Number(result.viewCount || result[0]?.viewCount || 0)
           }));
 
