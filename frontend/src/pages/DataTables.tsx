@@ -57,6 +57,8 @@ interface TableState {
 }
 
 export const DataTables: React.FC = () => {
+  console.log('📊 DataTables component rendering');
+
   const navigate = useNavigate();
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters } = useFilterStore();

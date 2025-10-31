@@ -1,12 +1,24 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Dashboard } from '@/pages/Dashboard';
 import { DataTables } from '@/pages/DataTables';
 import { ReportDetails } from '@/pages/ReportDetails';
 import './index.css';
+import { useEffect } from 'react';
+
+function RouteDebugger() {
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log('🚀 Route changed to:', location.pathname);
+  }, [location]);
+
+  return null;
+}
 
 function App() {
   return (
     <BrowserRouter>
+      <RouteDebugger />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
