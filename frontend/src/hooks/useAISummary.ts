@@ -14,8 +14,8 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { glmAPI } from '@/services/glm-api';
-import type { AISummaryRequest, AISummaryResponse } from '@/types/glm';
+import { openRouterAPI } from '@/services/openrouter-api';
+import type { AISummaryRequest, AISummaryResponse } from '@/types/openrouter';
 import type {
   ComprehensiveGuideData,
   ComprehensiveFeatureData,
@@ -99,7 +99,7 @@ export function useAISummary(options: UseAISummaryOptions): UseAISummaryReturn {
         stream: false,
       };
 
-      const response = await glmAPI.generateSummary(request);
+      const response = await openRouterAPI.generateSummary(request);
 
       if (response.error) {
         throw new Error(response.error);
@@ -150,7 +150,7 @@ export function useAISummary(options: UseAISummaryOptions): UseAISummaryReturn {
         stream: false,
       };
 
-      const response = await glmAPI.generateSummary(request);
+      const response = await openRouterAPI.generateSummary(request);
 
       if (response.error) {
         throw new Error(response.error);
@@ -253,7 +253,7 @@ export function useAISummaryStream(
         stream: true,
       };
 
-      for await (const chunk of glmAPI.generateSummaryStream(request)) {
+      for await (const chunk of openRouterAPI.generateSummaryStream(request)) {
         // Check if streaming was cancelled
         if (abortControllerRef.current?.signal.aborted) {
           break;
