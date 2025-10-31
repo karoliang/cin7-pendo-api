@@ -81,6 +81,10 @@ export const ReportDetails: React.FC = () => {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(20);
 
+  // Sorting state for event breakdown
+  const [sortColumn, setSortColumn] = React.useState<string>('date');
+  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
+
   // Video modal state
   const [selectedRecording, setSelectedRecording] = React.useState<{
     recordingId: string;
@@ -228,11 +232,32 @@ export const ReportDetails: React.FC = () => {
   // Pagination helper functions (must be after data declaration)
   const getPaginatedEvents = React.useCallback(() => {
     if (!data || type !== 'pages') return [];
-    const events = (data as ComprehensivePageData).eventBreakdown || [];
+    let events = [...((data as ComprehensivePageData).eventBreakdown || [])];
+
+    // Sort events
+    events.sort((a, b) => {
+      let aValue: any = a[sortColumn as keyof typeof a];
+      let bValue: any = b[sortColumn as keyof typeof b];
+
+      // Handle undefined/null values
+      if (aValue === undefined || aValue === null) return 1;
+      if (bValue === undefined || bValue === null) return -1;
+
+      // String comparison
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const comparison = aValue.localeCompare(bValue);
+        return sortDirection === 'asc' ? comparison : -comparison;
+      }
+
+      // Numeric comparison
+      const comparison = aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     return events.slice(startIndex, endIndex);
-  }, [data, type, currentPage, pageSize]);
+  }, [data, type, currentPage, pageSize, sortColumn, sortDirection]);
 
   const paginationMeta = React.useMemo(() => {
     if (!data || type !== 'pages') return { totalItems: 0, totalPages: 0, startIndex: 0, endIndex: 0 };
@@ -248,6 +273,32 @@ export const ReportDetails: React.FC = () => {
     console.log('🎬 Recording clicked:', { recordingId, visitorId, date });
     setSelectedRecording({ recordingId, visitorId, date });
     console.log('✅ Selected recording state updated');
+  };
+
+  // Handle column sort
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New column, default to descending
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+    // Reset to first page when sorting changes
+    setCurrentPage(1);
+  };
+
+  // Render sort indicator
+  const SortIndicator = ({ column }: { column: string }) => {
+    if (sortColumn !== column) {
+      return <span className="text-gray-300 ml-1">⇅</span>;
+    }
+    return sortDirection === 'asc' ? (
+      <span className="ml-1">↑</span>
+    ) : (
+      <span className="ml-1">↓</span>
+    );
   };
 
   if (isLoading) {
@@ -1287,19 +1338,74 @@ export const ReportDetails: React.FC = () => {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b text-gray-600 bg-gray-50">
-                        <th className="text-left py-2 px-2 font-medium">Visitor</th>
-                        <th className="text-left py-2 px-2 font-medium">Account</th>
-                        <th className="text-left py-2 px-2 font-medium">Date</th>
-                        <th className="text-right py-2 px-2 font-medium">Total Views</th>
-                        <th className="text-right py-2 px-2 font-medium">U-turns</th>
-                        <th className="text-right py-2 px-2 font-medium">Dead clicks</th>
-                        <th className="text-right py-2 px-2 font-medium">Error clicks</th>
-                        <th className="text-right py-2 px-2 font-medium">Rage clicks</th>
+                        <th
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('visitorId')}
+                        >
+                          Visitor <SortIndicator column="visitorId" />
+                        </th>
+                        <th
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('accountId')}
+                        >
+                          Account <SortIndicator column="accountId" />
+                        </th>
+                        <th
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('date')}
+                        >
+                          Date <SortIndicator column="date" />
+                        </th>
+                        <th
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('totalViews')}
+                        >
+                          Total Views <SortIndicator column="totalViews" />
+                        </th>
+                        <th
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('uTurns')}
+                        >
+                          U-turns <SortIndicator column="uTurns" />
+                        </th>
+                        <th
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('deadClicks')}
+                        >
+                          Dead clicks <SortIndicator column="deadClicks" />
+                        </th>
+                        <th
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('errorClicks')}
+                        >
+                          Error clicks <SortIndicator column="errorClicks" />
+                        </th>
+                        <th
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('rageClicks')}
+                        >
+                          Rage clicks <SortIndicator column="rageClicks" />
+                        </th>
                         <th className="text-center py-2 px-2 font-medium">Recording</th>
                         <th className="text-left py-2 px-2 font-medium">Page parameter</th>
-                        <th className="text-left py-2 px-2 font-medium">Server name</th>
-                        <th className="text-left py-2 px-2 font-medium">Browser Name</th>
-                        <th className="text-left py-2 px-2 font-medium">Browser Version</th>
+                        <th
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('serverName')}
+                        >
+                          Server name <SortIndicator column="serverName" />
+                        </th>
+                        <th
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('browserName')}
+                        >
+                          Browser Name <SortIndicator column="browserName" />
+                        </th>
+                        <th
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          onClick={() => handleSort('browserVersion')}
+                        >
+                          Browser Version <SortIndicator column="browserVersion" />
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
