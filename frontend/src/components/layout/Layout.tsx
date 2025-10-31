@@ -32,7 +32,7 @@ export const Layout: React.FC<LayoutProps> = ({
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         color: 'white'
       }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '1600px' }}>
           <div className="flex justify-between items-center h-14">
             <InlineStack gap="300" blockAlign="center">
               <h1 className="text-xl font-semibold">
@@ -54,7 +54,7 @@ export const Layout: React.FC<LayoutProps> = ({
       )}
 
       {/* Main Content with Polaris Page */}
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto" style={{ maxWidth: '1600px' }}>
         {title ? (
           <Page
             title={title}
@@ -77,7 +77,7 @@ export const Layout: React.FC<LayoutProps> = ({
         borderTop: '1px solid var(--p-color-border)',
         marginTop: 'auto'
       }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4" style={{ maxWidth: '1600px' }}>
           <div className="text-center">
             <Text as="p" variant="bodySm" tone="subdued">
               Pendo Analytics Dashboard - Real-time insights and reporting
