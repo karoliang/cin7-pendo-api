@@ -25,6 +25,8 @@ import {
   ExclamationTriangleIcon,
   ArrowPathIcon,
   VideoCameraIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 
 // Import report hooks
@@ -42,6 +44,9 @@ import { SessionTimingDistribution } from '@/components/reports/SessionTimingDis
 
 // Import AI Summary component
 import { AISummary } from '@/components/ai/AISummary';
+
+// Import Video Modal component
+import { VideoModal } from '@/components/modals/VideoModal';
 
 // Import comprehensive types
 import type {
@@ -70,6 +75,17 @@ export const ReportDetails: React.FC = () => {
 
   // State for time series view toggle (daily, weekly, monthly)
   const [timeSeriesView, setTimeSeriesView] = React.useState<'daily' | 'weekly' | 'monthly'>('daily');
+
+  // Pagination state for event breakdown
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(20);
+
+  // Video modal state
+  const [selectedRecording, setSelectedRecording] = React.useState<{
+    recordingId: string;
+    visitorId: string;
+    date: string;
+  } | null>(null);
 
   // Type guards
   const isValidType = (t: string): t is ReportType =>
@@ -207,6 +223,29 @@ export const ReportDetails: React.FC = () => {
   const hasZeroData = false; // data &&
     // type === 'guides' &&
     // (data as ComprehensiveGuideData).viewedCount === 0;
+
+  // Pagination helper functions (must be after data declaration)
+  const getPaginatedEvents = React.useCallback(() => {
+    if (!data || type !== 'pages') return [];
+    const events = (data as ComprehensivePageData).eventBreakdown || [];
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return events.slice(startIndex, endIndex);
+  }, [data, type, currentPage, pageSize]);
+
+  const paginationMeta = React.useMemo(() => {
+    if (!data || type !== 'pages') return { totalItems: 0, totalPages: 0, startIndex: 0, endIndex: 0 };
+    const events = (data as ComprehensivePageData).eventBreakdown || [];
+    const totalItems = events.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const startIndex = (currentPage - 1) * pageSize + 1;
+    const endIndex = Math.min(startIndex + pageSize - 1, totalItems);
+    return { totalItems, totalPages, startIndex, endIndex };
+  }, [data, type, currentPage, pageSize]);
+
+  const handleRecordingClick = (recordingId: string, visitorId: string, date: string) => {
+    setSelectedRecording({ recordingId, visitorId, date });
+  };
 
   if (isLoading) {
     return (
@@ -1176,14 +1215,30 @@ export const ReportDetails: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <ChartBarIcon className="h-5 w-5 text-indigo-600" />
-                    <CardTitle className="m-0">Event breakdown (Showing top 20 of {(data as ComprehensivePageData).eventBreakdown?.length.toLocaleString() || 0})</CardTitle>
+                    <CardTitle className="m-0">
+                      Event breakdown (Showing {paginationMeta.startIndex}-{paginationMeta.endIndex} of {paginationMeta.totalItems.toLocaleString()})
+                    </CardTitle>
                     <DataQualityBadge
                       type="real"
-                      tooltip="Real page event data from Pendo API including frustration metrics. Aggregations use all events, table shows top 20."
+                      tooltip="Real page event data from Pendo API including frustration metrics"
                     />
                   </div>
-                  <div className="text-xs text-gray-500">
-                    Displaying top 20 rows. All {(data as ComprehensivePageData).eventBreakdown?.length.toLocaleString() || 0} events are used for aggregations below.
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="page-size" className="text-xs text-gray-600">Rows per page:</label>
+                    <select
+                      id="page-size"
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="text-xs border border-gray-300 rounded px-2 py-1"
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
                   </div>
                 </div>
               </CardHeader>
@@ -1208,8 +1263,8 @@ export const ReportDetails: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {((data as ComprehensivePageData).eventBreakdown && (data as ComprehensivePageData).eventBreakdown!.length > 0) ? (
-                        (data as ComprehensivePageData).eventBreakdown!.slice(0, 20).map((event, index) => (
+                      {getPaginatedEvents().length > 0 ? (
+                        getPaginatedEvents().map((event, index) => (
                           <tr key={`${event.visitorId}-${event.date}-${index}`} className="border-b border-gray-100 hover:bg-gray-50">
                             <td className="py-2 px-2 text-blue-600 hover:underline cursor-pointer">
                               {event.visitorId}
@@ -1223,15 +1278,13 @@ export const ReportDetails: React.FC = () => {
                             <td className="text-right py-2 px-2">{event.rageClicks?.toLocaleString() || 0}</td>
                             <td className="text-center py-2 px-2">
                               {event.recordingId ? (
-                                <a
-                                  href={`https://app.pendo.io/session/${event.recordingId}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                                <button
+                                  onClick={() => handleRecordingClick(event.recordingId!, event.visitorId, event.date)}
+                                  className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                                   title="View Session Recording"
                                 >
                                   <VideoCameraIcon className="h-4 w-4" />
-                                </a>
+                                </button>
                               ) : (
                                 <span className="text-gray-400">--</span>
                               )}
@@ -1252,6 +1305,62 @@ export const ReportDetails: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {paginationMeta.totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                    <div className="text-xs text-gray-600">
+                      Showing {paginationMeta.startIndex}-{paginationMeta.endIndex} of {paginationMeta.totalItems.toLocaleString()} events
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors flex items-center gap-1"
+                      >
+                        <ChevronLeftIcon className="h-3 w-3" />
+                        Previous
+                      </button>
+
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, paginationMeta.totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (paginationMeta.totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= paginationMeta.totalPages - 2) {
+                            pageNum = paginationMeta.totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentPage(pageNum)}
+                              className={`px-3 py-1 text-xs border rounded transition-colors ${
+                                currentPage === pageNum
+                                  ? 'bg-blue-600 text-white border-blue-600'
+                                  : 'hover:bg-gray-50'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <button
+                        onClick={() => setCurrentPage(Math.min(paginationMeta.totalPages, currentPage + 1))}
+                        disabled={currentPage === paginationMeta.totalPages}
+                        className="px-3 py-1 text-xs border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors flex items-center gap-1"
+                      >
+                        Next
+                        <ChevronRightIcon className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -1502,6 +1611,17 @@ export const ReportDetails: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      {selectedRecording && (
+        <VideoModal
+          isOpen={!!selectedRecording}
+          onClose={() => setSelectedRecording(null)}
+          recordingId={selectedRecording.recordingId}
+          visitorId={selectedRecording.visitorId}
+          date={selectedRecording.date}
+        />
+      )}
     </Layout>
   );
 };
