@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { Cin7Button as Button } from '@/components/polaris';
+import { Button } from '@/components/polaris/Cin7Button';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
 import { Cin7Badge as Badge } from '@/components/polaris';
 import { DataQualityBadge } from '@/components/ui/DataQualityBadge';
