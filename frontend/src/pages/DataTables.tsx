@@ -132,6 +132,36 @@ export const DataTables: React.FC = () => {
     };
   }, [guides, features, pages, reports, filters]);
 
+  // Sort data by most recent (default sorting)
+  const sortedData = React.useMemo(() => {
+    return {
+      // Guides: Sort by updatedAt (most recently updated first)
+      guides: [...filteredData.guides].sort((a, b) => {
+        const dateA = new Date(a.updatedAt || a.createdAt).getTime();
+        const dateB = new Date(b.updatedAt || b.createdAt).getTime();
+        return dateB - dateA; // Descending order (newest first)
+      }),
+      // Features: Sort by createdAt (most recently created first)
+      features: [...filteredData.features].sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA; // Descending order (newest first)
+      }),
+      // Pages: Sort by createdAt (most recently created first)
+      pages: [...filteredData.pages].sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA; // Descending order (newest first)
+      }),
+      // Reports: Sort by createdAt (most recently created first)
+      reports: [...filteredData.reports].sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA; // Descending order (newest first)
+      })
+    };
+  }, [filteredData]);
+
   // Update pagination state when filtered data changes
   React.useEffect(() => {
     const guidesTotal = filteredData.guides.length;
@@ -198,7 +228,7 @@ export const DataTables: React.FC = () => {
       label: 'Pages',
       icon: GlobeAltIcon,
       count: filteredData.pages.length,
-      data: filteredData.pages,
+      data: sortedData.pages,
       pagination: tableState.pages.pagination
     },
     {
@@ -206,7 +236,7 @@ export const DataTables: React.FC = () => {
       label: 'Guides',
       icon: DocumentTextIcon,
       count: filteredData.guides.length,
-      data: filteredData.guides,
+      data: sortedData.guides,
       pagination: tableState.guides.pagination
     },
     {
@@ -214,7 +244,7 @@ export const DataTables: React.FC = () => {
       label: 'Features',
       icon: CubeIcon,
       count: filteredData.features.length,
-      data: filteredData.features,
+      data: sortedData.features,
       pagination: tableState.features.pagination
     },
     {
@@ -222,7 +252,7 @@ export const DataTables: React.FC = () => {
       label: 'Reports',
       icon: ChartBarIcon,
       count: filteredData.reports.length,
-      data: filteredData.reports,
+      data: sortedData.reports,
       pagination: tableState.reports.pagination
     }
   ];
