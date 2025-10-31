@@ -710,47 +710,62 @@ function validateMarkdown(content: string): { isValid: boolean; cleaned: string;
   const errors: string[] = [];
   let cleaned = content;
 
-  // Fix single asterisk before key section headers (e.g., "*Summary" -> "**Summary**")
-  const singleAsteriskHeaders = cleaned.match(/^(\*(?!\*))(Summary|Analysis|Recommendations|Success Metrics)/gm);
+  // 1. Fix single asterisk before section headers (standalone)
+  const singleAsteriskHeaders = cleaned.match(/^\*(?!\*)(Summary|Analysis|Recommendations|Success Metrics)/gm);
   if (singleAsteriskHeaders) {
     errors.push(`Single asterisk before section headers: ${singleAsteriskHeaders.length} instances`);
-    // Fix: Convert *Word to **Word**
-    cleaned = cleaned.replace(/^(\*)(?!\*)(Summary|Analysis|Recommendations|Success Metrics)/gm, '**$2**');
+    cleaned = cleaned.replace(/^\*(?!\*)(Summary|Analysis|Recommendations|Success Metrics)/gm, '**$1**');
   }
 
-  // Check for malformed bold syntax
-  const malformedBold = cleaned.match(/(\*\*\*|\*[^\*]*\*\*|\*\*[^\*]*\*(?!\*))/g);
+  // 2. Fix single asterisk before priority labels in numbered lists
+  const priorityLabels = cleaned.match(/(\d+\.\s+)\*(?!\*)(High Priority|Medium Priority|Low Priority|Quick Win)(\**):/gi);
+  if (priorityLabels) {
+    errors.push(`Priority labels with single asterisk: ${priorityLabels.length} instances`);
+    cleaned = cleaned.replace(/(\d+\.\s+)\*(?!\*)(High Priority|Medium Priority|Low Priority|Quick Win)(\**)?:/gi, '$1**$2**:');
+  }
+
+  // 3. Fix malformed bold syntax (catch-all for remaining cases)
+  const malformedBold = cleaned.match(/(\*\*\*|\*[^\*\n]{1,50}\*\*|\*\*[^\*\n]{1,50}\*(?!\*))/g);
   if (malformedBold) {
     errors.push(`Malformed bold syntax detected: ${malformedBold.length} instances`);
-    // Fix: Normalize to **text**
+    // Normalize to **text**
     cleaned = cleaned.replace(/\*\*\*([^\*]+)\*\*\*/g, '**$1**');
-    cleaned = cleaned.replace(/\*([^\*]+)\*\*/g, '**$1**');
-    cleaned = cleaned.replace(/\*\*([^\*]+)\*(?!\*)/g, '**$1**');
+    cleaned = cleaned.replace(/\*([^\*\n]+)\*\*/g, '**$1**');
+    cleaned = cleaned.replace(/\*\*([^\*\n]+)\*(?!\*)/g, '**$1**');
   }
 
-  // Check for missing blank lines before headers
+  // 4. Normalize bullet characters to standard markdown
+  cleaned = cleaned.replace(/^(\s*)•(\s+)/gm, '$1-$2');
+
+  // 5. Fix nested list indentation (ensure 3 spaces for bullets under numbered items)
+  cleaned = cleaned.replace(/^(\d+\.\s+[^\n]+)\n([•\-])/gm, '$1\n   $2');
+
+  // 6. Normalize colon spacing in bold headers
+  cleaned = cleaned.replace(/(\*\*[^:\n]+\*\*):([^\s])/g, '$1: $2');
+
+  // 7. Check for missing blank lines before headers
   const missingHeaderSpacing = cleaned.match(/[^\n]\n(#{1,6}\s)/g);
   if (missingHeaderSpacing) {
     errors.push(`Missing blank lines before headers: ${missingHeaderSpacing.length} instances`);
-    // Fix: Add blank line before headers
     cleaned = cleaned.replace(/([^\n])\n(#{1,6}\s)/g, '$1\n\n$2');
   }
 
-  // Check for missing blank lines after headers
+  // 8. Check for missing blank lines after headers
   const missingHeaderSpacingAfter = cleaned.match(/(#{1,6}\s[^\n]+)\n([^#\n])/g);
   if (missingHeaderSpacingAfter) {
     errors.push(`Missing blank lines after headers: ${missingHeaderSpacingAfter.length} instances`);
-    // Fix: Add blank line after headers
     cleaned = cleaned.replace(/(#{1,6}\s[^\n]+)\n([^#\n])/g, '$1\n\n$2');
   }
 
-  // Check for missing blank lines before lists
-  const missingListSpacing = cleaned.match(/[^\n]\n([-*+]\s)/g);
+  // 9. Check for missing blank lines before lists (non-nested)
+  const missingListSpacing = cleaned.match(/[^\n\s]\n([-*+]\s)/g);
   if (missingListSpacing) {
     errors.push(`Missing blank lines before lists: ${missingListSpacing.length} instances`);
-    // Fix: Add blank line before lists
     cleaned = cleaned.replace(/([^\n])\n([-*+]\s)/g, '$1\n\n$2');
   }
+
+  // 10. Ensure blank line after numbered items with nested bullets before next numbered item
+  cleaned = cleaned.replace(/^(   [•\-*]\s+[^\n]+)\n(\d+\.)/gm, '$1\n\n$2');
 
   // Log errors if any
   if (errors.length > 0) {
