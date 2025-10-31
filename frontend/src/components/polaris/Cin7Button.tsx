@@ -1,48 +1,107 @@
 import React from 'react';
+import { Button as PolarisButton } from '@shopify/polaris';
+import type { ButtonProps as PolarisButtonProps } from '@shopify/polaris';
 import { cn } from '@/lib/utils';
 
 // Map shadcn/ui button variants to Polaris equivalents
-type Cin7ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-type Cin7ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
+type Cin7ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'primary' | 'plain';
+type Cin7ButtonSize = 'default' | 'sm' | 'lg' | 'icon' | 'micro' | 'slim' | 'medium' | 'large';
 
-export interface Cin7ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface Cin7ButtonProps extends Omit<PolarisButtonProps, 'variant' | 'size'> {
   variant?: Cin7ButtonVariant;
   size?: Cin7ButtonSize;
   asChild?: boolean;
+  className?: string;
 }
 
 export const Cin7Button = React.forwardRef<HTMLButtonElement, Cin7ButtonProps>(
   ({ variant = 'default', size = 'default', asChild = false, className, children, ...props }, ref) => {
+    // Map Cin7 variants to Polaris variant
+    const getPolarisVariant = (): PolarisButtonProps['variant'] => {
+      switch (variant) {
+        case 'default':
+        case 'primary':
+          return 'primary';
+        case 'destructive':
+          return undefined; // Will use tone='critical' instead
+        case 'outline':
+          return 'secondary';
+        case 'plain':
+        case 'ghost':
+        case 'link':
+          return 'plain';
+        case 'secondary':
+        default:
+          return 'secondary';
+      }
+    };
+
+    // Map Cin7 sizes to Polaris sizes
+    const getPolarisSize = (): PolarisButtonProps['size'] => {
+      switch (size) {
+        case 'sm':
+        case 'micro':
+          return 'micro';
+        case 'default':
+        case 'slim':
+          return 'slim';
+        case 'lg':
+        case 'medium':
+          return 'medium';
+        case 'large':
+          return 'large';
+        case 'icon':
+          return 'slim';
+        default:
+          return 'medium';
+      }
+    };
+
+    const polarisVariant = getPolarisVariant();
+    const polarisSize = getPolarisSize();
+    const tone = variant === 'destructive' ? 'critical' : undefined;
+
     return (
-      <button
-        ref={ref}
-        type="button"
-        className={cn(
-          'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-          'disabled:pointer-events-none disabled:opacity-50',
-          // Variant styles with Cin7 colors
-          variant === 'default' && 'bg-[#0066CC] text-white hover:bg-[#004999]',
-          variant === 'destructive' && 'bg-[#D32F2F] text-white hover:bg-red-700',
-          variant === 'outline' && 'border border-gray-300 bg-white hover:bg-gray-50',
-          variant === 'secondary' && 'bg-gray-100 text-gray-900 hover:bg-gray-200',
-          variant === 'ghost' && 'hover:bg-gray-100 hover:text-gray-900',
-          variant === 'link' && 'text-[#0066CC] underline-offset-4 hover:underline',
-          // Size styles
-          size === 'default' && 'h-10 px-4 py-2',
-          size === 'sm' && 'h-9 rounded-md px-3',
-          size === 'lg' && 'h-11 rounded-md px-8',
-          size === 'icon' && 'h-10 w-10',
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </button>
+      <span className={cn(className)}>
+        <PolarisButton
+          {...props}
+          variant={polarisVariant}
+          size={polarisSize}
+          tone={tone}
+        >
+          {children}
+        </PolarisButton>
+      </span>
     );
   }
 );
 
 Cin7Button.displayName = 'Cin7Button';
+
+// Compatibility wrapper for components using the old Button API
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: Cin7ButtonVariant;
+  size?: Cin7ButtonSize;
+  asChild?: boolean;
+}
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = 'default', size = 'default', asChild, className, children, onClick, disabled, type }, ref) => {
+    return (
+      <Cin7Button
+        variant={variant}
+        size={size}
+        onClick={onClick as any}
+        disabled={disabled}
+        submit={type === 'submit'}
+        className={className}
+      >
+        {String(children)}
+      </Cin7Button>
+    );
+  }
+);
+
+Button.displayName = 'Button';
 
 export default Cin7Button;

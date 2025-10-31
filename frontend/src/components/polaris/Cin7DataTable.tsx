@@ -139,15 +139,10 @@ export function Cin7DataTable<T extends Record<string, unknown>>({
     plural: 'items',
   };
 
-  const headings = columns.map((column) => {
-    const isSortable = column.sortable !== false;
-    const isCurrentSort = sortField === column.key;
-
-    return {
-      title: String(column.header),
-      id: String(column.key),
-    };
-  }) as any; // Type assertion for Polaris IndexTableHeading compatibility
+  const headings = columns.map((column) => ({
+    title: String(column.header),
+    id: String(column.key),
+  })) as [{ title: string; id: string }, ...{ title: string; id: string }[]]
 
   const rowMarkup = paginatedData.map((item, index) => (
     <IndexTable.Row

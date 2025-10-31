@@ -135,14 +135,14 @@ export const Cin7Pagination: React.FC<Cin7PaginationProps> = ({
         }
 
         .cin7-pagination-button.active {
-          background: #005bd3;
-          border-color: #005bd3;
+          background: var(--cin7-hept-blue, #0033A0);
+          border-color: var(--cin7-hept-blue, #0033A0);
           color: white;
         }
 
         .cin7-pagination-button.active:hover {
-          background: #004a9c;
-          border-color: #004a9c;
+          background: var(--cin7-hept-blue-dark, #002266);
+          border-color: var(--cin7-hept-blue-dark, #002266);
         }
 
         .cin7-pagination-ellipsis {
@@ -186,8 +186,8 @@ export const Cin7Pagination: React.FC<Cin7PaginationProps> = ({
 
         .cin7-pagination-pagesize select:focus {
           outline: none;
-          border-color: #005bd3;
-          box-shadow: 0 0 0 1px #005bd3;
+          border-color: var(--cin7-hept-blue, #0033A0);
+          box-shadow: 0 0 0 1px var(--cin7-hept-blue, #0033A0);
         }
 
         @media (max-width: 640px) {

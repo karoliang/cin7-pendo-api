@@ -33,6 +33,16 @@
   --cin7-border-light: #EEEEEE;
   --cin7-border-dark: #BDBDBD;
 
+  /* Polaris Color Overrides - Apply Cin7 Hept Blue as primary */
+  --p-color-bg-fill-brand: var(--cin7-hept-blue);
+  --p-color-bg-fill-brand-hover: var(--cin7-hept-blue-dark);
+  --p-color-bg-fill-brand-active: var(--cin7-hept-blue-dark);
+  --p-color-bg-fill-brand-selected: var(--cin7-hept-blue);
+  --p-color-border-brand: var(--cin7-hept-blue);
+  --p-color-text-brand: var(--cin7-hept-blue);
+  --p-color-text-brand-hover: var(--cin7-hept-blue-dark);
+  --p-color-icon-brand: var(--cin7-hept-blue);
+
   /* Tailwind shadcn/ui Variables (Updated with Cin7 colors) */
   --background: 0 0% 100%;
   --foreground: 0 0% 10%;
