@@ -360,40 +360,11 @@ export const DataTables: React.FC = () => {
         return [
           { key: 'name', header: 'Page Name', sortable: true, render: (value: unknown, item: TableItem) => {
             const page = item as Page;
-            const hasActivity = page.viewedCount > 0 || page.visitorCount > 0;
             return (
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{value as string}</span>
-                  {hasActivity && (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      ✓
-                    </span>
-                  )}
-                  {!hasActivity && (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                      No data
-                    </span>
-                  )}
-                </div>
+                <div className="font-medium">{value as string}</div>
                 <div className="text-xs text-gray-500 font-mono">{page.url}</div>
               </div>
-            );
-          }},
-          { key: 'viewedCount', header: 'Views', sortable: true, render: (value: unknown) => {
-            const count = (value as number) || 0;
-            return (
-              <span className={`font-semibold ${count > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
-                {count.toLocaleString()}
-              </span>
-            );
-          }},
-          { key: 'visitorCount', header: 'Visitors', sortable: true, render: (value: unknown) => {
-            const count = (value as number) || 0;
-            return (
-              <span className={`font-semibold ${count > 0 ? 'text-green-600' : 'text-gray-400'}`}>
-                {count.toLocaleString()}
-              </span>
             );
           }},
           { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
