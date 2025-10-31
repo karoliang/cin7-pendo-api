@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Cin7Card, Cin7CardContent, Cin7CardHeader, Cin7CardTitle } from '@/components/polaris';
 
 interface KPICardProps {
   title: string;
@@ -41,13 +41,13 @@ export const KPICard: React.FC<KPICardProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">
+    <Cin7Card>
+      <Cin7CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Cin7CardTitle className="text-sm font-medium text-gray-600">
           {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </Cin7CardTitle>
+      </Cin7CardHeader>
+      <Cin7CardContent>
         <div className="text-2xl font-bold text-gray-900">
           {loading ? '...' : value}
         </div>
@@ -63,7 +63,7 @@ export const KPICard: React.FC<KPICardProps> = ({
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </Cin7CardContent>
+    </Cin7Card>
   );
 };

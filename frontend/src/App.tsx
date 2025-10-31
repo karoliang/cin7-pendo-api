@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { Dashboard } from '@/pages/Dashboard';
 import { DataTables } from '@/pages/DataTables';
 import { ReportDetails } from '@/pages/ReportDetails';
+import { PolarisProvider } from '@/components/polaris/PolarisProvider';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -24,7 +25,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <PolarisProvider>
+      <RouterProvider router={router} />
+    </PolarisProvider>
+  );
 }
 
 export default App;

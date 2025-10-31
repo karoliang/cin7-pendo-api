@@ -5,7 +5,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/polaris/Cin7Modal';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 interface VideoModalProps {

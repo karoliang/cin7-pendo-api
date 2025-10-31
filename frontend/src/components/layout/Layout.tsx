@@ -1,5 +1,6 @@
 import { Navigation } from '@/components/layout/Navigation';
-import { Button } from '@/components/ui/button';
+import { Cin7Button } from '@/components/polaris/Cin7Button';
+import { Page, Layout as PolarisLayout } from '@shopify/polaris';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,8 +20,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, showNavigation = false
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline">Export</Button>
-              <Button>Refresh</Button>
+              <Cin7Button variant="outline">Export</Cin7Button>
+              <Cin7Button>Refresh</Cin7Button>
             </div>
           </div>
         </div>

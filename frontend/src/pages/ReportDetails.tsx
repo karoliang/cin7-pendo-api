@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Cin7Button as Button } from '@/components/polaris';
+import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
+import { Cin7Badge as Badge } from '@/components/polaris';
 import { DataQualityBadge } from '@/components/ui/DataQualityBadge';
 // Tabs removed - showing all content on single page
 import {

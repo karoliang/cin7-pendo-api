@@ -7,6 +7,7 @@ import {
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
+import { Cin7Modal } from '@/components/polaris/Cin7Modal';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 
 interface DetailModalProps {
@@ -259,39 +260,28 @@ export function DetailModal({ item, type, isOpen, onClose }: DetailModalProps) {
     </div>
   );
 
+  const modalTitle = type === 'guide' ? (item as Guide).name :
+                     type === 'feature' ? (item as Feature).name :
+                     type === 'page' ? (item as Page).name :
+                     (item as Report).name;
+
+  const modalContent = type === 'guide' ? renderGuideDetails(item as Guide) :
+                       type === 'feature' ? renderFeatureDetails(item as Feature) :
+                       type === 'page' ? renderPageDetails(item as Page) :
+                       renderReportDetails(item as Report);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900 capitalize">
-            {type === 'guide' ? (item as Guide).name :
-             type === 'feature' ? (item as Feature).name :
-             type === 'page' ? (item as Page).name :
-             (item as Report).name}
-          </h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="p-2"
-          >
-            <XMarkIcon className="h-5 w-5" />
-          </Button>
-        </div>
-
-        <div className="p-6">
-          {type === 'guide' && renderGuideDetails(item as Guide)}
-          {type === 'feature' && renderFeatureDetails(item as Feature)}
-          {type === 'page' && renderPageDetails(item as Page)}
-          {type === 'report' && renderReportDetails(item as Report)}
-        </div>
-
-        <div className="flex justify-end p-6 border-t">
-          <Button onClick={onClose}>
-            Close
-          </Button>
-        </div>
-      </div>
-    </div>
+    <Cin7Modal
+      open={isOpen}
+      onClose={onClose}
+      title={modalTitle}
+      size="large"
+      primaryAction={{
+        content: 'Close',
+        onAction: onClose,
+      }}
+    >
+      {modalContent}
+    </Cin7Modal>
   );
 }

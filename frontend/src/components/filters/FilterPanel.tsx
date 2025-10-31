@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/polaris/Cin7TextField';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/polaris/Cin7Select';
 import type { FilterState } from '@/types/pendo';
 import { X, Calendar, Search, Filter } from 'lucide-react';
 

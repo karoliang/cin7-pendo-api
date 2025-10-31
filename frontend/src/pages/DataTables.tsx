@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { DataTable } from '@/components/tables/DataTable';
+import { Cin7DataTable } from '@/components/polaris/Cin7DataTable';
 import { DetailModal } from '@/components/tables/DetailModal';
 import { Button } from '@/components/ui/button';
 import { FilterPanel } from '@/components/filters/FilterPanel';
@@ -530,14 +530,14 @@ export const DataTables: React.FC = () => {
               </div>
             )}
 
-            <DataTable
-              data={currentTab.data}
-              columns={getColumns()}
+            <Cin7DataTable
+              data={currentTab.data as any}
+              columns={getColumns() as any}
               loading={isLoading}
               pagination={currentTab.pagination}
               onPaginationChange={handlePaginationChange}
               onSort={handleSort}
-              onRowClick={handleRowClick}
+              onRowClick={handleRowClick as any}
               onRefresh={refetch}
               title={`${currentTab.label} Overview`}
               searchPlaceholder={`Search ${currentTab.label.toLowerCase()}...`}
