@@ -1311,8 +1311,9 @@ export const ReportDetails: React.FC = () => {
                               {event.recordingId ? (
                                 <button
                                   onClick={() => handleRecordingClick(event.recordingId!, event.visitorId, event.date)}
-                                  className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                                  className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors cursor-pointer hover:scale-110"
                                   title="View Session Recording"
+                                  aria-label="View Session Recording"
                                 >
                                   <VideoCameraIcon className="h-4 w-4" />
                                 </button>
