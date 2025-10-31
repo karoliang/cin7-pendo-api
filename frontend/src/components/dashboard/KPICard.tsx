@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cin7Card, Cin7CardContent, Cin7CardHeader, Cin7CardTitle } from '@/components/polaris';
+import { Cin7Card, Cin7CardContent, BlockStack, InlineStack, Text } from '@/components/polaris';
 
 interface KPICardProps {
   title: string;
@@ -21,11 +21,11 @@ export const KPICard: React.FC<KPICardProps> = ({
   const getChangeColor = () => {
     switch (changeType) {
       case 'increase':
-        return 'text-green-600';
+        return 'success';
       case 'decrease':
-        return 'text-red-600';
+        return 'critical';
       default:
-        return 'text-gray-600';
+        return 'subdued';
     }
   };
 
@@ -42,27 +42,34 @@ export const KPICard: React.FC<KPICardProps> = ({
 
   return (
     <Cin7Card>
-      <Cin7CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <Cin7CardTitle className="text-sm font-medium text-gray-600">
-          {title}
-        </Cin7CardTitle>
-      </Cin7CardHeader>
       <Cin7CardContent>
-        <div className="text-2xl font-bold text-gray-900">
-          {loading ? '...' : value}
-        </div>
-        {(change !== undefined || description) && (
-          <div className="flex items-center mt-2 space-x-2">
-            {change !== undefined && (
-              <p className={`text-xs font-medium ${getChangeColor()}`}>
-                {getChangeSymbol()} {Math.abs(change)}%
-              </p>
-            )}
-            {description && (
-              <p className="text-xs text-gray-500">{description}</p>
-            )}
-          </div>
-        )}
+        <BlockStack gap="400">
+          {/* Title */}
+          <Text as="h3" variant="headingSm" tone="subdued">
+            {title}
+          </Text>
+
+          {/* Value */}
+          <Text as="p" variant="heading2xl" fontWeight="bold">
+            {loading ? '...' : value}
+          </Text>
+
+          {/* Change & Description */}
+          {(change !== undefined || description) && (
+            <InlineStack gap="200" wrap={false} blockAlign="center">
+              {change !== undefined && (
+                <Text as="span" variant="bodySm" fontWeight="medium" tone={getChangeColor()}>
+                  {getChangeSymbol()} {Math.abs(change)}%
+                </Text>
+              )}
+              {description && (
+                <Text as="span" variant="bodySm" tone="subdued">
+                  {description}
+                </Text>
+              )}
+            </InlineStack>
+          )}
+        </BlockStack>
       </Cin7CardContent>
     </Cin7Card>
   );
