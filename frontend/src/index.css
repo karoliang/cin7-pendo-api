@@ -3,25 +3,56 @@
 @tailwind utilities;
 
 :root {
+  /* Cin7 Brand Colors */
+  --cin7-hept-blue: #0033A0;
+  --cin7-hept-blue-dark: #002266;
+  --cin7-hept-blue-light: #1A4DB8;
+  --cin7-hept-blue-lighter: #E6EBF5;
+
+  --cin7-transit-yellow: #FFC845;
+  --cin7-transit-yellow-dark: #FFBB00;
+  --cin7-transit-yellow-light: #FFD670;
+  --cin7-transit-yellow-lighter: #FFF9E6;
+
+  --cin7-success: #00A854;
+  --cin7-success-light: #E6F7EF;
+  --cin7-warning: #FF9800;
+  --cin7-warning-light: #FFF3E0;
+  --cin7-error: #D32F2F;
+  --cin7-error-light: #FFEBEE;
+
+  --cin7-text-primary: #1A1A1A;
+  --cin7-text-secondary: #757575;
+  --cin7-text-disabled: #BDBDBD;
+
+  --cin7-bg-primary: #FFFFFF;
+  --cin7-bg-secondary: #F5F5F5;
+  --cin7-bg-tertiary: #FAFAFA;
+
+  --cin7-border-default: #D9D9D9;
+  --cin7-border-light: #EEEEEE;
+  --cin7-border-dark: #BDBDBD;
+
+  /* Tailwind shadcn/ui Variables (Updated with Cin7 colors) */
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 0 0% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 0 0% 10%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222.2 84% 4.9%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222.2 84% 4.9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+  --popover-foreground: 0 0% 10%;
+  --primary: 217 100% 32%;        /* Hept Blue */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 42 100% 64%;       /* Transit Yellow */
+  --secondary-foreground: 0 0% 10%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 46%;
+  --accent: 42 100% 64%;          /* Transit Yellow */
+  --accent-foreground: 0 0% 10%;
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 85%;
+  --input: 0 0% 85%;
+  --ring: 217 100% 32%;           /* Hept Blue */
   --radius: 0.5rem;
 }
 
