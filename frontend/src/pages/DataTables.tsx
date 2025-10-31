@@ -162,12 +162,12 @@ export const DataTables: React.FC = () => {
     };
   }, [filteredData]);
 
-  // Update pagination state when filtered data changes
+  // Update pagination state when sorted data changes
   React.useEffect(() => {
-    const guidesTotal = filteredData.guides.length;
-    const featuresTotal = filteredData.features.length;
-    const pagesTotal = filteredData.pages.length;
-    const reportsTotal = filteredData.reports.length;
+    const guidesTotal = sortedData.guides.length;
+    const featuresTotal = sortedData.features.length;
+    const pagesTotal = sortedData.pages.length;
+    const reportsTotal = sortedData.reports.length;
 
     setTableState(prev => {
       const newGuidesTotal = prev.guides.pagination.total !== guidesTotal;
@@ -220,7 +220,7 @@ export const DataTables: React.FC = () => {
         }
       };
     });
-  }, [filteredData.guides.length, filteredData.features.length, filteredData.pages.length, filteredData.reports.length]);
+  }, [sortedData.guides.length, sortedData.features.length, sortedData.pages.length, sortedData.reports.length]);
 
   const tabs = [
     {
@@ -398,16 +398,26 @@ export const DataTables: React.FC = () => {
   };
 
   const handlePaginationChange = (pagination: { page?: number; limit?: number }) => {
-    setTableState(prev => ({
-      ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        pagination: {
-          ...prev[activeTab].pagination,
-          ...pagination
+    setTableState(prev => {
+      const currentTab = prev[activeTab];
+      const newPage = pagination.page ?? currentTab.pagination.page;
+      const newLimit = pagination.limit ?? currentTab.pagination.limit;
+      const total = currentTab.pagination.total;
+
+      return {
+        ...prev,
+        [activeTab]: {
+          ...prev[activeTab],
+          pagination: {
+            ...currentTab.pagination,
+            page: newPage,
+            limit: newLimit,
+            hasPrevious: newPage > 1,
+            hasNext: newPage * newLimit < total
+          }
         }
-      }
-    }));
+      };
+    });
   };
 
   const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
