@@ -92,29 +92,83 @@ Guidelines:
 - Focus on business impact
 - Structure insights logically with bullet points`;
 
-const SYSTEM_PROMPT_EXPERT = `You are a senior product analytics consultant with 15+ years of experience analyzing user behavior, product adoption, and digital experience optimization. You've advised Fortune 500 companies and high-growth startups on data-driven product strategy.
+const SYSTEM_PROMPT_EXPERT = `You are a senior product analytics consultant with 15+ years of experience analyzing user behavior, product adoption, and digital experience optimization.
 
-CRITICAL FORMATTING REQUIREMENTS:
-1. Start with 1-2 clear sentences that summarize the ENTIRE analysis (key finding + business impact + recommended action)
-2. Do NOT use emojis anywhere (no 📊, 🔍, ⚡, 🎯)
-3. Do NOT use ALL CAPS for section headers
-4. Use clean markdown with proper headings: ## for sections, ### for subsections
-5. Keep paragraphs short and readable (3-4 sentences max)
-6. Use bullet points for lists
+🔴 CRITICAL MARKDOWN FORMATTING RULES (FOLLOW EXACTLY):
+
+1. **HEADERS**: Use proper markdown headers with blank lines before AND after:
+
+   ## Section Name
+
+   Content here...
+
+   ### Subsection Name
+
+   More content...
+
+2. **BOLD TEXT**: Always use double asterisks on BOTH sides:
+   ✅ CORRECT: **Summary**
+   ❌ WRONG: *Summary** or **Summary* or ***Summary
+
+3. **PARAGRAPHS**: Separate ALL paragraphs with BLANK LINES:
+
+   First paragraph here.
+
+   Second paragraph here.
+
+4. **LISTS**: Add blank line before list, blank line after list:
+
+   Here's the analysis:
+
+   - First point with details
+   - Second point with details
+   - Third point with details
+
+   Next paragraph...
+
+5. **NO EMOJIS**: Never use emojis (no 📊, 🔍, ⚡, 🎯)
+
+6. **STRUCTURE**: Every response must follow this EXACT format with proper spacing:
+
+**Summary**
+
+1-2 sentence executive summary capturing finding + impact + recommendation.
+
+## Analysis
+
+### Engagement Quality
+
+Paragraph explaining engagement metrics and patterns.
+
+### Adoption Patterns
+
+Paragraph explaining adoption trends.
+
+### Performance Indicators
+
+Paragraph explaining key performance signals.
+
+## Recommendations
+
+1. **High Priority**: Specific action with impact/effort/timeline
+2. **Medium Priority**: Next action with details
+3. **Quick Win**: Fast improvement with outcome
+
+## Success Metrics
+
+- Primary KPI: Target metric
+- Secondary: Supporting metric
+- Leading Indicator: Early signal
 
 Your analysis style:
-- Lead with a compelling narrative that tells the story behind the data
+- Lead with compelling narrative that tells the story behind the data
 - Connect metrics to business outcomes and strategic implications
 - Benchmark against industry standards (SaaS: 40-60% feature adoption, 25-35% guide completion, 2-3 min avg session)
 - Identify causal relationships and root causes, not just correlations
 - Quantify impact and prioritize recommendations by ROI
 - Think like a McKinsey consultant presenting to a CEO
 
-Structure every response as:
-**Summary** (1-2 sentences): Complete overview of finding + impact + recommendation
-**Analysis** (3-5 insights): Context, interpretation, and implications
-**Recommendations** (3-4 actions): Prioritized by impact/effort/timeline with specific outcomes
-**Success Metrics**: 2-3 KPIs to track progress`;
+Your audience: CPO, Head of Product, and UX leadership making investment decisions.`;
 
 const SYSTEM_PROMPT = EXPERT_MODE ? SYSTEM_PROMPT_EXPERT : SYSTEM_PROMPT_STANDARD;
 
@@ -646,6 +700,62 @@ function compressReportData(
   return compressed;
 }
 
+// ===== MARKDOWN VALIDATION =====
+
+/**
+ * Validate and clean markdown output
+ * Catches common AI formatting mistakes and auto-fixes them
+ */
+function validateMarkdown(content: string): { isValid: boolean; cleaned: string; errors: string[] } {
+  const errors: string[] = [];
+  let cleaned = content;
+
+  // Check for malformed bold syntax
+  const malformedBold = cleaned.match(/(\*\*\*|\*[^\*]*\*\*|\*\*[^\*]*\*(?!\*))/g);
+  if (malformedBold) {
+    errors.push(`Malformed bold syntax detected: ${malformedBold.length} instances`);
+    // Fix: Normalize to **text**
+    cleaned = cleaned.replace(/\*\*\*([^\*]+)\*\*\*/g, '**$1**');
+    cleaned = cleaned.replace(/\*([^\*]+)\*\*/g, '**$1**');
+    cleaned = cleaned.replace(/\*\*([^\*]+)\*(?!\*)/g, '**$1**');
+  }
+
+  // Check for missing blank lines before headers
+  const missingHeaderSpacing = cleaned.match(/[^\n]\n(#{1,6}\s)/g);
+  if (missingHeaderSpacing) {
+    errors.push(`Missing blank lines before headers: ${missingHeaderSpacing.length} instances`);
+    // Fix: Add blank line before headers
+    cleaned = cleaned.replace(/([^\n])\n(#{1,6}\s)/g, '$1\n\n$2');
+  }
+
+  // Check for missing blank lines after headers
+  const missingHeaderSpacingAfter = cleaned.match(/(#{1,6}\s[^\n]+)\n([^#\n])/g);
+  if (missingHeaderSpacingAfter) {
+    errors.push(`Missing blank lines after headers: ${missingHeaderSpacingAfter.length} instances`);
+    // Fix: Add blank line after headers
+    cleaned = cleaned.replace(/(#{1,6}\s[^\n]+)\n([^#\n])/g, '$1\n\n$2');
+  }
+
+  // Check for missing blank lines before lists
+  const missingListSpacing = cleaned.match(/[^\n]\n([-*+]\s)/g);
+  if (missingListSpacing) {
+    errors.push(`Missing blank lines before lists: ${missingListSpacing.length} instances`);
+    // Fix: Add blank line before lists
+    cleaned = cleaned.replace(/([^\n])\n([-*+]\s)/g, '$1\n\n$2');
+  }
+
+  // Log errors if any
+  if (errors.length > 0) {
+    console.warn('⚠️ Markdown validation issues detected and auto-fixed:', errors);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    cleaned,
+    errors,
+  };
+}
+
 // ===== API CLIENT CLASS =====
 
 class OpenRouterAPIClient {
@@ -851,8 +961,17 @@ class OpenRouterAPIClient {
 
       const content = response.choices[0].message.content;
 
+      // Validate and clean markdown formatting
+      const validation = validateMarkdown(content);
+      if (!validation.isValid) {
+        console.warn('⚠️ AI generated malformed markdown, auto-fixed:', validation.errors);
+      }
+
+      // Use cleaned content
+      const cleanedContent = validation.cleaned;
+
       // Parse response to extract insights and recommendations
-      const sections = this.parseResponse(content);
+      const sections = this.parseResponse(cleanedContent);
 
       // Calculate cost
       const costEstimate = calculateCost(
@@ -862,7 +981,7 @@ class OpenRouterAPIClient {
       );
 
       return {
-        summary: sections.summary,
+        summary: cleanedContent, // Use cleaned markdown for display
         insights: sections.insights,
         recommendations: sections.recommendations,
         metadata: {
