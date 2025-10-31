@@ -478,9 +478,10 @@ export const ReportDetails: React.FC = () => {
   return (
     <Layout showNavigation={true}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        {/* Header - Redesigned for better UX */}
+        <div className="space-y-4">
+          {/* Row 1: Navigation and Actions */}
+          <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="sm"
@@ -490,46 +491,56 @@ export const ReportDetails: React.FC = () => {
               <ArrowLeftIcon className="h-4 w-4 mr-2" />
               Back to Tables
             </Button>
-            <div className="flex items-center space-x-3">
-              <div className={`p-2 bg-${typeInfo.color}-100 rounded-lg`}>
-                <Icon className={`h-6 w-6 text-${typeInfo.color}-600`} />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">{data.name}</h1>
-                <p className="text-gray-600">{typeInfo.title}</p>
-              </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (currentReport?.refetch) {
+                    currentReport.refetch();
+                  }
+                }}
+                disabled={isLoading}
+                className="flex items-center gap-2"
+              >
+                <ArrowPathIcon className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh Data
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport('pdf')}>
+                <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
+                <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
+
+          {/* Row 2: Page Title - Full Width */}
+          <div className="flex items-center gap-4">
+            <div className={`p-3 bg-${typeInfo.color}-100 rounded-lg`}>
+              <Icon className={`h-8 w-8 text-${typeInfo.color}-600`} />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-900 leading-tight">{data.name}</h1>
+            </div>
+          </div>
+
+          {/* Row 3: Metadata */}
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 text-gray-600">
+              <span className="font-medium">{typeInfo.title}</span>
+            </div>
+            <div className="h-4 w-px bg-gray-300"></div>
             <Badge variant="secondary" className="capitalize">
               {(data as ReportDataWithState).state || 'Active'}
             </Badge>
-            <div className="flex items-center text-sm text-gray-500">
-              <CalendarIcon className="h-4 w-4 mr-1" />
+            <div className="h-4 w-px bg-gray-300"></div>
+            <div className="flex items-center text-gray-500">
+              <CalendarIcon className="h-4 w-4 mr-1.5" />
               Updated {new Date(data.updatedAt).toLocaleDateString()}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (currentReport?.refetch) {
-                  currentReport.refetch();
-                }
-              }}
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
-              <ArrowPathIcon className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh Data
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleExport('pdf')}>
-              <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-              Export PDF
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
-              <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
           </div>
         </div>
 
@@ -875,12 +886,12 @@ export const ReportDetails: React.FC = () => {
             </div>
           )}
 
-          {/* POSITION 6: Top Visitors & Top Accounts Tables */}
+          {/* POSITION 6: Top Visitors & Top Accounts Tables - Equal Height */}
           {type === 'pages' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
               {/* Top Visitors */}
-              <Card>
-                <CardHeader>
+              <Card className="flex flex-col h-full">
+                <CardHeader className="flex-shrink-0">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <UsersIcon className="h-5 w-5 text-blue-600" />
@@ -892,36 +903,40 @@ export const ReportDetails: React.FC = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-1">
-                    <div className="grid grid-cols-2 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
+                <CardContent className="flex-1 flex flex-col">
+                  <div className="flex flex-col h-full">
+                    <div className="grid grid-cols-2 gap-4 pb-2 text-sm font-medium text-gray-600 border-b flex-shrink-0">
                       <div>Visitor</div>
                       <div className="text-right">Number of views</div>
                     </div>
-                    {/* Real data from Pendo API */}
-                    {((data as ComprehensivePageData).topVisitors && (data as ComprehensivePageData).topVisitors!.length > 0) ? (
-                      (data as ComprehensivePageData).topVisitors!.map((visitor, index) => (
-                        <div key={visitor.visitorId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
-                          <div className="text-blue-600 hover:underline cursor-pointer">
-                            {visitor.email || visitor.name || visitor.visitorId}
-                          </div>
-                          <div className="text-right font-medium">
-                            {visitor.viewCount.toLocaleString()}
-                          </div>
+                    <div className="flex-1 min-h-0">
+                      {/* Real data from Pendo API */}
+                      {((data as ComprehensivePageData).topVisitors && (data as ComprehensivePageData).topVisitors!.length > 0) ? (
+                        <div className="space-y-1">
+                          {(data as ComprehensivePageData).topVisitors!.map((visitor, index) => (
+                            <div key={visitor.visitorId || index} className="grid grid-cols-2 gap-4 py-2 text-sm border-b border-gray-100">
+                              <div className="text-blue-600 hover:underline cursor-pointer">
+                                {visitor.email || visitor.name || visitor.visitorId}
+                              </div>
+                              <div className="text-right font-medium">
+                                {visitor.viewCount.toLocaleString()}
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))
-                    ) : (
-                      <div className="py-4 text-center text-gray-500 text-sm">
-                        No visitor data available
-                      </div>
-                    )}
+                      ) : (
+                        <div className="py-4 text-center text-gray-500 text-sm">
+                          No visitor data available
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Top Accounts */}
-              <Card>
-                <CardHeader>
+              <Card className="flex flex-col h-full">
+                <CardHeader className="flex-shrink-0">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <UserGroupIcon className="h-5 w-5 text-purple-600" />
@@ -933,56 +948,60 @@ export const ReportDetails: React.FC = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-1">
-                    <div className="grid grid-cols-4 gap-4 pb-2 text-sm font-medium text-gray-600 border-b">
+                <CardContent className="flex-1 flex flex-col">
+                  <div className="flex flex-col h-full">
+                    <div className="grid grid-cols-4 gap-4 pb-2 text-sm font-medium text-gray-600 border-b flex-shrink-0">
                       <div>Account</div>
                       <div>Plan</div>
                       <div className="text-right">ARR</div>
                       <div className="text-right">Number of views</div>
                     </div>
-                    {/* Real data from Pendo API */}
-                    {((data as ComprehensivePageData).topAccounts && (data as ComprehensivePageData).topAccounts!.length > 0) ? (
-                      (data as ComprehensivePageData).topAccounts!.map((account, index) => (
-                        <div key={account.accountId || index} className="grid grid-cols-4 gap-4 py-2 text-sm border-b border-gray-100 items-center">
-                          <div className="text-purple-600 hover:underline cursor-pointer">
-                            {account.name || account.accountId}
-                          </div>
-                          <div>
-                            {account.planlevel ? (
-                              <Badge
-                                variant="secondary"
-                                className={
-                                  account.planlevel.toLowerCase().includes('enterprise') ? 'bg-purple-100 text-purple-800' :
-                                  account.planlevel.toLowerCase().includes('professional') || account.planlevel.toLowerCase().includes('pro') ? 'bg-blue-100 text-blue-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }
-                              >
-                                {account.planlevel}
-                              </Badge>
-                            ) : (
-                              <span className="text-gray-400">--</span>
-                            )}
-                          </div>
-                          <div className="text-right font-medium">
-                            {account.arr ? (
-                              account.arr >= 1000000 ? `$${(account.arr / 1000000).toFixed(1)}M` :
-                              account.arr >= 1000 ? `$${(account.arr / 1000).toFixed(0)}K` :
-                              `$${account.arr.toLocaleString()}`
-                            ) : (
-                              <span className="text-gray-400">N/A</span>
-                            )}
-                          </div>
-                          <div className="text-right font-medium">
-                            {account.viewCount.toLocaleString()}
-                          </div>
+                    <div className="flex-1 min-h-0">
+                      {/* Real data from Pendo API */}
+                      {((data as ComprehensivePageData).topAccounts && (data as ComprehensivePageData).topAccounts!.length > 0) ? (
+                        <div className="space-y-1">
+                          {(data as ComprehensivePageData).topAccounts!.map((account, index) => (
+                            <div key={account.accountId || index} className="grid grid-cols-4 gap-4 py-2 text-sm border-b border-gray-100 items-center">
+                              <div className="text-purple-600 hover:underline cursor-pointer">
+                                {account.name || account.accountId}
+                              </div>
+                              <div>
+                                {account.planlevel ? (
+                                  <Badge
+                                    variant="secondary"
+                                    className={
+                                      account.planlevel.toLowerCase().includes('enterprise') ? 'bg-purple-100 text-purple-800' :
+                                      account.planlevel.toLowerCase().includes('professional') || account.planlevel.toLowerCase().includes('pro') ? 'bg-blue-100 text-blue-800' :
+                                      'bg-gray-100 text-gray-800'
+                                    }
+                                  >
+                                    {account.planlevel}
+                                  </Badge>
+                                ) : (
+                                  <span className="text-gray-400">--</span>
+                                )}
+                              </div>
+                              <div className="text-right font-medium">
+                                {account.arr ? (
+                                  account.arr >= 1000000 ? `$${(account.arr / 1000000).toFixed(1)}M` :
+                                  account.arr >= 1000 ? `$${(account.arr / 1000).toFixed(0)}K` :
+                                  `$${account.arr.toLocaleString()}`
+                                ) : (
+                                  <span className="text-gray-400">N/A</span>
+                                )}
+                              </div>
+                              <div className="text-right font-medium">
+                                {account.viewCount.toLocaleString()}
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))
-                    ) : (
-                      <div className="py-4 text-center text-gray-500 text-sm">
-                        No account data available
-                      </div>
-                    )}
+                      ) : (
+                        <div className="py-4 text-center text-gray-500 text-sm">
+                          No account data available
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
