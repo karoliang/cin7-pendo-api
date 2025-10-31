@@ -710,6 +710,14 @@ function validateMarkdown(content: string): { isValid: boolean; cleaned: string;
   const errors: string[] = [];
   let cleaned = content;
 
+  // Fix single asterisk before key section headers (e.g., "*Summary" -> "**Summary**")
+  const singleAsteriskHeaders = cleaned.match(/^(\*(?!\*))(Summary|Analysis|Recommendations|Success Metrics)/gm);
+  if (singleAsteriskHeaders) {
+    errors.push(`Single asterisk before section headers: ${singleAsteriskHeaders.length} instances`);
+    // Fix: Convert *Word to **Word**
+    cleaned = cleaned.replace(/^(\*)(?!\*)(Summary|Analysis|Recommendations|Success Metrics)/gm, '**$2**');
+  }
+
   // Check for malformed bold syntax
   const malformedBold = cleaned.match(/(\*\*\*|\*[^\*]*\*\*|\*\*[^\*]*\*(?!\*))/g);
   if (malformedBold) {
