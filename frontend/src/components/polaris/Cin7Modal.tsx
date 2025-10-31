@@ -197,13 +197,14 @@ export const DialogContent: React.FC<DialogContentProps> = ({ children, classNam
     context.setContent(children);
   }, [children, context]);
 
-  // Render the actual Polaris Modal if we have a title
-  if (context.open && context.title) {
+  // Render the actual Polaris Modal when open
+  // Use fallback title if context.title hasn't been set yet
+  if (context.open) {
     return (
       <PolarisModal
         open={context.open}
         onClose={() => context.onOpenChange(false)}
-        title={context.title as string}
+        title={(context.title as string) || 'Dialog'}
       >
         <PolarisModal.Section>
           {context.description && <div style={{ marginBottom: '1rem' }}>{context.description}</div>}
