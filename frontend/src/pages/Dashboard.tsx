@@ -241,23 +241,21 @@ export const Dashboard: React.FC = () => {
     );
   }
 
+  const subtitle = Object.keys(filters).length > 0
+    ? `Real-time insights from your Pendo data (${Object.keys(filters).length} filter${Object.keys(filters).length > 1 ? 's' : ''} applied)`
+    : 'Real-time insights from your Pendo data';
+
   return (
-    <Layout showNavigation={true}>
+    <Layout
+      showNavigation={true}
+      title="Analytics Overview"
+      subtitle={subtitle}
+      primaryAction={{
+        content: 'Refresh',
+        onAction: () => refetch()
+      }}
+    >
       <div className="space-y-8">
-        {/* Page Header */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Analytics Overview
-          </h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Real-time insights from your Pendo data
-            {Object.keys(filters).length > 0 && (
-              <span className="ml-2 text-blue-600">
-                ({Object.keys(filters).length} filter{Object.keys(filters).length > 1 ? 's' : ''} applied)
-              </span>
-            )}
-          </p>
-        </div>
 
         {/* Advanced Search */}
         <AdvancedSearch

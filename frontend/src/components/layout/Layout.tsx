@@ -1,45 +1,87 @@
 import { Navigation } from '@/components/layout/Navigation';
-import { Cin7Button } from '@/components/polaris/Cin7Button';
-import { Page, Layout as PolarisLayout } from '@shopify/polaris';
+import { Page, BlockStack, InlineStack, Text } from '@shopify/polaris';
 
 interface LayoutProps {
   children: React.ReactNode;
   showNavigation?: boolean;
+  title?: string;
+  subtitle?: string;
+  primaryAction?: {
+    content: string;
+    onAction: () => void;
+  };
+  secondaryActions?: Array<{
+    content: string;
+    onAction: () => void;
+  }>;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, showNavigation = false }) => {
+export const Layout: React.FC<LayoutProps> = ({
+  children,
+  showNavigation = false,
+  title,
+  subtitle,
+  primaryAction,
+  secondaryActions
+}) => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--p-color-bg)' }}>
+      {/* App Header - Brand Banner */}
+      <div style={{
+        backgroundColor: 'var(--cin7-hept-blue, #0033A0)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        color: 'white'
+      }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">
+          <div className="flex justify-between items-center h-14">
+            <InlineStack gap="300" blockAlign="center">
+              <h1 className="text-xl font-semibold">
                 Pendo Analytics Dashboard
               </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Cin7Button variant="outline">Export</Cin7Button>
-              <Cin7Button>Refresh</Cin7Button>
-            </div>
+            </InlineStack>
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* Navigation */}
-      {showNavigation && <Navigation />}
+      {/* Navigation Tabs */}
+      {showNavigation && (
+        <div style={{
+          backgroundColor: 'var(--p-color-bg-surface)',
+          borderBottom: '1px solid var(--p-color-border)'
+        }}>
+          <Navigation />
+        </div>
+      )}
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
+      {/* Main Content with Polaris Page */}
+      <div className="max-w-7xl mx-auto">
+        {title ? (
+          <Page
+            title={title}
+            subtitle={subtitle}
+            primaryAction={primaryAction}
+            secondaryActions={secondaryActions}
+          >
+            {children}
+          </Page>
+        ) : (
+          <div className="px-4 sm:px-6 lg:px-8 py-8">
+            {children}
+          </div>
+        )}
+      </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer style={{
+        backgroundColor: 'var(--p-color-bg-surface)',
+        borderTop: '1px solid var(--p-color-border)',
+        marginTop: 'auto'
+      }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="text-center text-sm text-gray-500">
-            Pendo Analytics Dashboard - Real-time insights and reporting
+          <div className="text-center">
+            <Text as="p" variant="bodySm" tone="subdued">
+              Pendo Analytics Dashboard - Real-time insights and reporting
+            </Text>
           </div>
         </div>
       </footer>
