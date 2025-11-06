@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { KPICard } from '@/components/dashboard/KPICard';
-import { FilterPanel } from '@/components/filters/FilterPanel';
-import { AdvancedSearch } from '@/components/filters/AdvancedSearch';
 import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
 import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
@@ -13,14 +11,9 @@ import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import { InlineSpinner } from '@/components/ui/Spinner';
 
-// Define SearchFilters interface to match AdvancedSearch component
-interface SearchFilters {
-  type: 'all' | 'guide' | 'feature' | 'page' | 'report';
-}
-
 export const Dashboard: React.FC = () => {
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
-  const { filters, updateFilters, resetFilters } = useFilterStore();
+  const { filters } = useFilterStore();
 
   // Debug logging
   console.log('Dashboard render:', {
@@ -43,18 +36,6 @@ export const Dashboard: React.FC = () => {
     pagesData: pages !== undefined ? `${pages.length} items` : 'undefined',
     reportsData: reports !== undefined ? `${reports.length} items` : 'undefined'
   });
-
-  const handleAdvancedSearch = (query: string, searchFilters?: SearchFilters) => {
-    // Update the search query in filters
-    updateFilters({
-      ...filters,
-      searchQuery: query,
-      ...(searchFilters?.type && searchFilters.type !== 'all' && {
-        // If searching within a specific type, add additional filters
-        [`${searchFilters.type}Types`]: ['true'] // This would be implemented based on actual data structure
-      })
-    });
-  };
 
   // Apply filters to data
   const filteredData = useMemo(() => {
@@ -242,15 +223,11 @@ export const Dashboard: React.FC = () => {
     );
   }
 
-  const subtitle = Object.keys(filters).length > 0
-    ? `Real-time insights from your Pendo data (${Object.keys(filters).length} filter${Object.keys(filters).length > 1 ? 's' : ''} applied)`
-    : 'Real-time insights from your Pendo data';
-
   return (
     <Layout
       showNavigation={true}
       title="Analytics Overview"
-      subtitle={subtitle}
+      subtitle="Real-time insights from your Pendo data"
       primaryAction={{
         content: 'Refresh',
         onAction: () => refetch()
@@ -263,17 +240,6 @@ export const Dashboard: React.FC = () => {
             <InlineSpinner message="Loading dashboard data..." size="lg" />
           </div>
         )}
-
-        {/* Advanced Search */}
-        <AdvancedSearch
-          onSearch={handleAdvancedSearch}
-        />
-
-        {/* Filter Panel */}
-        <FilterPanel
-          filters={filters}
-          onFiltersChange={updateFilters}
-        />
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -329,11 +295,6 @@ export const Dashboard: React.FC = () => {
           <CardHeader>
             <CardTitle>
               Recent Activity
-              {Object.keys(filters).length > 0 && (
-                <span className="ml-2 text-sm font-normal text-gray-500">
-                  (Filtered Results)
-                </span>
-              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -392,15 +353,7 @@ export const Dashboard: React.FC = () => {
               ))}
               {sortedData.guides.length === 0 && sortedData.features.length === 0 && sortedData.reports.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
-                  <p>No data matches the current filters.</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={resetFilters}
-                    className="mt-2"
-                  >
-                    Clear filters
-                  </Button>
+                  <p>No recent activity to display.</p>
                 </div>
               )}
             </div>
