@@ -44,14 +44,14 @@
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
     # Content Security Policy - Adjust based on your needs
-    # NOTE: Pendo CDN endpoints are included in connect-src and script-src
+    # NOTE: Pendo CDN endpoints and Supabase are included in connect-src
     Content-Security-Policy = """
       default-src 'self';
       script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.pendo.io;
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: https:;
       font-src 'self' data:;
-      connect-src 'self' https://app.pendo.io https://data.pendo.io https://cdn.pendo.io;
+      connect-src 'self' https://app.pendo.io https://data.pendo.io https://cdn.pendo.io https://nrutlzclujyejusvbafm.supabase.co https://accounts.google.com;
       frame-ancestors 'none';
       base-uri 'self';
       form-action 'self';
