@@ -1,5 +1,6 @@
 import React from 'react';
 import { Cin7Card, Cin7CardContent, BlockStack, InlineStack, Text } from '@/components/polaris';
+import { Sparkline } from './Sparkline';
 
 interface KPICardProps {
   title: string;
@@ -8,6 +9,7 @@ interface KPICardProps {
   changeType?: 'increase' | 'decrease' | 'neutral';
   description?: string;
   loading?: boolean;
+  trendData?: number[];
 }
 
 export const KPICard: React.FC<KPICardProps> = ({
@@ -16,7 +18,8 @@ export const KPICard: React.FC<KPICardProps> = ({
   change,
   changeType = 'neutral',
   description,
-  loading = false
+  loading = false,
+  trendData
 }) => {
   const getChangeColor = () => {
     switch (changeType) {
@@ -58,9 +61,14 @@ export const KPICard: React.FC<KPICardProps> = ({
           {(change !== undefined || description) && (
             <InlineStack gap="200" wrap={false} blockAlign="center">
               {change !== undefined && (
-                <Text as="span" variant="bodySm" fontWeight="medium" tone={getChangeColor()}>
-                  {getChangeSymbol()} {Math.abs(change)}%
-                </Text>
+                <InlineStack gap="100" wrap={false} blockAlign="center">
+                  <Text as="span" variant="bodySm" fontWeight="medium" tone={getChangeColor()}>
+                    {getChangeSymbol()} {Math.abs(change)}%
+                  </Text>
+                  {trendData && trendData.length > 0 && (
+                    <Sparkline data={trendData} color={getChangeColor()} />
+                  )}
+                </InlineStack>
               )}
               {description && (
                 <Text as="span" variant="bodySm" tone="subdued">
