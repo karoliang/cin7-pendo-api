@@ -8,6 +8,7 @@ import { FilterPanel } from '@/components/filters/FilterPanel';
 import { useDashboardOverview } from '@/hooks/usePendoData';
 import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
+import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
 import {
   DocumentTextIcon,
   CubeIcon,
@@ -221,6 +222,96 @@ export const DataTables: React.FC = () => {
       };
     });
   }, [sortedData.guides.length, sortedData.features.length, sortedData.pages.length, sortedData.reports.length]);
+
+  // Calculate summary metrics for each tab
+  const summaryMetrics = React.useMemo(() => {
+    // Guides metrics
+    const guidesData = sortedData.guides as Guide[];
+    const publishedGuides = guidesData.filter(g => g.state === 'published' || g.state === 'public').length;
+    const draftGuides = guidesData.filter(g => g.state === 'draft').length;
+    const archivedGuides = guidesData.filter(g => g.state === 'archived').length;
+    const totalGuidesViewed = guidesData.reduce((sum, g) => sum + g.viewedCount, 0);
+    const totalGuidesCompleted = guidesData.reduce((sum, g) => sum + g.completedCount, 0);
+    const avgCompletionRate = totalGuidesViewed > 0
+      ? ((totalGuidesCompleted / totalGuidesViewed) * 100).toFixed(1)
+      : '0';
+
+    // Get guide creation trend for last 30 days
+    const now = new Date();
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date(now.getTime() - (29 - i) * 24 * 60 * 60 * 1000);
+      return {
+        date,
+        count: guidesData.filter(g => {
+          const guideDate = new Date(g.createdAt);
+          return guideDate.toDateString() === date.toDateString();
+        }).length
+      };
+    });
+    const recentGuidesCount = last30Days.slice(-7).reduce((sum, day) => sum + day.count, 0);
+
+    // Features metrics
+    const featuresData = sortedData.features as Feature[];
+    const topFeatures = [...featuresData]
+      .sort((a, b) => b.usageCount - a.usageCount)
+      .slice(0, 5);
+    const totalFeatureUsage = featuresData.reduce((sum, f) => sum + f.usageCount, 0);
+    const activeFeatures = featuresData.filter(f => f.usageCount > 0).length;
+    const avgFeatureUsage = featuresData.length > 0
+      ? Math.round(totalFeatureUsage / featuresData.length)
+      : 0;
+
+    // Pages metrics
+    const pagesData = sortedData.pages as Page[];
+    const topPages = [...pagesData]
+      .sort((a, b) => b.viewedCount - a.viewedCount)
+      .slice(0, 5);
+    const totalPageViews = pagesData.reduce((sum, p) => sum + p.viewedCount, 0);
+    const totalPageVisitors = pagesData.reduce((sum, p) => sum + p.visitorCount, 0);
+    const avgViewsPerPage = pagesData.length > 0
+      ? Math.round(totalPageViews / pagesData.length)
+      : 0;
+
+    // Reports metrics
+    const reportsData = sortedData.reports as Report[];
+    const reportsWithRuns = reportsData.filter(r => r.lastSuccessRunAt).length;
+    const reportsNeverRun = reportsData.length - reportsWithRuns;
+    const recentReports = reportsData.filter(r => {
+      if (!r.lastSuccessRunAt) return false;
+      const lastRun = new Date(r.lastSuccessRunAt);
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      return lastRun >= weekAgo;
+    }).length;
+
+    return {
+      guides: {
+        published: publishedGuides,
+        draft: draftGuides,
+        archived: archivedGuides,
+        avgCompletionRate,
+        recentCount: recentGuidesCount,
+        totalViewed: totalGuidesViewed,
+        totalCompleted: totalGuidesCompleted
+      },
+      features: {
+        topFeatures,
+        totalUsage: totalFeatureUsage,
+        activeCount: activeFeatures,
+        avgUsage: avgFeatureUsage
+      },
+      pages: {
+        topPages,
+        totalViews: totalPageViews,
+        totalVisitors: totalPageVisitors,
+        avgViewsPerPage
+      },
+      reports: {
+        withRuns: reportsWithRuns,
+        neverRun: reportsNeverRun,
+        recentRuns: recentReports
+      }
+    };
+  }, [sortedData]);
 
   const tabs = [
     {
@@ -508,6 +599,221 @@ export const DataTables: React.FC = () => {
 
           {/* Table Content */}
           <div className="p-6">
+            {/* Summary Cards */}
+            {activeTab === 'guides' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">Published</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">{summaryMetrics.guides.published}</div>
+                    <p className="text-xs text-gray-500 mt-1">Active guides</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">Draft</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-yellow-600">{summaryMetrics.guides.draft}</div>
+                    <p className="text-xs text-gray-500 mt-1">In progress</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">Completion Rate</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-blue-600">{summaryMetrics.guides.avgCompletionRate}%</div>
+                    <p className="text-xs text-gray-500 mt-1">Average across all guides</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">Last 7 Days</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-purple-600">{summaryMetrics.guides.recentCount}</div>
+                    <p className="text-xs text-gray-500 mt-1">New guides created</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeTab === 'features' && (
+              <div className="mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-600">Total Usage</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-blue-600">{summaryMetrics.features.totalUsage.toLocaleString()}</div>
+                      <p className="text-xs text-gray-500 mt-1">Feature interactions</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-600">Active Features</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-green-600">{summaryMetrics.features.activeCount}</div>
+                      <p className="text-xs text-gray-500 mt-1">With usage data</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-600">Avg Usage</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-purple-600">{summaryMetrics.features.avgUsage.toLocaleString()}</div>
+                      <p className="text-xs text-gray-500 mt-1">Per feature</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-600">Total Features</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-gray-600">{sortedData.features.length}</div>
+                      <p className="text-xs text-gray-500 mt-1">Tracked features</p>
+                    </CardContent>
+                  </Card>
+                </div>
+                {summaryMetrics.features.topFeatures.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Top 5 Features by Usage</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {summaryMetrics.features.topFeatures.map((feature, index) => (
+                          <div key={feature.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-400 w-6">{index + 1}.</span>
+                              <span className="text-sm font-medium text-gray-700">{feature.name}</span>
+                            </div>
+                            <span className="text-sm font-bold text-blue-600">{feature.usageCount.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'pages' && (
+              <div className="mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-600">Total Views</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-blue-600">{summaryMetrics.pages.totalViews.toLocaleString()}</div>
+                      <p className="text-xs text-gray-500 mt-1">Page views</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-600">Total Visitors</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-green-600">{summaryMetrics.pages.totalVisitors.toLocaleString()}</div>
+                      <p className="text-xs text-gray-500 mt-1">Unique visitors</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-600">Avg Views/Page</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-purple-600">{summaryMetrics.pages.avgViewsPerPage.toLocaleString()}</div>
+                      <p className="text-xs text-gray-500 mt-1">Average views</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-gray-600">Total Pages</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-gray-600">{sortedData.pages.length}</div>
+                      <p className="text-xs text-gray-500 mt-1">Tracked pages</p>
+                    </CardContent>
+                  </Card>
+                </div>
+                {summaryMetrics.pages.topPages.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Top 5 Pages by Views</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {summaryMetrics.pages.topPages.map((page, index) => (
+                          <div key={page.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <span className="text-sm font-semibold text-gray-400 w-6">{index + 1}.</span>
+                              <div className="min-w-0 flex-1">
+                                <div className="text-sm font-medium text-gray-700 truncate">{page.name}</div>
+                                <div className="text-xs text-gray-500 font-mono truncate">{page.url}</div>
+                              </div>
+                            </div>
+                            <div className="ml-4 text-right">
+                              <div className="text-sm font-bold text-blue-600">{page.viewedCount.toLocaleString()}</div>
+                              <div className="text-xs text-gray-500">{page.visitorCount.toLocaleString()} visitors</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'reports' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">With Runs</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">{summaryMetrics.reports.withRuns}</div>
+                    <p className="text-xs text-gray-500 mt-1">Successfully executed</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">Never Run</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-yellow-600">{summaryMetrics.reports.neverRun}</div>
+                    <p className="text-xs text-gray-500 mt-1">Not yet executed</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">Recent Runs</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-blue-600">{summaryMetrics.reports.recentRuns}</div>
+                    <p className="text-xs text-gray-500 mt-1">In last 7 days</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">Total Reports</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-gray-600">{sortedData.reports.length}</div>
+                    <p className="text-xs text-gray-500 mt-1">Available reports</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             {/* Coming Soon Notice for Guides, Features, and Reports */}
             {(activeTab === 'guides' || activeTab === 'features' || activeTab === 'reports') && (
               <div className="mb-4 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
