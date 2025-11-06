@@ -4194,7 +4194,7 @@ class PendoAPIClient {
    * @param daysBack - Number of days to look back for analytics data (default: 365)
    * @returns Array of guides with enriched viewedCount and completedCount
    */
-  async getAllGuidesWithAnalytics(daysBack: number = 30): Promise<Guide[]> {
+  async getAllGuidesWithAnalytics(daysBack: number = 7): Promise<Guide[]> {
     try {
       console.log('🎯 Fetching enriched guides with analytics (last', daysBack, 'days)');
 
@@ -4252,7 +4252,7 @@ class PendoAPIClient {
       console.log(`✅ Successfully fetched ${response.results.length} guide events`);
 
       // Safety check: limit processing to prevent browser crashes
-      const maxEvents = 50000; // Process max 50k events
+      const maxEvents = 10000; // Process max 10k events
       const eventsToProcess = response.results.length > maxEvents
         ? response.results.slice(0, maxEvents)
         : response.results;
@@ -4324,7 +4324,7 @@ class PendoAPIClient {
    * @param daysBack - Number of days to look back for analytics data (default: 365)
    * @returns Array of features with enriched usageCount
    */
-  async getAllFeaturesWithAnalytics(daysBack: number = 30): Promise<Feature[]> {
+  async getAllFeaturesWithAnalytics(daysBack: number = 7): Promise<Feature[]> {
     try {
       console.log('🎯 Fetching enriched features with analytics (last', daysBack, 'days)');
 
@@ -4382,7 +4382,7 @@ class PendoAPIClient {
       console.log(`✅ Successfully fetched ${response.results.length} feature events`);
 
       // Safety check: limit processing to prevent browser crashes
-      const maxEvents = 50000; // Process max 50k events
+      const maxEvents = 10000; // Process max 10k events
       const eventsToProcess = response.results.length > maxEvents
         ? response.results.slice(0, maxEvents)
         : response.results;
@@ -4442,7 +4442,7 @@ class PendoAPIClient {
    * @param daysBack - Number of days to look back for analytics data (default: 365)
    * @returns Array of pages with enriched viewedCount and visitorCount
    */
-  async getAllPagesWithAnalytics(daysBack: number = 30): Promise<Page[]> {
+  async getAllPagesWithAnalytics(daysBack: number = 7): Promise<Page[]> {
     try {
       console.log('🎯 Fetching enriched pages with analytics (last', daysBack, 'days)');
 
@@ -4500,7 +4500,7 @@ class PendoAPIClient {
       console.log(`✅ Successfully fetched ${response.results.length} page events`);
 
       // Safety check: limit processing to prevent browser crashes
-      const maxEvents = 50000; // Process max 50k events
+      const maxEvents = 10000; // Process max 10k events
       const eventsToProcess = response.results.length > maxEvents
         ? response.results.slice(0, maxEvents)
         : response.results;

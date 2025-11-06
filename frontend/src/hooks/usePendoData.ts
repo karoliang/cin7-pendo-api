@@ -65,9 +65,9 @@ export const useReports = (params?: {
 
 // Hook for fetching dashboard overview data with enriched analytics
 export const useDashboardOverview = () => {
-  const guidesQuery = useGuidesWithAnalytics(30);
-  const featuresQuery = useFeaturesWithAnalytics(30);
-  const pagesQuery = usePagesWithAnalytics(30);
+  const guidesQuery = useGuidesWithAnalytics(7);
+  const featuresQuery = useFeaturesWithAnalytics(7);
+  const pagesQuery = usePagesWithAnalytics(7);
   const reportsQuery = useReports({ limit: 1000 });
 
   // Debug logging to identify stuck queries
@@ -125,7 +125,7 @@ export const useDashboardOverview = () => {
 };
 
 // Hook for fetching guide performance time series data
-export const useGuidePerformance = (daysBack: number = 30) => {
+export const useGuidePerformance = (daysBack: number = 7) => {
   return useQuery({
     queryKey: ['guidePerformance', daysBack],
     queryFn: () => pendoAPI.getAllGuidesPerformanceTimeSeries(daysBack),
@@ -137,7 +137,7 @@ export const useGuidePerformance = (daysBack: number = 30) => {
 };
 
 // Hook for fetching guides with enriched analytics
-export const useGuidesWithAnalytics = (daysBack: number = 30) => {
+export const useGuidesWithAnalytics = (daysBack: number = 7) => {
   const query = useQuery({
     queryKey: ['guidesWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllGuidesWithAnalytics(daysBack),
@@ -162,7 +162,7 @@ export const useGuidesWithAnalytics = (daysBack: number = 30) => {
 };
 
 // Hook for fetching features with enriched analytics
-export const useFeaturesWithAnalytics = (daysBack: number = 30) => {
+export const useFeaturesWithAnalytics = (daysBack: number = 7) => {
   const query = useQuery({
     queryKey: ['featuresWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllFeaturesWithAnalytics(daysBack),
@@ -187,7 +187,7 @@ export const useFeaturesWithAnalytics = (daysBack: number = 30) => {
 };
 
 // Hook for fetching pages with enriched analytics
-export const usePagesWithAnalytics = (daysBack: number = 30) => {
+export const usePagesWithAnalytics = (daysBack: number = 7) => {
   const query = useQuery({
     queryKey: ['pagesWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllPagesWithAnalytics(daysBack),
