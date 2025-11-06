@@ -4177,6 +4177,259 @@ class PendoAPIClient {
       return [];
     }
   }
+
+  /**
+   * Get all guides enriched with analytics data from aggregation API
+   *
+   * This method fetches guide metadata and enriches it with real-time analytics
+   * by querying the aggregation API for guideEvents over the specified time period.
+   *
+   * @param daysBack - Number of days to look back for analytics data (default: 90)
+   * @returns Array of guides with enriched viewedCount and completedCount
+   */
+  async getAllGuidesWithAnalytics(daysBack: number = 90): Promise<Guide[]> {
+    try {
+      console.log(`📊 Fetching all guides with analytics (last ${daysBack} days)`);
+
+      // 1. Fetch metadata
+      const guides = await this.getGuides({ limit: 1000 });
+      console.log(`✅ Fetched ${guides.length} guides from metadata API`);
+
+      // 2. Fetch aggregation data
+      const endTime = Date.now();
+      const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
+
+      const aggregationRequest = {
+        source: {
+          guideEvents: null,
+          timeSeries: {
+            first: startTime,
+            count: daysBack,
+            period: "dayRange"
+          }
+        },
+        requestId: `all_guides_analytics_${Date.now()}`
+      };
+
+      console.log(`🔍 Requesting aggregation data for all guides`);
+
+      try {
+        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
+
+        // 3. Group by guideId
+        const analyticsMap = new Map<string, { views: number; completions: number }>();
+
+        if (response.results && Array.isArray(response.results)) {
+          console.log(`✅ Processing ${response.results.length} guide events`);
+
+          response.results.forEach(event => {
+            const guideId = event.guideId;
+            if (!guideId) return;
+
+            if (!analyticsMap.has(guideId)) {
+              analyticsMap.set(guideId, { views: 0, completions: 0 });
+            }
+
+            const analytics = analyticsMap.get(guideId)!;
+            if (event.action === 'view' || event.action === 'advanced') {
+              analytics.views++;
+            } else if (event.action === 'completed') {
+              analytics.completions++;
+            }
+          });
+
+          console.log(`✅ Aggregated analytics for ${analyticsMap.size} guides`);
+        }
+
+        // 4. Merge analytics into guides
+        const enrichedGuides = guides.map(guide => {
+          const analytics = analyticsMap.get(guide.id);
+          return {
+            ...guide,
+            viewedCount: analytics?.views || guide.viewedCount || 0,
+            completedCount: analytics?.completions || guide.completedCount || 0
+          };
+        });
+
+        console.log(`✅ Returning ${enrichedGuides.length} guides with enriched analytics`);
+        return enrichedGuides;
+
+      } catch (aggError) {
+        console.warn(`⚠️ Could not fetch aggregation data, returning metadata only:`, aggError);
+        return guides;
+      }
+
+    } catch (error) {
+      console.error('❌ Error fetching guides with analytics:', error);
+      throw new Error('Unable to fetch guides with analytics from Pendo. Please verify your API credentials and connection.');
+    }
+  }
+
+  /**
+   * Get all features enriched with analytics data from aggregation API
+   *
+   * This method fetches feature metadata and enriches it with real-time analytics
+   * by querying the aggregation API for featureEvents over the specified time period.
+   *
+   * @param daysBack - Number of days to look back for analytics data (default: 90)
+   * @returns Array of features with enriched usageCount
+   */
+  async getAllFeaturesWithAnalytics(daysBack: number = 90): Promise<Feature[]> {
+    try {
+      console.log(`📊 Fetching all features with analytics (last ${daysBack} days)`);
+
+      // 1. Fetch metadata
+      const features = await this.getFeatures({ limit: 1000 });
+      console.log(`✅ Fetched ${features.length} features from metadata API`);
+
+      // 2. Fetch aggregation data
+      const endTime = Date.now();
+      const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
+
+      const aggregationRequest = {
+        source: {
+          featureEvents: null,
+          timeSeries: {
+            first: startTime,
+            count: daysBack,
+            period: "dayRange"
+          }
+        },
+        requestId: `all_features_analytics_${Date.now()}`
+      };
+
+      console.log(`🔍 Requesting aggregation data for all features`);
+
+      try {
+        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
+
+        // 3. Count usage events by featureId
+        const analyticsMap = new Map<string, number>();
+
+        if (response.results && Array.isArray(response.results)) {
+          console.log(`✅ Processing ${response.results.length} feature events`);
+
+          response.results.forEach(event => {
+            const featureId = event.featureId;
+            if (!featureId) return;
+
+            const currentCount = analyticsMap.get(featureId) || 0;
+            analyticsMap.set(featureId, currentCount + 1);
+          });
+
+          console.log(`✅ Aggregated analytics for ${analyticsMap.size} features`);
+        }
+
+        // 4. Merge analytics into features
+        const enrichedFeatures = features.map(feature => {
+          const usageCount = analyticsMap.get(feature.id);
+          return {
+            ...feature,
+            usageCount: usageCount || feature.usageCount || 0
+          };
+        });
+
+        console.log(`✅ Returning ${enrichedFeatures.length} features with enriched analytics`);
+        return enrichedFeatures;
+
+      } catch (aggError) {
+        console.warn(`⚠️ Could not fetch aggregation data, returning metadata only:`, aggError);
+        return features;
+      }
+
+    } catch (error) {
+      console.error('❌ Error fetching features with analytics:', error);
+      throw new Error('Unable to fetch features with analytics from Pendo. Please verify your API credentials and connection.');
+    }
+  }
+
+  /**
+   * Get all pages enriched with analytics data from aggregation API
+   *
+   * This method fetches page metadata and enriches it with real-time analytics
+   * by querying the aggregation API for pageEvents over the specified time period.
+   *
+   * @param daysBack - Number of days to look back for analytics data (default: 90)
+   * @returns Array of pages with enriched viewedCount and visitorCount
+   */
+  async getAllPagesWithAnalytics(daysBack: number = 90): Promise<Page[]> {
+    try {
+      console.log(`📊 Fetching all pages with analytics (last ${daysBack} days)`);
+
+      // 1. Fetch metadata
+      const pages = await this.getPages({ limit: 1000 });
+      console.log(`✅ Fetched ${pages.length} pages from metadata API`);
+
+      // 2. Fetch aggregation data
+      const endTime = Date.now();
+      const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
+
+      const aggregationRequest = {
+        source: {
+          pageEvents: null,
+          timeSeries: {
+            first: startTime,
+            count: daysBack,
+            period: "dayRange"
+          }
+        },
+        requestId: `all_pages_analytics_${Date.now()}`
+      };
+
+      console.log(`🔍 Requesting aggregation data for all pages`);
+
+      try {
+        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
+
+        // 3. Count views and unique visitors by pageId
+        const analyticsMap = new Map<string, { views: number; visitors: Set<string> }>();
+
+        if (response.results && Array.isArray(response.results)) {
+          console.log(`✅ Processing ${response.results.length} page events`);
+
+          response.results.forEach(event => {
+            const pageId = event.pageId || (event as { 0?: PendoAggregationResult })[0]?.pageId;
+            if (!pageId || typeof pageId !== 'string') return;
+
+            if (!analyticsMap.has(pageId)) {
+              analyticsMap.set(pageId, { views: 0, visitors: new Set() });
+            }
+
+            const analytics = analyticsMap.get(pageId)!;
+            analytics.views++;
+
+            // Add visitor if visitorId exists
+            if (event.visitorId && typeof event.visitorId === 'string') {
+              analytics.visitors.add(event.visitorId);
+            }
+          });
+
+          console.log(`✅ Aggregated analytics for ${analyticsMap.size} pages`);
+        }
+
+        // 4. Merge analytics into pages
+        const enrichedPages = pages.map(page => {
+          const analytics = analyticsMap.get(page.id);
+          return {
+            ...page,
+            viewedCount: analytics?.views || page.viewedCount || 0,
+            visitorCount: analytics?.visitors.size || page.visitorCount || 0
+          };
+        });
+
+        console.log(`✅ Returning ${enrichedPages.length} pages with enriched analytics`);
+        return enrichedPages;
+
+      } catch (aggError) {
+        console.warn(`⚠️ Could not fetch aggregation data, returning metadata only:`, aggError);
+        return pages;
+      }
+
+    } catch (error) {
+      console.error('❌ Error fetching pages with analytics:', error);
+      throw new Error('Unable to fetch pages with analytics from Pendo. Please verify your API credentials and connection.');
+    }
+  }
 }
 
 export const pendoAPI = new PendoAPIClient();

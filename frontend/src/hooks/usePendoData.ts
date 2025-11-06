@@ -62,11 +62,11 @@ export const useReports = (params?: {
   });
 };
 
-// Hook for fetching dashboard overview data
+// Hook for fetching dashboard overview data with enriched analytics
 export const useDashboardOverview = () => {
-  const guidesQuery = useGuides({ limit: 1000 });
-  const featuresQuery = useFeatures({ limit: 1000 });
-  const pagesQuery = usePages({ limit: 1000 });
+  const guidesQuery = useGuidesWithAnalytics(90);
+  const featuresQuery = useFeaturesWithAnalytics(90);
+  const pagesQuery = usePagesWithAnalytics(90);
   const reportsQuery = useReports({ limit: 1000 });
 
   // Debug logging to identify stuck queries
@@ -102,6 +102,42 @@ export const useGuidePerformance = (daysBack: number = 30) => {
     queryFn: () => pendoAPI.getAllGuidesPerformanceTimeSeries(daysBack),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Hook for fetching guides with enriched analytics
+export const useGuidesWithAnalytics = (daysBack: number = 90) => {
+  return useQuery({
+    queryKey: ['guidesWithAnalytics', daysBack],
+    queryFn: () => pendoAPI.getAllGuidesWithAnalytics(daysBack),
+    staleTime: 10 * 60 * 1000, // 10 minutes (longer because aggregation is slower)
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Hook for fetching features with enriched analytics
+export const useFeaturesWithAnalytics = (daysBack: number = 90) => {
+  return useQuery({
+    queryKey: ['featuresWithAnalytics', daysBack],
+    queryFn: () => pendoAPI.getAllFeaturesWithAnalytics(daysBack),
+    staleTime: 10 * 60 * 1000, // 10 minutes (longer because aggregation is slower)
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Hook for fetching pages with enriched analytics
+export const usePagesWithAnalytics = (daysBack: number = 90) => {
+  return useQuery({
+    queryKey: ['pagesWithAnalytics', daysBack],
+    queryFn: () => pendoAPI.getAllPagesWithAnalytics(daysBack),
+    staleTime: 10 * 60 * 1000, // 10 minutes (longer because aggregation is slower)
+    gcTime: 15 * 60 * 1000, // 15 minutes
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
