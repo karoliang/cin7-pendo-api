@@ -1,5 +1,7 @@
 import { Navigation } from '@/components/layout/Navigation';
-import { Page, BlockStack, InlineStack, Text } from '@shopify/polaris';
+import { Page, BlockStack, InlineStack, Text, Button, Popover, ActionList } from '@shopify/polaris';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,6 +26,20 @@ export const Layout: React.FC<LayoutProps> = ({
   primaryAction,
   secondaryActions
 }) => {
+  const { user, signOut } = useAuth();
+  const [userMenuActive, setUserMenuActive] = useState(false);
+
+  const toggleUserMenu = () => setUserMenuActive((active) => !active);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--p-color-bg)' }}>
       {/* App Header - Brand Banner */}
@@ -39,6 +55,29 @@ export const Layout: React.FC<LayoutProps> = ({
                 Pendo Analytics Dashboard
               </h1>
             </InlineStack>
+
+            {/* User Menu */}
+            {user && (
+              <Popover
+                active={userMenuActive}
+                activator={
+                  <Button onClick={toggleUserMenu} disclosure variant="plain">
+                    <span style={{ color: 'white' }}>{user.email}</span>
+                  </Button>
+                }
+                onClose={toggleUserMenu}
+                ariaHaspopup="menu"
+              >
+                <ActionList
+                  items={[
+                    {
+                      content: 'Sign out',
+                      onAction: handleSignOut,
+                    },
+                  ]}
+                />
+              </Popover>
+            )}
           </div>
         </div>
       </div>
