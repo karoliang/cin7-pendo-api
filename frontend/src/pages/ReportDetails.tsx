@@ -24,7 +24,7 @@ import {
   MapPinIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
-  VideoCameraIcon,
+  PlayIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '@heroicons/react/24/outline';
@@ -41,13 +41,16 @@ import { ReportPieChart } from '@/components/reports/ReportPieChart';
 import { GeographicMap } from '@/components/reports/GeographicMap';
 import type { GeographicMapData } from '@/components/reports/GeographicMap';
 import { SessionTimingDistribution } from '@/components/reports/SessionTimingDistribution';
+import { CompletionFunnel } from '@/components/charts/CompletionFunnel';
 
 // Import AI Summary component
 import { AISummary } from '@/components/ai/AISummary';
 
-// Import Video Modal component
-import { VideoModal } from '@/components/modals/VideoModal';
+// Import Spinner component
 import { InlineSpinner } from '@/components/ui/Spinner';
+
+// Import Revenue Impact component
+import { RevenueImpact } from '@/components/dashboard/RevenueImpact';
 
 // Import comprehensive types
 import type {
@@ -85,12 +88,10 @@ export const ReportDetails: React.FC = () => {
   const [sortColumn, setSortColumn] = React.useState<string>('date');
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
 
-  // Video modal state
-  const [selectedRecording, setSelectedRecording] = React.useState<{
-    recordingId: string;
-    visitorId: string;
-    date: string;
-  } | null>(null);
+  // Helper function to generate Pendo recording URL
+  const getPendoRecordingUrl = (recordingId: string) => {
+    return `https://app.pendo.io/recordings/${recordingId}`;
+  };
 
   // Type guards
   const isValidType = (t: string): t is ReportType =>
@@ -268,12 +269,6 @@ export const ReportDetails: React.FC = () => {
     const endIndex = Math.min(startIndex + pageSize - 1, totalItems);
     return { totalItems, totalPages, startIndex, endIndex };
   }, [data, type, currentPage, pageSize]);
-
-  const handleRecordingClick = (recordingId: string, visitorId: string, date: string) => {
-    console.log('🎬 Recording clicked:', { recordingId, visitorId, date });
-    setSelectedRecording({ recordingId, visitorId, date });
-    console.log('✅ Selected recording state updated');
-  };
 
   // Handle column sort
   const handleSort = (column: string) => {
@@ -1080,6 +1075,20 @@ export const ReportDetails: React.FC = () => {
             </div>
           )}
 
+          {/* POSITION 6.5: Revenue Impact Section */}
+          {type === 'pages' && (data as ComprehensivePageData).topAccounts && (data as ComprehensivePageData).topAccounts!.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Revenue Impact</h2>
+                <DataQualityBadge type="real" tooltip="ARR metrics from top accounts viewing this page" />
+              </div>
+              <RevenueImpact
+                accounts={(data as ComprehensivePageData).topAccounts!}
+                loading={isLoading}
+              />
+            </div>
+          )}
+
           {/* POSITION 7: Geographic Distribution Section (MOVED UP) */}
           {type === 'pages' && (data as ComprehensivePageData).geographicDistribution && (data as ComprehensivePageData).geographicDistribution!.length > 0 && (
             <div className="space-y-6">
@@ -1424,16 +1433,18 @@ export const ReportDetails: React.FC = () => {
                             <td className="text-right py-2 px-2">{event.rageClicks?.toLocaleString() || 0}</td>
                             <td className="text-center py-2 px-2">
                               {event.recordingId ? (
-                                <button
-                                  onClick={() => handleRecordingClick(event.recordingId!, event.visitorId, event.date)}
-                                  className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors cursor-pointer hover:scale-110"
-                                  title="View Session Recording"
-                                  aria-label="View Session Recording"
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(getPendoRecordingUrl(event.recordingId!), '_blank')}
+                                  title="Watch session replay in Pendo"
+                                  className="inline-flex items-center gap-1 text-xs whitespace-nowrap"
                                 >
-                                  <VideoCameraIcon className="h-4 w-4" />
-                                </button>
+                                  <PlayIcon className="h-3 w-3" />
+                                  View Recording
+                                </Button>
                               ) : (
-                                <span className="text-gray-400">--</span>
+                                <span className="text-gray-400 text-xs">No recording</span>
                               )}
                             </td>
                             <td className="py-2 px-2 text-gray-400">--</td>
@@ -1512,7 +1523,36 @@ export const ReportDetails: React.FC = () => {
             </Card>
           )}
 
-          {/* POSITION 11: Guide Steps Section (for guides type) */}
+          {/* POSITION 11: Completion Funnel Section (for guides type) */}
+          {type === 'guides' && (data as ComprehensiveGuideData).stepCount > 1 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Completion Funnel</h2>
+                <DataQualityBadge
+                  type={(data as ComprehensiveGuideData).steps && (data as ComprehensiveGuideData).steps.length > 0 ? "real" : "mock"}
+                  tooltip={(data as ComprehensiveGuideData).steps && (data as ComprehensiveGuideData).steps.length > 0
+                    ? "Real step-level analytics from Pendo guideEvents API"
+                    : "Estimated funnel based on total views and completions"}
+                />
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <ChartBarIcon className="h-5 w-5 mr-2 text-purple-600" />
+                    Step-by-Step Completion Funnel
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CompletionFunnel
+                    guide={data as ComprehensiveGuideData}
+                    loading={isLoading}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* POSITION 12: Guide Steps Section (for guides type) */}
           {type === 'guides' && (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -1586,7 +1626,7 @@ export const ReportDetails: React.FC = () => {
             </div>
           )}
 
-          {/* POSITION 12: Features Targeting Section (for pages type) */}
+          {/* POSITION 13: Features Targeting Section (for pages type) */}
           {type === 'pages' && (
             <div className="space-y-6">
               {/* Features - All (API Limitation) */}
@@ -1706,10 +1746,10 @@ export const ReportDetails: React.FC = () => {
             </div>
           )}
 
-          {/* POSITION 13: Guides Targeting Section (for pages type) - REMOVED DUPLICATES */}
+          {/* POSITION 14: Guides Targeting Section (for pages type) - REMOVED DUPLICATES */}
           {/* The Guides Targeting section already appears above after Features */}
 
-          {/* POSITION 14: Technical Details Section (keep at bottom) */}
+          {/* POSITION 15: Technical Details Section (keep at bottom) */}
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Technical Details</h2>
             <Card>
@@ -1758,17 +1798,6 @@ export const ReportDetails: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Video Modal */}
-      {selectedRecording && (
-        <VideoModal
-          isOpen={!!selectedRecording}
-          onClose={() => setSelectedRecording(null)}
-          recordingId={selectedRecording.recordingId}
-          visitorId={selectedRecording.visitorId}
-          date={selectedRecording.date}
-        />
-      )}
     </Layout>
   );
 };
