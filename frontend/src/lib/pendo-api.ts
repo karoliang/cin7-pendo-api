@@ -949,15 +949,22 @@ class PendoAPIClient {
 
       // Query aggregation API for all guide events
       const aggregationRequest = {
-        source: {
-          guideEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: daysBack,
-            period: "dayRange"
-          }
-        },
-        requestId: `all_guides_timeseries_${Date.now()}`
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                guideEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: daysBack,
+                  period: "dayRange"
+                }
+              }
+            }
+          ],
+          requestId: `all_guides_timeseries_${Date.now()}`
+        }
       };
 
       console.log(`🔍 Aggregation request:`, JSON.stringify(aggregationRequest, null, 2));
@@ -4201,17 +4208,24 @@ class PendoAPIClient {
 
       console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
 
-      // Use the same format as getAllGuidesPerformanceTimeSeries which we know works
+      // Use the pipeline format required by Pendo Aggregation API
       const aggregationRequest = {
-        source: {
-          guideEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: daysBack,
-            period: "dayRange"
-          }
-        },
-        requestId: `all_guides_analytics_${Date.now()}`
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                guideEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: daysBack,
+                  period: "dayRange"
+                }
+              }
+            }
+          ],
+          requestId: `all_guides_analytics_${Date.now()}`
+        }
       };
 
       console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
@@ -4314,17 +4328,24 @@ class PendoAPIClient {
 
       console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
 
-      // Use the same format as working methods
+      // Use the pipeline format required by Pendo Aggregation API
       const aggregationRequest = {
-        source: {
-          featureEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: daysBack,
-            period: "dayRange"
-          }
-        },
-        requestId: `all_features_analytics_${Date.now()}`
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                featureEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: daysBack,
+                  period: "dayRange"
+                }
+              }
+            }
+          ],
+          requestId: `all_features_analytics_${Date.now()}`
+        }
       };
 
       console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
@@ -4415,17 +4436,24 @@ class PendoAPIClient {
 
       console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
 
-      // Use the same format as working methods
+      // Use the pipeline format required by Pendo Aggregation API
       const aggregationRequest = {
-        source: {
-          pageEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: daysBack,
-            period: "dayRange"
-          }
-        },
-        requestId: `all_pages_analytics_${Date.now()}`
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                pageEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: daysBack,
+                  period: "dayRange"
+                }
+              }
+            }
+          ],
+          requestId: `all_pages_analytics_${Date.now()}`
+        }
       };
 
       console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
