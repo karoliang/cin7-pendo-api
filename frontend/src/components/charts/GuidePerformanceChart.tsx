@@ -10,6 +10,8 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useGuidePerformance } from '@/hooks/usePendoData';
+
 interface GuidePerformanceChartProps {
   guides?: unknown[]; // Not used, kept for backwards compatibility
   className?: string;
@@ -18,27 +20,23 @@ interface GuidePerformanceChartProps {
 export const GuidePerformanceChart: React.FC<GuidePerformanceChartProps> = ({
   className
 }) => {
-  // Transform guides data for chart
+  // Fetch real guide performance data
+  const { data: performanceData, isLoading, error } = useGuidePerformance(30);
+
+  // Transform API data to chart format
   const chartData = React.useMemo(() => {
-    // Create mock time series data for demonstration
-    const last30Days = Array.from({ length: 30 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (29 - i));
-      return date.toISOString().split('T')[0];
-    });
+    if (!performanceData || performanceData.length === 0) {
+      // Return empty array while loading or if no data
+      return [];
+    }
 
-    return last30Days.map(date => {
-      const dayViews = Math.floor(Math.random() * 500) + 100;
-      const dayCompletions = Math.floor(dayViews * (Math.random() * 0.6 + 0.2));
-
-      return {
-        date,
-        views: dayViews,
-        completions: dayCompletions,
-        uniqueVisitors: Math.floor(dayViews * (Math.random() * 0.8 + 0.3))
-      };
-    });
-  }, []);
+    return performanceData.map(item => ({
+      date: item.date,
+      views: item.views,
+      completions: item.completions,
+      uniqueVisitors: item.visitors
+    }));
+  }, [performanceData]);
 
   interface TooltipPayload {
     name: string;
@@ -67,6 +65,63 @@ export const GuidePerformanceChart: React.FC<GuidePerformanceChartProps> = ({
     }
     return null;
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle>Guide Performance - Last 30 Days</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 min-h-[256px] flex items-center justify-center">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="mt-2 text-sm text-gray-600">Loading performance data...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle>Guide Performance - Last 30 Days</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 min-h-[256px] flex items-center justify-center">
+            <div className="text-center text-red-600">
+              <p className="font-medium">Error loading performance data</p>
+              <p className="text-sm mt-1">{error instanceof Error ? error.message : 'Unknown error'}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Empty state
+  if (!chartData || chartData.length === 0) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle>Guide Performance - Last 30 Days</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 min-h-[256px] flex items-center justify-center">
+            <div className="text-center text-gray-500">
+              <p className="font-medium">No performance data available</p>
+              <p className="text-sm mt-1">Guide analytics will appear here once guides are viewed</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className={className}>

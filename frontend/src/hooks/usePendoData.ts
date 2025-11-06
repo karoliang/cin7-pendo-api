@@ -94,3 +94,15 @@ export const useDashboardOverview = () => {
     },
   };
 };
+
+// Hook for fetching guide performance time series data
+export const useGuidePerformance = (daysBack: number = 30) => {
+  return useQuery({
+    queryKey: ['guidePerformance', daysBack],
+    queryFn: () => pendoAPI.getAllGuidesPerformanceTimeSeries(daysBack),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+};
