@@ -4280,11 +4280,17 @@ class PendoAPIClient {
 
         const analytics = analyticsMap.get(guideId)!;
 
-        // Count by action type
-        const action = event.action || event.eventAction;
-        if (action === 'view' || action === 'advanced') {
+        // Count by event type (Pendo uses 'type' field, not 'action')
+        const eventType = event.type || event.eventType;
+
+        // Count views: guideSeen, guideActivity, or legacy 'view'/'advanced' actions
+        if (eventType === 'guideSeen' || eventType === 'guideActivity' ||
+            event.action === 'view' || event.action === 'advanced') {
           analytics.views++;
-        } else if (action === 'completed') {
+        }
+
+        // Count completions
+        if (event.action === 'completed' || eventType === 'guideComplete') {
           analytics.completions++;
         }
       });
