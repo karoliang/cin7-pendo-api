@@ -79,8 +79,6 @@ export const Cin7Button = React.forwardRef<HTMLButtonElement, Cin7ButtonProps>(
 Cin7Button.displayName = 'Cin7Button';
 
 // Compatibility wrapper for components using the old Button API
-// This wrapper uses plain HTML to support React.ReactNode children (icons + text)
-// while maintaining Cin7 branding through CSS
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Cin7ButtonVariant;
   size?: Cin7ButtonSize;
@@ -88,43 +86,18 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'default', size = 'default', asChild, className, children, ...props }, ref) => {
-    // Use plain button with Cin7 styling to support React.ReactNode children (icons + text)
-    const getButtonClasses = () => {
-      const base = 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
-
-      const variantClasses = {
-        default: 'bg-[var(--cin7-hept-blue,#0033A0)] text-white hover:bg-[var(--cin7-hept-blue-dark,#002266)]',
-        primary: 'bg-[var(--cin7-hept-blue,#0033A0)] text-white hover:bg-[var(--cin7-hept-blue-dark,#002266)]',
-        destructive: 'bg-[var(--cin7-error,#D32F2F)] text-white hover:bg-red-700',
-        outline: 'border border-gray-300 bg-white hover:bg-gray-50',
-        secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
-        ghost: 'hover:bg-gray-100 hover:text-gray-900',
-        link: 'text-[var(--cin7-hept-blue,#0033A0)] underline-offset-4 hover:underline',
-      };
-
-      const sizeClasses = {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-md px-3',
-        lg: 'h-11 rounded-md px-8',
-        micro: 'h-8 rounded-md px-2 text-xs',
-        slim: 'h-9 rounded-md px-3',
-        medium: 'h-10 px-4 py-2',
-        large: 'h-11 rounded-md px-8',
-        icon: 'h-10 w-10',
-      };
-
-      return cn(base, variantClasses[variant], sizeClasses[size], className);
-    };
-
+  ({ variant = 'default', size = 'default', asChild, className, children, onClick, disabled, type }, ref) => {
     return (
-      <button
-        ref={ref}
-        className={getButtonClasses()}
-        {...props}
+      <Cin7Button
+        variant={variant}
+        size={size}
+        onClick={onClick as any}
+        disabled={disabled}
+        submit={type === 'submit'}
+        className={className}
       >
-        {children}
-      </button>
+        {String(children)}
+      </Cin7Button>
     );
   }
 );
