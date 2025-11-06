@@ -4184,12 +4184,12 @@ class PendoAPIClient {
    * This method fetches guide metadata and enriches it with real-time analytics
    * by querying the aggregation API for guideEvents over the specified time period.
    *
-   * @param daysBack - Number of days to look back for analytics data (default: 90)
+   * @param daysBack - Number of days to look back for analytics data (default: 365)
    * @returns Array of guides with enriched viewedCount and completedCount
    */
-  async getAllGuidesWithAnalytics(daysBack: number = 90): Promise<Guide[]> {
+  async getAllGuidesWithAnalytics(daysBack: number = 365): Promise<Guide[]> {
     try {
-      console.log(`📊 Fetching all guides with analytics (last ${daysBack} days)`);
+      console.log('🎯 Fetching enriched guides with analytics (last', daysBack, 'days)');
 
       // 1. Fetch metadata
       const guides = await this.getGuides({ limit: 1000 });
@@ -4199,65 +4199,188 @@ class PendoAPIClient {
       const endTime = Date.now();
       const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
 
-      const aggregationRequest = {
-        source: {
-          guideEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: daysBack,
-            period: "dayRange"
+      console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
+
+      // Try multiple aggregation request structures
+      const aggregationRequests = [
+        {
+          name: 'Standard pipeline with timeSeries',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    guideEvents: null,
+                    timeSeries: {
+                      first: startTime,
+                      count: daysBack,
+                      period: "dayRange"
+                    }
+                  }
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_guides_analytics_${Date.now()}`
+            }
           }
         },
-        requestId: `all_guides_analytics_${Date.now()}`
-      };
-
-      console.log(`🔍 Requesting aggregation data for all guides`);
-
-      try {
-        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
-
-        // 3. Group by guideId
-        const analyticsMap = new Map<string, { views: number; completions: number }>();
-
-        if (response.results && Array.isArray(response.results)) {
-          console.log(`✅ Processing ${response.results.length} guide events`);
-
-          response.results.forEach(event => {
-            const guideId = event.guideId;
-            if (!guideId) return;
-
-            if (!analyticsMap.has(guideId)) {
-              analyticsMap.set(guideId, { views: 0, completions: 0 });
+        {
+          name: 'Direct source with filter',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    guideEvents: null
+                  }
+                },
+                {
+                  filter: `browserTime >= ${startTime} && browserTime <= ${endTime}`
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_guides_analytics_filter_${Date.now()}`
             }
-
-            const analytics = analyticsMap.get(guideId)!;
-            if (event.action === 'view' || event.action === 'advanced') {
-              analytics.views++;
-            } else if (event.action === 'completed') {
-              analytics.completions++;
+          }
+        },
+        {
+          name: 'Events source filtered by guideEvent',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    events: null
+                  }
+                },
+                {
+                  filter: `type == "guideEvent" && browserTime >= ${startTime} && browserTime <= ${endTime}`
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_guides_analytics_events_${Date.now()}`
             }
+          }
+        },
+        {
+          name: 'Simple guideEvents source',
+          request: {
+            source: {
+              guideEvents: null,
+              timeSeries: {
+                first: startTime,
+                count: daysBack,
+                period: "dayRange"
+              }
+            },
+            requestId: `all_guides_analytics_simple_${Date.now()}`
+          }
+        }
+      ];
+
+      let response: PendoAggregationResponse | null = null;
+      let successfulRequest: string | null = null;
+
+      console.log(`🔍 Requesting aggregation data for all guides (trying ${aggregationRequests.length} different approaches)`);
+
+      for (const { name, request } of aggregationRequests) {
+        try {
+          console.log(`🔄 Trying aggregation approach: ${name}`);
+          console.log('📋 Request structure:', JSON.stringify(request, null, 2));
+
+          response = await this.makeAggregationCall(request, 'POST') as PendoAggregationResponse;
+
+          console.log('📊 Aggregation response:', {
+            hasResults: !!response.results,
+            resultCount: response.results?.length || 0,
+            firstResult: response.results?.[0],
+            responseKeys: Object.keys(response),
+            rawResponse: response
           });
 
-          console.log(`✅ Aggregated analytics for ${analyticsMap.size} guides`);
+          if (response.results && response.results.length > 0) {
+            successfulRequest = name;
+            console.log(`✅ Success with approach: ${name} - Got ${response.results.length} results`);
+            break;
+          } else {
+            console.warn(`⚠️ Approach "${name}" returned empty results`);
+          }
+        } catch (error) {
+          console.error(`❌ Approach "${name}" failed:`, error);
+          continue;
         }
+      }
 
-        // 4. Merge analytics into guides
-        const enrichedGuides = guides.map(guide => {
-          const analytics = analyticsMap.get(guide.id);
-          return {
-            ...guide,
-            viewedCount: analytics?.views || guide.viewedCount || 0,
-            completedCount: analytics?.completions || guide.completedCount || 0
-          };
-        });
-
-        console.log(`✅ Returning ${enrichedGuides.length} guides with enriched analytics`);
-        return enrichedGuides;
-
-      } catch (aggError) {
-        console.warn(`⚠️ Could not fetch aggregation data, returning metadata only:`, aggError);
+      if (!response || !response.results || response.results.length === 0) {
+        console.warn('⚠️ All aggregation API approaches returned empty results for guides');
+        console.log('📋 This could mean:');
+        console.log('   1. No guide events exist in the specified time range');
+        console.log('   2. API permissions do not allow access to guideEvents');
+        console.log('   3. The aggregation API endpoint structure has changed');
+        console.log('   4. Time range is outside available data');
+        console.log('📊 Returning guides with metadata only (analytics will be 0)');
         return guides;
       }
+
+      console.log(`✅ Successfully fetched aggregation data using: ${successfulRequest}`);
+
+      // 3. Group by guideId
+      const analyticsMap = new Map<string, { views: number; completions: number }>();
+
+      console.log(`✅ Processing ${response.results.length} guide events`);
+
+      response.results.forEach((event, index) => {
+        if (index < 3) {
+          console.log(`🔍 Sample event ${index + 1}:`, event);
+        }
+
+        const guideId = event.guideId;
+        if (!guideId) {
+          if (index < 3) {
+            console.warn(`⚠️ Event ${index + 1} missing guideId:`, event);
+          }
+          return;
+        }
+
+        if (!analyticsMap.has(guideId)) {
+          analyticsMap.set(guideId, { views: 0, completions: 0 });
+        }
+
+        const analytics = analyticsMap.get(guideId)!;
+        if (event.action === 'view' || event.action === 'advanced') {
+          analytics.views++;
+        } else if (event.action === 'completed') {
+          analytics.completions++;
+        }
+      });
+
+      console.log(`✅ Aggregated analytics for ${analyticsMap.size} guides`);
+      console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5));
+
+      // 4. Merge analytics into guides
+      const enrichedGuides = guides.map(guide => {
+        const analytics = analyticsMap.get(guide.id);
+        return {
+          ...guide,
+          viewedCount: analytics?.views || guide.viewedCount || 0,
+          completedCount: analytics?.completions || guide.completedCount || 0
+        };
+      });
+
+      console.log(`✅ Returning ${enrichedGuides.length} guides with enriched analytics`);
+      const guidesWithAnalytics = enrichedGuides.filter(g => g.viewedCount > 0 || g.completedCount > 0);
+      console.log(`📊 ${guidesWithAnalytics.length} guides have analytics data`);
+
+      return enrichedGuides;
 
     } catch (error) {
       console.error('❌ Error fetching guides with analytics:', error);
@@ -4271,12 +4394,12 @@ class PendoAPIClient {
    * This method fetches feature metadata and enriches it with real-time analytics
    * by querying the aggregation API for featureEvents over the specified time period.
    *
-   * @param daysBack - Number of days to look back for analytics data (default: 90)
+   * @param daysBack - Number of days to look back for analytics data (default: 365)
    * @returns Array of features with enriched usageCount
    */
-  async getAllFeaturesWithAnalytics(daysBack: number = 90): Promise<Feature[]> {
+  async getAllFeaturesWithAnalytics(daysBack: number = 365): Promise<Feature[]> {
     try {
-      console.log(`📊 Fetching all features with analytics (last ${daysBack} days)`);
+      console.log('🎯 Fetching enriched features with analytics (last', daysBack, 'days)');
 
       // 1. Fetch metadata
       const features = await this.getFeatures({ limit: 1000 });
@@ -4286,56 +4409,179 @@ class PendoAPIClient {
       const endTime = Date.now();
       const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
 
-      const aggregationRequest = {
-        source: {
-          featureEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: daysBack,
-            period: "dayRange"
+      console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
+
+      // Try multiple aggregation request structures
+      const aggregationRequests = [
+        {
+          name: 'Standard pipeline with timeSeries',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    featureEvents: null,
+                    timeSeries: {
+                      first: startTime,
+                      count: daysBack,
+                      period: "dayRange"
+                    }
+                  }
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_features_analytics_${Date.now()}`
+            }
           }
         },
-        requestId: `all_features_analytics_${Date.now()}`
-      };
+        {
+          name: 'Direct source with filter',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    featureEvents: null
+                  }
+                },
+                {
+                  filter: `browserTime >= ${startTime} && browserTime <= ${endTime}`
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_features_analytics_filter_${Date.now()}`
+            }
+          }
+        },
+        {
+          name: 'Events source filtered by featureEvent',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    events: null
+                  }
+                },
+                {
+                  filter: `type == "featureEvent" && browserTime >= ${startTime} && browserTime <= ${endTime}`
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_features_analytics_events_${Date.now()}`
+            }
+          }
+        },
+        {
+          name: 'Simple featureEvents source',
+          request: {
+            source: {
+              featureEvents: null,
+              timeSeries: {
+                first: startTime,
+                count: daysBack,
+                period: "dayRange"
+              }
+            },
+            requestId: `all_features_analytics_simple_${Date.now()}`
+          }
+        }
+      ];
 
-      console.log(`🔍 Requesting aggregation data for all features`);
+      let response: PendoAggregationResponse | null = null;
+      let successfulRequest: string | null = null;
 
-      try {
-        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
+      console.log(`🔍 Requesting aggregation data for all features (trying ${aggregationRequests.length} different approaches)`);
 
-        // 3. Count usage events by featureId
-        const analyticsMap = new Map<string, number>();
+      for (const { name, request } of aggregationRequests) {
+        try {
+          console.log(`🔄 Trying aggregation approach: ${name}`);
+          console.log('📋 Request structure:', JSON.stringify(request, null, 2));
 
-        if (response.results && Array.isArray(response.results)) {
-          console.log(`✅ Processing ${response.results.length} feature events`);
+          response = await this.makeAggregationCall(request, 'POST') as PendoAggregationResponse;
 
-          response.results.forEach(event => {
-            const featureId = event.featureId;
-            if (!featureId) return;
-
-            const currentCount = analyticsMap.get(featureId) || 0;
-            analyticsMap.set(featureId, currentCount + 1);
+          console.log('📊 Aggregation response:', {
+            hasResults: !!response.results,
+            resultCount: response.results?.length || 0,
+            firstResult: response.results?.[0],
+            responseKeys: Object.keys(response),
+            rawResponse: response
           });
 
-          console.log(`✅ Aggregated analytics for ${analyticsMap.size} features`);
+          if (response.results && response.results.length > 0) {
+            successfulRequest = name;
+            console.log(`✅ Success with approach: ${name} - Got ${response.results.length} results`);
+            break;
+          } else {
+            console.warn(`⚠️ Approach "${name}" returned empty results`);
+          }
+        } catch (error) {
+          console.error(`❌ Approach "${name}" failed:`, error);
+          continue;
         }
+      }
 
-        // 4. Merge analytics into features
-        const enrichedFeatures = features.map(feature => {
-          const usageCount = analyticsMap.get(feature.id);
-          return {
-            ...feature,
-            usageCount: usageCount || feature.usageCount || 0
-          };
-        });
-
-        console.log(`✅ Returning ${enrichedFeatures.length} features with enriched analytics`);
-        return enrichedFeatures;
-
-      } catch (aggError) {
-        console.warn(`⚠️ Could not fetch aggregation data, returning metadata only:`, aggError);
+      if (!response || !response.results || response.results.length === 0) {
+        console.warn('⚠️ All aggregation API approaches returned empty results for features');
+        console.log('📋 This could mean:');
+        console.log('   1. No feature events exist in the specified time range');
+        console.log('   2. API permissions do not allow access to featureEvents');
+        console.log('   3. The aggregation API endpoint structure has changed');
+        console.log('   4. Time range is outside available data');
+        console.log('📊 Returning features with metadata only (analytics will be 0)');
         return features;
       }
+
+      console.log(`✅ Successfully fetched aggregation data using: ${successfulRequest}`);
+
+      // 3. Count usage events by featureId
+      const analyticsMap = new Map<string, number>();
+
+      console.log(`✅ Processing ${response.results.length} feature events`);
+
+      response.results.forEach((event, index) => {
+        if (index < 3) {
+          console.log(`🔍 Sample event ${index + 1}:`, event);
+        }
+
+        const featureId = event.featureId;
+        if (!featureId) {
+          if (index < 3) {
+            console.warn(`⚠️ Event ${index + 1} missing featureId:`, event);
+          }
+          return;
+        }
+
+        const currentCount = analyticsMap.get(featureId) || 0;
+        analyticsMap.set(featureId, currentCount + 1);
+      });
+
+      console.log(`✅ Aggregated analytics for ${analyticsMap.size} features`);
+      console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5));
+
+      // 4. Merge analytics into features
+      const enrichedFeatures = features.map(feature => {
+        const usageCount = analyticsMap.get(feature.id);
+        return {
+          ...feature,
+          usageCount: usageCount || feature.usageCount || 0
+        };
+      });
+
+      console.log(`✅ Returning ${enrichedFeatures.length} features with enriched analytics`);
+      const featuresWithAnalytics = enrichedFeatures.filter(f => f.usageCount > 0);
+      console.log(`📊 ${featuresWithAnalytics.length} features have analytics data`);
+
+      return enrichedFeatures;
 
     } catch (error) {
       console.error('❌ Error fetching features with analytics:', error);
@@ -4349,12 +4595,12 @@ class PendoAPIClient {
    * This method fetches page metadata and enriches it with real-time analytics
    * by querying the aggregation API for pageEvents over the specified time period.
    *
-   * @param daysBack - Number of days to look back for analytics data (default: 90)
+   * @param daysBack - Number of days to look back for analytics data (default: 365)
    * @returns Array of pages with enriched viewedCount and visitorCount
    */
-  async getAllPagesWithAnalytics(daysBack: number = 90): Promise<Page[]> {
+  async getAllPagesWithAnalytics(daysBack: number = 365): Promise<Page[]> {
     try {
-      console.log(`📊 Fetching all pages with analytics (last ${daysBack} days)`);
+      console.log('🎯 Fetching enriched pages with analytics (last', daysBack, 'days)');
 
       // 1. Fetch metadata
       const pages = await this.getPages({ limit: 1000 });
@@ -4364,71 +4610,270 @@ class PendoAPIClient {
       const endTime = Date.now();
       const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
 
-      const aggregationRequest = {
-        source: {
-          pageEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: daysBack,
-            period: "dayRange"
+      console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
+
+      // Try multiple aggregation request structures
+      const aggregationRequests = [
+        {
+          name: 'Standard pipeline with timeSeries',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    pageEvents: null,
+                    timeSeries: {
+                      first: startTime,
+                      count: daysBack,
+                      period: "dayRange"
+                    }
+                  }
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_pages_analytics_${Date.now()}`
+            }
           }
         },
-        requestId: `all_pages_analytics_${Date.now()}`
-      };
-
-      console.log(`🔍 Requesting aggregation data for all pages`);
-
-      try {
-        const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
-
-        // 3. Count views and unique visitors by pageId
-        const analyticsMap = new Map<string, { views: number; visitors: Set<string> }>();
-
-        if (response.results && Array.isArray(response.results)) {
-          console.log(`✅ Processing ${response.results.length} page events`);
-
-          response.results.forEach(event => {
-            const pageId = event.pageId || (event as { 0?: PendoAggregationResult })[0]?.pageId;
-            if (!pageId || typeof pageId !== 'string') return;
-
-            if (!analyticsMap.has(pageId)) {
-              analyticsMap.set(pageId, { views: 0, visitors: new Set() });
+        {
+          name: 'Direct source with filter',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    pageEvents: null
+                  }
+                },
+                {
+                  filter: `browserTime >= ${startTime} && browserTime <= ${endTime}`
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_pages_analytics_filter_${Date.now()}`
             }
-
-            const analytics = analyticsMap.get(pageId)!;
-            analytics.views++;
-
-            // Add visitor if visitorId exists
-            if (event.visitorId && typeof event.visitorId === 'string') {
-              analytics.visitors.add(event.visitorId);
+          }
+        },
+        {
+          name: 'Events source filtered by pageEvent',
+          request: {
+            response: { mimeType: "application/json" },
+            request: {
+              pipeline: [
+                {
+                  source: {
+                    events: null
+                  }
+                },
+                {
+                  filter: `type == "pageEvent" && browserTime >= ${startTime} && browserTime <= ${endTime}`
+                },
+                {
+                  identified: "visitorId"
+                }
+              ],
+              requestId: `all_pages_analytics_events_${Date.now()}`
             }
+          }
+        },
+        {
+          name: 'Simple pageEvents source',
+          request: {
+            source: {
+              pageEvents: null,
+              timeSeries: {
+                first: startTime,
+                count: daysBack,
+                period: "dayRange"
+              }
+            },
+            requestId: `all_pages_analytics_simple_${Date.now()}`
+          }
+        }
+      ];
+
+      let response: PendoAggregationResponse | null = null;
+      let successfulRequest: string | null = null;
+
+      console.log(`🔍 Requesting aggregation data for all pages (trying ${aggregationRequests.length} different approaches)`);
+
+      for (const { name, request } of aggregationRequests) {
+        try {
+          console.log(`🔄 Trying aggregation approach: ${name}`);
+          console.log('📋 Request structure:', JSON.stringify(request, null, 2));
+
+          response = await this.makeAggregationCall(request, 'POST') as PendoAggregationResponse;
+
+          console.log('📊 Aggregation response:', {
+            hasResults: !!response.results,
+            resultCount: response.results?.length || 0,
+            firstResult: response.results?.[0],
+            responseKeys: Object.keys(response),
+            rawResponse: response
           });
 
-          console.log(`✅ Aggregated analytics for ${analyticsMap.size} pages`);
+          if (response.results && response.results.length > 0) {
+            successfulRequest = name;
+            console.log(`✅ Success with approach: ${name} - Got ${response.results.length} results`);
+            break;
+          } else {
+            console.warn(`⚠️ Approach "${name}" returned empty results`);
+          }
+        } catch (error) {
+          console.error(`❌ Approach "${name}" failed:`, error);
+          continue;
         }
+      }
 
-        // 4. Merge analytics into pages
-        const enrichedPages = pages.map(page => {
-          const analytics = analyticsMap.get(page.id);
-          return {
-            ...page,
-            viewedCount: analytics?.views || page.viewedCount || 0,
-            visitorCount: analytics?.visitors.size || page.visitorCount || 0
-          };
-        });
-
-        console.log(`✅ Returning ${enrichedPages.length} pages with enriched analytics`);
-        return enrichedPages;
-
-      } catch (aggError) {
-        console.warn(`⚠️ Could not fetch aggregation data, returning metadata only:`, aggError);
+      if (!response || !response.results || response.results.length === 0) {
+        console.warn('⚠️ All aggregation API approaches returned empty results for pages');
+        console.log('📋 This could mean:');
+        console.log('   1. No page events exist in the specified time range');
+        console.log('   2. API permissions do not allow access to pageEvents');
+        console.log('   3. The aggregation API endpoint structure has changed');
+        console.log('   4. Time range is outside available data');
+        console.log('📊 Returning pages with metadata only (analytics will be 0)');
         return pages;
       }
+
+      console.log(`✅ Successfully fetched aggregation data using: ${successfulRequest}`);
+
+      // 3. Count views and unique visitors by pageId
+      const analyticsMap = new Map<string, { views: number; visitors: Set<string> }>();
+
+      console.log(`✅ Processing ${response.results.length} page events`);
+
+      response.results.forEach((event, index) => {
+        if (index < 3) {
+          console.log(`🔍 Sample event ${index + 1}:`, event);
+        }
+
+        const pageId = event.pageId || (event as { 0?: PendoAggregationResult })[0]?.pageId;
+        if (!pageId || typeof pageId !== 'string') {
+          if (index < 3) {
+            console.warn(`⚠️ Event ${index + 1} missing pageId:`, event);
+          }
+          return;
+        }
+
+        if (!analyticsMap.has(pageId)) {
+          analyticsMap.set(pageId, { views: 0, visitors: new Set() });
+        }
+
+        const analytics = analyticsMap.get(pageId)!;
+        analytics.views++;
+
+        // Add visitor if visitorId exists
+        if (event.visitorId && typeof event.visitorId === 'string') {
+          analytics.visitors.add(event.visitorId);
+        }
+      });
+
+      console.log(`✅ Aggregated analytics for ${analyticsMap.size} pages`);
+      console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5).map(([id, data]) => ({
+        pageId: id,
+        views: data.views,
+        visitors: data.visitors.size
+      })));
+
+      // 4. Merge analytics into pages
+      const enrichedPages = pages.map(page => {
+        const analytics = analyticsMap.get(page.id);
+        return {
+          ...page,
+          viewedCount: analytics?.views || page.viewedCount || 0,
+          visitorCount: analytics?.visitors.size || page.visitorCount || 0
+        };
+      });
+
+      console.log(`✅ Returning ${enrichedPages.length} pages with enriched analytics`);
+      const pagesWithAnalytics = enrichedPages.filter(p => p.viewedCount > 0 || p.visitorCount > 0);
+      console.log(`📊 ${pagesWithAnalytics.length} pages have analytics data`);
+
+      return enrichedPages;
 
     } catch (error) {
       console.error('❌ Error fetching pages with analytics:', error);
       throw new Error('Unable to fetch pages with analytics from Pendo. Please verify your API credentials and connection.');
     }
+  }
+
+  /**
+   * Test the aggregation API to verify it's accessible and working
+   * This method tries a simple query to diagnose API access issues
+   * @returns Promise<boolean> - true if API is accessible, false otherwise
+   */
+  async testAggregationAPI(): Promise<boolean> {
+    console.log('🧪 Testing Aggregation API accessibility...');
+
+    const testRequests = [
+      {
+        name: 'Simple events source',
+        request: {
+          response: { mimeType: "application/json" },
+          request: {
+            pipeline: [
+              {
+                source: { events: null }
+              }
+            ],
+            requestId: `test_${Date.now()}`
+          }
+        }
+      },
+      {
+        name: 'Simple guideEvents source',
+        request: {
+          response: { mimeType: "application/json" },
+          request: {
+            pipeline: [
+              {
+                source: { guideEvents: null }
+              }
+            ],
+            requestId: `test_guides_${Date.now()}`
+          }
+        }
+      },
+      {
+        name: 'Legacy format',
+        request: {
+          source: { events: null },
+          requestId: `test_legacy_${Date.now()}`
+        }
+      }
+    ];
+
+    for (const { name, request } of testRequests) {
+      try {
+        console.log(`🔄 Testing approach: ${name}`);
+        console.log('📋 Request:', JSON.stringify(request, null, 2));
+
+        const response = await this.makeAggregationCall(request, 'POST');
+
+        console.log('✅ Aggregation API test successful with approach:', name);
+        console.log('📊 Response:', response);
+
+        return true;
+      } catch (error) {
+        console.error(`❌ Aggregation API test failed with approach ${name}:`, error);
+        continue;
+      }
+    }
+
+    console.error('❌ All aggregation API test approaches failed');
+    console.log('📋 This indicates:');
+    console.log('   1. The integration key may not have aggregation API permissions');
+    console.log('   2. The aggregation endpoint may not be available for this account');
+    console.log('   3. Network or authentication issues');
+
+    return false;
   }
 }
 

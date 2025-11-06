@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { pendoAPI } from '@/lib/pendo-api';
 
 // Hook for fetching guides
@@ -64,17 +65,45 @@ export const useReports = (params?: {
 
 // Hook for fetching dashboard overview data with enriched analytics
 export const useDashboardOverview = () => {
-  const guidesQuery = useGuidesWithAnalytics(90);
-  const featuresQuery = useFeaturesWithAnalytics(90);
-  const pagesQuery = usePagesWithAnalytics(90);
+  const guidesQuery = useGuidesWithAnalytics(365);
+  const featuresQuery = useFeaturesWithAnalytics(365);
+  const pagesQuery = usePagesWithAnalytics(365);
   const reportsQuery = useReports({ limit: 1000 });
 
   // Debug logging to identify stuck queries
   console.log('📊 Dashboard queries status:', {
-    guides: { isLoading: guidesQuery.isLoading, hasData: !!guidesQuery.data, hasError: !!guidesQuery.error },
-    features: { isLoading: featuresQuery.isLoading, hasData: !!featuresQuery.data, hasError: !!featuresQuery.error },
-    pages: { isLoading: pagesQuery.isLoading, hasData: !!pagesQuery.data, hasError: !!pagesQuery.error },
-    reports: { isLoading: reportsQuery.isLoading, hasData: !!reportsQuery.data, hasError: !!reportsQuery.error }
+    guides: {
+      isLoading: guidesQuery.isLoading,
+      isFetching: guidesQuery.isFetching,
+      hasData: !!guidesQuery.data,
+      dataLength: guidesQuery.data?.length,
+      hasError: !!guidesQuery.error,
+      error: guidesQuery.error
+    },
+    features: {
+      isLoading: featuresQuery.isLoading,
+      isFetching: featuresQuery.isFetching,
+      hasData: !!featuresQuery.data,
+      dataLength: featuresQuery.data?.length,
+      hasError: !!featuresQuery.error,
+      error: featuresQuery.error
+    },
+    pages: {
+      isLoading: pagesQuery.isLoading,
+      isFetching: pagesQuery.isFetching,
+      hasData: !!pagesQuery.data,
+      dataLength: pagesQuery.data?.length,
+      hasError: !!pagesQuery.error,
+      error: pagesQuery.error
+    },
+    reports: {
+      isLoading: reportsQuery.isLoading,
+      isFetching: reportsQuery.isFetching,
+      hasData: !!reportsQuery.data,
+      dataLength: reportsQuery.data?.length,
+      hasError: !!reportsQuery.error,
+      error: reportsQuery.error
+    }
   });
 
   return {
@@ -108,8 +137,8 @@ export const useGuidePerformance = (daysBack: number = 30) => {
 };
 
 // Hook for fetching guides with enriched analytics
-export const useGuidesWithAnalytics = (daysBack: number = 90) => {
-  return useQuery({
+export const useGuidesWithAnalytics = (daysBack: number = 365) => {
+  const query = useQuery({
     queryKey: ['guidesWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllGuidesWithAnalytics(daysBack),
     staleTime: 10 * 60 * 1000, // 10 minutes (longer because aggregation is slower)
@@ -117,11 +146,24 @@ export const useGuidesWithAnalytics = (daysBack: number = 90) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    console.log('📊 Guides query state:', {
+      isLoading: query.isLoading,
+      isFetching: query.isFetching,
+      isError: query.isError,
+      error: query.error,
+      dataLength: query.data?.length,
+      sampleData: query.data?.slice(0, 2)
+    });
+  }, [query.data, query.isLoading, query.isFetching, query.isError, query.error]);
+
+  return query;
 };
 
 // Hook for fetching features with enriched analytics
-export const useFeaturesWithAnalytics = (daysBack: number = 90) => {
-  return useQuery({
+export const useFeaturesWithAnalytics = (daysBack: number = 365) => {
+  const query = useQuery({
     queryKey: ['featuresWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllFeaturesWithAnalytics(daysBack),
     staleTime: 10 * 60 * 1000, // 10 minutes (longer because aggregation is slower)
@@ -129,11 +171,24 @@ export const useFeaturesWithAnalytics = (daysBack: number = 90) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    console.log('📊 Features query state:', {
+      isLoading: query.isLoading,
+      isFetching: query.isFetching,
+      isError: query.isError,
+      error: query.error,
+      dataLength: query.data?.length,
+      sampleData: query.data?.slice(0, 2)
+    });
+  }, [query.data, query.isLoading, query.isFetching, query.isError, query.error]);
+
+  return query;
 };
 
 // Hook for fetching pages with enriched analytics
-export const usePagesWithAnalytics = (daysBack: number = 90) => {
-  return useQuery({
+export const usePagesWithAnalytics = (daysBack: number = 365) => {
+  const query = useQuery({
     queryKey: ['pagesWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllPagesWithAnalytics(daysBack),
     staleTime: 10 * 60 * 1000, // 10 minutes (longer because aggregation is slower)
@@ -141,4 +196,17 @@ export const usePagesWithAnalytics = (daysBack: number = 90) => {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    console.log('📊 Pages query state:', {
+      isLoading: query.isLoading,
+      isFetching: query.isFetching,
+      isError: query.isError,
+      error: query.error,
+      dataLength: query.data?.length,
+      sampleData: query.data?.slice(0, 2)
+    });
+  }, [query.data, query.isLoading, query.isFetching, query.isError, query.error]);
+
+  return query;
 };
