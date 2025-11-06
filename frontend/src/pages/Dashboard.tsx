@@ -256,24 +256,24 @@ export const Dashboard: React.FC = () => {
           ))}
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <GuidePerformanceChart
-            guides={sortedData.guides as Guide[]}
-          />
+        {/* Guide Performance Chart - Full Width */}
+        <GuidePerformanceChart
+          guides={sortedData.guides as Guide[]}
+        />
 
+        {/* Additional Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <FeatureAdoptionChart
             features={sortedData.features as Feature[]}
           />
-        </div>
 
-        {/* Additional Chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PageAnalyticsChart
             pages={sortedData.pages as Page[]}
           />
+        </div>
 
-          {/* Placeholder for future charts */}
+        {/* Placeholder for future chart */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
               <CardTitle>User Engagement Timeline</CardTitle>
