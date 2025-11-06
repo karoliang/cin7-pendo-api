@@ -182,6 +182,107 @@ export const Dashboard: React.FC = () => {
     };
   }, [filteredData, filters.sortBy, filters.sortOrder]);
 
+  // Helper function to calculate sparkline data for count-based metrics
+  const calculateSparklineData = (items: any[], dateField: string, days: number = 7): number[] => {
+    const now = new Date();
+    const sparklineData: number[] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const targetDate = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+
+      const dayCount = items.filter(item => {
+        const itemDate = new Date(item[dateField]);
+        return itemDate >= startOfDay && itemDate <= endOfDay;
+      }).length;
+
+      sparklineData.push(dayCount);
+    }
+
+    return sparklineData;
+  };
+
+  // Helper function to calculate sparkline data for completion rate
+  const calculateCompletionRateSparkline = (guides: Guide[], days: number = 7): number[] => {
+    const now = new Date();
+    const sparklineData: number[] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const targetDate = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+
+      const dayGuides = guides.filter(g => {
+        const guideDate = new Date(g.createdAt);
+        return guideDate >= startOfDay && guideDate <= endOfDay && g.viewedCount > 0;
+      });
+
+      if (dayGuides.length === 0) {
+        sparklineData.push(0);
+      } else {
+        const avgRate = dayGuides.reduce((sum, g) =>
+          sum + (g.completedCount / g.viewedCount) * 100, 0
+        ) / dayGuides.length;
+        sparklineData.push(Math.round(avgRate));
+      }
+    }
+
+    return sparklineData;
+  };
+
+  // Helper function to calculate sparkline data for activity
+  const calculateActivitySparkline = (guides: Guide[], days: number = 7): number[] => {
+    const now = new Date();
+    const sparklineData: number[] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const targetDate = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+
+      const dayGuides = guides.filter(g => {
+        const guideDate = new Date(g.updatedAt);
+        return guideDate >= startOfDay && guideDate <= endOfDay;
+      });
+
+      const dayActivity = dayGuides.reduce((sum, g) =>
+        sum + g.viewedCount + g.completedCount, 0
+      );
+
+      sparklineData.push(dayActivity);
+    }
+
+    return sparklineData;
+  };
+
+  // Helper function to calculate sparkline data for bounce rate
+  const calculateBounceRateSparkline = (pages: Page[], days: number = 7): number[] => {
+    const now = new Date();
+    const sparklineData: number[] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const targetDate = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+
+      const dayPages = pages.filter(p => {
+        const pageDate = new Date(p.createdAt || p.updatedAt);
+        return pageDate >= startOfDay && pageDate <= endOfDay;
+      });
+
+      if (dayPages.length === 0) {
+        sparklineData.push(0);
+      } else {
+        const lowEngagementPages = dayPages.filter(p => p.visitorCount <= 2);
+        const bounceRate = Math.round((lowEngagementPages.length / dayPages.length) * 100);
+        sparklineData.push(bounceRate);
+      }
+    }
+
+    return sparklineData;
+  };
+
   // Calculate KPI data from filtered data
   const kpiData = useMemo(() => {
     const guides = sortedData.guides as Guide[];
@@ -280,62 +381,80 @@ export const Dashboard: React.FC = () => {
     const avgBounceRate = calculateAvgBounceRate();
     const frustrationScore = calculateFrustrationScore();
 
+    // Calculate sparkline data for each KPI
+    const guidesSparkline = calculateSparklineData(sortedData.guides, 'createdAt');
+    const featuresSparkline = calculateSparklineData(sortedData.features, 'createdAt');
+    const pagesSparkline = calculateSparklineData(sortedData.pages, 'createdAt');
+    const reportsSparkline = calculateSparklineData(sortedData.reports, 'createdAt');
+    const completionRateSparkline = calculateCompletionRateSparkline(guides);
+    const activitySparkline = calculateActivitySparkline(guides);
+    const bounceRateSparkline = calculateBounceRateSparkline(pages);
+    const frustrationSparkline = [0, 0, 0, 0, 0, 0, 0]; // Placeholder until aggregation API available
+
     return [
       {
         title: 'Total Guides',
         value: sortedData.guides.length.toString(),
         change: 12,
         changeType: 'increase' as const,
-        description: `${guides.filter(g => g.state === 'published').length} published`
+        description: `${guides.filter(g => g.state === 'published').length} published`,
+        trendData: guidesSparkline
       },
       {
         title: 'Features',
         value: sortedData.features.length.toString(),
         change: 8,
         changeType: 'increase' as const,
-        description: 'Tracked features'
+        description: 'Tracked features',
+        trendData: featuresSparkline
       },
       {
         title: 'Pages',
         value: sortedData.pages.length.toString(),
         change: -2,
         changeType: 'decrease' as const,
-        description: 'Monitored pages'
+        description: 'Monitored pages',
+        trendData: pagesSparkline
       },
       {
         title: 'Reports',
         value: sortedData.reports.length.toString(),
         change: 15,
         changeType: 'increase' as const,
-        description: 'Generated reports'
+        description: 'Generated reports',
+        trendData: reportsSparkline
       },
       {
         title: 'Avg. Completion Rate',
         value: avgCompletionRate.value,
         change: avgCompletionRate.change,
         changeType: 'increase' as const,
-        description: avgCompletionRate.description
+        description: avgCompletionRate.description,
+        trendData: completionRateSparkline
       },
       {
         title: '7-Day Activity',
         value: sevenDayTrend.value,
         change: sevenDayTrend.change,
         changeType: sevenDayTrend.changeType,
-        description: sevenDayTrend.description
+        description: sevenDayTrend.description,
+        trendData: activitySparkline
       },
       {
         title: 'Avg. Bounce Rate',
         value: avgBounceRate.value,
         change: 0,
         changeType: 'increase' as const,
-        description: avgBounceRate.description
+        description: avgBounceRate.description,
+        trendData: bounceRateSparkline
       },
       {
         title: 'Frustration Score',
         value: frustrationScore.value,
         change: 0,
         changeType: 'increase' as const,
-        description: frustrationScore.description
+        description: frustrationScore.description,
+        trendData: frustrationSparkline
       }
     ];
   }, [sortedData]);
@@ -380,6 +499,7 @@ export const Dashboard: React.FC = () => {
               changeType={kpi.changeType}
               description={kpi.description}
               loading={isLoading}
+              trendData={kpi.trendData}
             />
           ))}
         </div>
