@@ -53,4 +53,5 @@ coverage/
 # API Keys and secrets
 api_keys.txt
 secrets.txt
-credentials.json
+credentials.jsonclient_secret_*.json
+supabase/.temp/

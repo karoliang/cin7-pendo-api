@@ -9,7 +9,8 @@ import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
 import { Cin7Button as Button } from '@/components/polaris';
-import { useDashboardOverview } from '@/hooks/usePendoData';
+// import { useDashboardOverview } from '@/hooks/usePendoData'; // OLD: Direct Pendo API
+import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // NEW: Supabase backend
 import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import { InlineSpinner } from '@/components/ui/Spinner';

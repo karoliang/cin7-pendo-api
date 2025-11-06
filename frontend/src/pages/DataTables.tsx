@@ -5,7 +5,8 @@ import { Cin7DataTable } from '@/components/polaris/Cin7DataTable';
 import { DetailModal } from '@/components/tables/DetailModal';
 import { Button } from '@/components/ui/button';
 import { FilterPanel } from '@/components/filters/FilterPanel';
-import { useDashboardOverview } from '@/hooks/usePendoData';
+// import { useDashboardOverview } from '@/hooks/usePendoData'; // OLD: Direct Pendo API
+import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // NEW: Supabase backend
 import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
