@@ -62,7 +62,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 active={userMenuActive}
                 activator={
                   <Button onClick={toggleUserMenu} disclosure variant="plain">
-                    <span style={{ color: 'white' }}>{user.email}</span>
+                    {user.email || 'User'}
                   </Button>
                 }
                 onClose={toggleUserMenu}
