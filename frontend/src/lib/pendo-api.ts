@@ -4251,10 +4251,20 @@ class PendoAPIClient {
 
       console.log(`✅ Successfully fetched ${response.results.length} guide events`);
 
+      // Safety check: limit processing to prevent browser crashes
+      const maxEvents = 50000; // Process max 50k events
+      const eventsToProcess = response.results.length > maxEvents
+        ? response.results.slice(0, maxEvents)
+        : response.results;
+
+      if (response.results.length > maxEvents) {
+        console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
+      }
+
       // 3. Group by guideId and count events
       const analyticsMap = new Map<string, { views: number; completions: number }>();
 
-      response.results.forEach((event, index) => {
+      eventsToProcess.forEach((event, index) => {
         if (index < 5) {
           console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
         }
@@ -4371,10 +4381,20 @@ class PendoAPIClient {
 
       console.log(`✅ Successfully fetched ${response.results.length} feature events`);
 
+      // Safety check: limit processing to prevent browser crashes
+      const maxEvents = 50000; // Process max 50k events
+      const eventsToProcess = response.results.length > maxEvents
+        ? response.results.slice(0, maxEvents)
+        : response.results;
+
+      if (response.results.length > maxEvents) {
+        console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
+      }
+
       // 3. Count usage events by featureId
       const analyticsMap = new Map<string, number>();
 
-      response.results.forEach((event, index) => {
+      eventsToProcess.forEach((event, index) => {
         if (index < 5) {
           console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
         }
@@ -4479,10 +4499,20 @@ class PendoAPIClient {
 
       console.log(`✅ Successfully fetched ${response.results.length} page events`);
 
+      // Safety check: limit processing to prevent browser crashes
+      const maxEvents = 50000; // Process max 50k events
+      const eventsToProcess = response.results.length > maxEvents
+        ? response.results.slice(0, maxEvents)
+        : response.results;
+
+      if (response.results.length > maxEvents) {
+        console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
+      }
+
       // 3. Count views and unique visitors by pageId
       const analyticsMap = new Map<string, { views: number; visitors: Set<string> }>();
 
-      response.results.forEach((event, index) => {
+      eventsToProcess.forEach((event, index) => {
         if (index < 5) {
           console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
         }

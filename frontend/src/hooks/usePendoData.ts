@@ -65,9 +65,9 @@ export const useReports = (params?: {
 
 // Hook for fetching dashboard overview data with enriched analytics
 export const useDashboardOverview = () => {
-  const guidesQuery = useGuidesWithAnalytics(365);
-  const featuresQuery = useFeaturesWithAnalytics(365);
-  const pagesQuery = usePagesWithAnalytics(365);
+  const guidesQuery = useGuidesWithAnalytics(30);
+  const featuresQuery = useFeaturesWithAnalytics(30);
+  const pagesQuery = usePagesWithAnalytics(30);
   const reportsQuery = useReports({ limit: 1000 });
 
   // Debug logging to identify stuck queries
