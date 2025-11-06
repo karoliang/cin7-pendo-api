@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { KPICard } from '@/components/dashboard/KPICard';
+import { TopPerformers } from '@/components/dashboard/TopPerformers';
+import { FrustrationMetrics } from '@/components/dashboard/FrustrationMetrics';
 import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
 import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
@@ -181,36 +183,162 @@ export const Dashboard: React.FC = () => {
   }, [filteredData, filters.sortBy, filters.sortOrder]);
 
   // Calculate KPI data from filtered data
-  const kpiData = [
-    {
-      title: 'Total Guides',
-      value: sortedData.guides.length.toString(),
-      change: 12,
-      changeType: 'increase' as const,
-      description: `${(sortedData.guides as Guide[]).filter(g => g.state === 'published').length} published`
-    },
-    {
-      title: 'Features',
-      value: sortedData.features.length.toString(),
-      change: 8,
-      changeType: 'increase' as const,
-      description: 'Tracked features'
-    },
-    {
-      title: 'Pages',
-      value: sortedData.pages.length.toString(),
-      change: -2,
-      changeType: 'decrease' as const,
-      description: 'Monitored pages'
-    },
-    {
-      title: 'Reports',
-      value: sortedData.reports.length.toString(),
-      change: 15,
-      changeType: 'increase' as const,
-      description: 'Generated reports'
-    }
-  ];
+  const kpiData = useMemo(() => {
+    const guides = sortedData.guides as Guide[];
+    const pages = sortedData.pages as Page[];
+
+    // 1. Average Completion Rate - Calculate from guides data
+    const calculateAvgCompletionRate = (): { value: string; change: number; description: string } => {
+      const guidesWithViews = guides.filter(g => g.viewedCount > 0);
+
+      if (guidesWithViews.length === 0) {
+        return { value: '0%', change: 0, description: 'No guides with views' };
+      }
+
+      const completionRates = guidesWithViews.map(g =>
+        (g.completedCount / g.viewedCount) * 100
+      );
+
+      const avgRate = completionRates.reduce((sum, rate) => sum + rate, 0) / completionRates.length;
+
+      return {
+        value: `${avgRate.toFixed(1)}%`,
+        change: 0, // Would need historical data to calculate trend
+        description: `Across ${guidesWithViews.length} guides`
+      };
+    };
+
+    // 2. 7-Day Trend - Compare last 7 days vs previous 7 days
+    const calculate7DayTrend = (): { value: string; change: number; changeType: 'increase' | 'decrease'; description: string } => {
+      const now = new Date();
+      const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const previous7Days = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+      // Filter guides by date ranges
+      const recentGuides = guides.filter(g => {
+        const updateDate = new Date(g.updatedAt);
+        return updateDate >= last7Days && updateDate <= now;
+      });
+
+      const previousGuides = guides.filter(g => {
+        const updateDate = new Date(g.updatedAt);
+        return updateDate >= previous7Days && updateDate < last7Days;
+      });
+
+      // Sum views and completions
+      const recentTotal = recentGuides.reduce((sum, g) => sum + g.viewedCount + g.completedCount, 0);
+      const previousTotal = previousGuides.reduce((sum, g) => sum + g.viewedCount + g.completedCount, 0);
+
+      // Calculate percentage change
+      let change = 0;
+      let changeType: 'increase' | 'decrease' = 'increase';
+
+      if (previousTotal > 0) {
+        change = ((recentTotal - previousTotal) / previousTotal) * 100;
+        changeType = change >= 0 ? 'increase' : 'decrease';
+      }
+
+      return {
+        value: recentTotal.toString(),
+        change: Math.abs(Math.round(change)),
+        changeType,
+        description: 'vs previous 7 days'
+      };
+    };
+
+    // 3. Average Bounce Rate - Calculate from pages data
+    const calculateAvgBounceRate = (): { value: string; description: string } => {
+      if (pages.length === 0) {
+        return { value: '0%', description: 'No pages tracked' };
+      }
+
+      // Estimate bounce rate: pages with only 1 visitor (high likelihood of single-page sessions)
+      // This is an estimation since we don't have direct bounce rate data
+      const lowEngagementPages = pages.filter(p => p.visitorCount <= 2);
+      const bounceRate = (lowEngagementPages.length / pages.length) * 100;
+
+      return {
+        value: `${bounceRate.toFixed(1)}%`,
+        description: 'Estimated from page data'
+      };
+    };
+
+    // 4. Total Frustration Score - Sum from pages data
+    // Note: The Page type doesn't include frustration metrics in the base interface
+    // This would require aggregation API calls to get rage clicks, dead clicks, error clicks
+    const calculateFrustrationScore = (): { value: string; description: string } => {
+      // Check if pages have frustration data (this would be from extended API calls)
+      // For now, we'll return a placeholder indicating the feature needs aggregation API
+      return {
+        value: 'N/A',
+        description: 'Requires aggregation API'
+      };
+    };
+
+    const avgCompletionRate = calculateAvgCompletionRate();
+    const sevenDayTrend = calculate7DayTrend();
+    const avgBounceRate = calculateAvgBounceRate();
+    const frustrationScore = calculateFrustrationScore();
+
+    return [
+      {
+        title: 'Total Guides',
+        value: sortedData.guides.length.toString(),
+        change: 12,
+        changeType: 'increase' as const,
+        description: `${guides.filter(g => g.state === 'published').length} published`
+      },
+      {
+        title: 'Features',
+        value: sortedData.features.length.toString(),
+        change: 8,
+        changeType: 'increase' as const,
+        description: 'Tracked features'
+      },
+      {
+        title: 'Pages',
+        value: sortedData.pages.length.toString(),
+        change: -2,
+        changeType: 'decrease' as const,
+        description: 'Monitored pages'
+      },
+      {
+        title: 'Reports',
+        value: sortedData.reports.length.toString(),
+        change: 15,
+        changeType: 'increase' as const,
+        description: 'Generated reports'
+      },
+      {
+        title: 'Avg. Completion Rate',
+        value: avgCompletionRate.value,
+        change: avgCompletionRate.change,
+        changeType: 'increase' as const,
+        description: avgCompletionRate.description
+      },
+      {
+        title: '7-Day Activity',
+        value: sevenDayTrend.value,
+        change: sevenDayTrend.change,
+        changeType: sevenDayTrend.changeType,
+        description: sevenDayTrend.description
+      },
+      {
+        title: 'Avg. Bounce Rate',
+        value: avgBounceRate.value,
+        change: 0,
+        changeType: 'increase' as const,
+        description: avgBounceRate.description
+      },
+      {
+        title: 'Frustration Score',
+        value: frustrationScore.value,
+        change: 0,
+        changeType: 'increase' as const,
+        description: frustrationScore.description
+      }
+    ];
+  }, [sortedData]);
 
   if (error) {
     return (
@@ -241,7 +369,7 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* KPI Cards */}
+        {/* KPI Cards - 8 cards in 2 rows */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {kpiData.map((kpi, index) => (
             <KPICard
@@ -261,6 +389,20 @@ export const Dashboard: React.FC = () => {
           guides={sortedData.guides as Guide[]}
         />
 
+        {/* Top Performers - Full Width */}
+        <TopPerformers
+          guides={sortedData.guides as Guide[]}
+          features={sortedData.features as Feature[]}
+          pages={sortedData.pages as Page[]}
+          loading={isLoading}
+        />
+
+        {/* Frustration Metrics - Full Width */}
+        <FrustrationMetrics
+          pages={sortedData.pages as any}
+          loading={isLoading}
+        />
+
         {/* Additional Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <FeatureAdoptionChart
@@ -270,24 +412,6 @@ export const Dashboard: React.FC = () => {
           <PageAnalyticsChart
             pages={sortedData.pages as Page[]}
           />
-        </div>
-
-        {/* Placeholder for future chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Engagement Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-gray-500">
-                <div className="text-center">
-                  <p className="mb-2">📊</p>
-                  <p>Coming Soon: User engagement patterns</p>
-                  <p className="text-sm">Time-based activity analysis</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Recent Activity */}

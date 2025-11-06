@@ -111,7 +111,7 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <Cin7Badge variant={getRankBadgeVariant(rank)}>
-                      #{rank}
+                      {`#${rank}`}
                     </Cin7Badge>
                     <div className="flex-1 min-w-0">
                       <Text
