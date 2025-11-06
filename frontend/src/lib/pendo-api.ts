@@ -4252,7 +4252,7 @@ class PendoAPIClient {
       console.log(`✅ Successfully fetched ${response.results.length} guide events`);
 
       // Safety check: limit processing to prevent browser crashes
-      const maxEvents = 10000; // Process max 10k events
+      const maxEvents = 2000; // Process max 2k events (very conservative)
       const eventsToProcess = response.results.length > maxEvents
         ? response.results.slice(0, maxEvents)
         : response.results;
@@ -4388,7 +4388,7 @@ class PendoAPIClient {
       console.log(`✅ Successfully fetched ${response.results.length} feature events`);
 
       // Safety check: limit processing to prevent browser crashes
-      const maxEvents = 10000; // Process max 10k events
+      const maxEvents = 2000; // Process max 2k events (very conservative)
       const eventsToProcess = response.results.length > maxEvents
         ? response.results.slice(0, maxEvents)
         : response.results;
@@ -4506,7 +4506,7 @@ class PendoAPIClient {
       console.log(`✅ Successfully fetched ${response.results.length} page events`);
 
       // Safety check: limit processing to prevent browser crashes
-      const maxEvents = 10000; // Process max 10k events
+      const maxEvents = 2000; // Process max 2k events (very conservative)
       const eventsToProcess = response.results.length > maxEvents
         ? response.results.slice(0, maxEvents)
         : response.results;
