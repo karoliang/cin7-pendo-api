@@ -137,7 +137,7 @@ export const useGuidePerformance = (daysBack: number = 30) => {
 };
 
 // Hook for fetching guides with enriched analytics
-export const useGuidesWithAnalytics = (daysBack: number = 365) => {
+export const useGuidesWithAnalytics = (daysBack: number = 30) => {
   const query = useQuery({
     queryKey: ['guidesWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllGuidesWithAnalytics(daysBack),
@@ -162,7 +162,7 @@ export const useGuidesWithAnalytics = (daysBack: number = 365) => {
 };
 
 // Hook for fetching features with enriched analytics
-export const useFeaturesWithAnalytics = (daysBack: number = 365) => {
+export const useFeaturesWithAnalytics = (daysBack: number = 30) => {
   const query = useQuery({
     queryKey: ['featuresWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllFeaturesWithAnalytics(daysBack),
@@ -187,7 +187,7 @@ export const useFeaturesWithAnalytics = (daysBack: number = 365) => {
 };
 
 // Hook for fetching pages with enriched analytics
-export const usePagesWithAnalytics = (daysBack: number = 365) => {
+export const usePagesWithAnalytics = (daysBack: number = 30) => {
   const query = useQuery({
     queryKey: ['pagesWithAnalytics', daysBack],
     queryFn: () => pendoAPI.getAllPagesWithAnalytics(daysBack),
