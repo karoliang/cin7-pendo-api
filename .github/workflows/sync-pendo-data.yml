@@ -20,10 +20,10 @@ jobs:
     steps:
       - name: Trigger Supabase Edge Function
         run: |
-          echo "🔄 Triggering Pendo data sync..."
+          echo "🔄 Triggering Pendo metadata sync..."
 
           response=$(curl -s -w "\n%{http_code}" -X POST \
-            "https://nrutlzclujyejusvbafm.supabase.co/functions/v1/sync-pendo-data" \
+            "https://nrutlzclujyejusvbafm.supabase.co/functions/v1/sync-pendo-metadata" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Content-Type: application/json")
 
