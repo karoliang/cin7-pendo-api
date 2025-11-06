@@ -3,6 +3,7 @@ import { Layout } from '@/components/layout/Layout';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { TopPerformers } from '@/components/dashboard/TopPerformers';
 import { FrustrationMetrics } from '@/components/dashboard/FrustrationMetrics';
+import { GeographicMap } from '@/components/dashboard/GeographicMap';
 import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
 import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
@@ -376,10 +377,47 @@ export const Dashboard: React.FC = () => {
       };
     };
 
+    // 5. Total ARR - Calculate from top accounts across all pages
+    const calculateTotalARR = (): { value: string; description: string } => {
+      let totalARR = 0;
+      const accountsSet = new Set<string>();
+
+      pages.forEach((page: any) => {
+        if (page.topAccounts && Array.isArray(page.topAccounts)) {
+          page.topAccounts.forEach((account: any) => {
+            if (account.accountId && !accountsSet.has(account.accountId) && account.arr) {
+              accountsSet.add(account.accountId);
+              totalARR += account.arr;
+            }
+          });
+        }
+      });
+
+      if (totalARR === 0) {
+        return {
+          value: '$0',
+          description: 'No ARR data available'
+        };
+      }
+
+      // Format as currency
+      const formattedARR = totalARR >= 1000000
+        ? `$${(totalARR / 1000000).toFixed(1)}M`
+        : totalARR >= 1000
+        ? `$${(totalARR / 1000).toFixed(0)}K`
+        : `$${totalARR.toFixed(0)}`;
+
+      return {
+        value: formattedARR,
+        description: `From ${accountsSet.size} accounts`
+      };
+    };
+
     const avgCompletionRate = calculateAvgCompletionRate();
     const sevenDayTrend = calculate7DayTrend();
     const avgBounceRate = calculateAvgBounceRate();
     const frustrationScore = calculateFrustrationScore();
+    const totalARR = calculateTotalARR();
 
     // Calculate sparkline data for each KPI
     const guidesSparkline = calculateSparklineData(sortedData.guides, 'createdAt');
@@ -455,6 +493,14 @@ export const Dashboard: React.FC = () => {
         changeType: 'increase' as const,
         description: frustrationScore.description,
         trendData: frustrationSparkline
+      },
+      {
+        title: 'Total ARR',
+        value: totalARR.value,
+        change: 0,
+        changeType: 'increase' as const,
+        description: totalARR.description,
+        trendData: [0, 0, 0, 0, 0, 0, 0] // Placeholder - would need historical data
       }
     ];
   }, [sortedData]);
@@ -488,8 +534,8 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* KPI Cards - 8 cards in 2 rows */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* KPI Cards - 9 cards in responsive grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {kpiData.map((kpi, index) => (
             <KPICard
               key={index}
@@ -519,6 +565,12 @@ export const Dashboard: React.FC = () => {
 
         {/* Frustration Metrics - Full Width */}
         <FrustrationMetrics
+          pages={sortedData.pages as any}
+          loading={isLoading}
+        />
+
+        {/* Geographic Distribution Map - Full Width */}
+        <GeographicMap
           pages={sortedData.pages as any}
           loading={isLoading}
         />

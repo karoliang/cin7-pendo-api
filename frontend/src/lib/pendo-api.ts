@@ -813,27 +813,22 @@ class PendoAPIClient {
       const analytics = {
         timeSeriesData: this.handlePromiseResult(timeSeriesData, this.generateFallbackTimeSeries(30)),
         stepAnalytics: this.handlePromiseResult(stepAnalytics, this.generateFallbackStepData()),
-        segmentData: this.handlePromiseResult(segmentData, this.generateFallbackSegmentData()),
+        segmentData: null, // NOT AVAILABLE - Pendo API does not provide segment performance data
         deviceData: this.handlePromiseResult(deviceData, this.generateFallbackDeviceData()),
         geographicData: this.handlePromiseResult(geographicData, this.generateFallbackGeographicData()),
-        pollData: this.handlePromiseResult(pollData, []),
+        pollData: null, // NOT AVAILABLE - Pendo API does not provide poll data
         userBehaviorData: this.handlePromiseResult(userBehaviorData, {
-          timeToFirstInteraction: 15,
+          timeToFirstInteraction: null, // NOT AVAILABLE - Pendo API does not provide this metric
           averageSessionDuration: 120,
           returnUserRate: 35,
-          shares: 25,
+          shares: null, // NOT AVAILABLE - Pendo API does not provide this metric
           clickThroughRate: 20,
-          formInteractions: 50,
+          formInteractions: null, // NOT AVAILABLE - Pendo API does not provide this metric
           lastShownAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
         }),
         hourlyData: this.handlePromiseResult(hourlyData, this.generateFallbackHourlyData()),
         weeklyData: this.handlePromiseResult(weeklyData, this.generateFallbackWeeklyData()),
-        variantData: this.handlePromiseResult(variantData, [{
-          variant: 'A',
-          conversionRate: 72,
-          engagementScore: 85,
-          userCount: guide.viewedCount || 100,
-        }])
+        variantData: null, // NOT AVAILABLE - Pendo API does not provide A/B test variant data
       };
 
       console.log(`✅ Successfully compiled analytics data for ${guide.name}`);
@@ -865,7 +860,7 @@ class PendoAPIClient {
 
         // Analytics Data (Real or Fallback)
         steps: analytics.stepAnalytics,
-        segmentPerformance: analytics.segmentData,
+        segmentPerformance: null, // NOT AVAILABLE - Pendo API does not provide segment performance data
         deviceBreakdown: analytics.deviceData,
         geographicDistribution: analytics.geographicData,
         dailyStats: analytics.timeSeriesData,
@@ -873,19 +868,19 @@ class PendoAPIClient {
         weeklyTrends: analytics.weeklyData,
 
         // User Behavior
-        timeToFirstInteraction: analytics.userBehaviorData.timeToFirstInteraction,
+        timeToFirstInteraction: null, // NOT AVAILABLE - Pendo API does not provide this metric
         averageSessionDuration: analytics.userBehaviorData.averageSessionDuration,
         returnUserRate: analytics.userBehaviorData.returnUserRate,
-        shares: analytics.userBehaviorData.shares,
+        shares: null, // NOT AVAILABLE - Pendo API does not provide this metric
 
-        // A/B Testing
-        variant: analytics.variantData[0]?.variant || 'A',
-        variantPerformance: analytics.variantData,
+        // A/B Testing (NOT AVAILABLE)
+        variant: undefined, // NOT AVAILABLE - Pendo API does not provide A/B test variant data
+        variantPerformance: null, // NOT AVAILABLE - Pendo API does not provide A/B test variant data
 
         // Content Analytics
-        polls: analytics.pollData,
+        polls: null, // NOT AVAILABLE - Pendo API does not provide poll data
         clickThroughRate: analytics.userBehaviorData.clickThroughRate,
-        formInteractions: analytics.userBehaviorData.formInteractions,
+        formInteractions: null, // NOT AVAILABLE - Pendo API does not provide this metric
 
         // Timing Data
         createdAt: guide.createdAt,
@@ -1719,23 +1714,23 @@ class PendoAPIClient {
       const completionRate = totalViews > 0 ? (totalCompletions / totalViews) : 0;
 
       return {
-        timeToFirstInteraction: Math.floor(15 + (1 - completionRate) * 25), // Higher for less completed guides
+        timeToFirstInteraction: null, // NOT AVAILABLE - Pendo API does not provide this metric
         averageSessionDuration: Math.floor(60 + completionRate * 120), // Higher for better performing guides
         returnUserRate: Math.floor(25 + completionRate * 30), // Higher return rate for better guides
-        shares: Math.floor(totalViews * 0.08), // 8% of viewers share
+        shares: null, // NOT AVAILABLE - Pendo API does not provide this metric
         clickThroughRate: Math.floor(10 + completionRate * 25), // Higher CTR for better guides
-        formInteractions: Math.floor(totalViews * 0.15), // 15% of viewers interact with forms
+        formInteractions: null, // NOT AVAILABLE - Pendo API does not provide this metric
         lastShownAt: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)).toISOString(),
       };
     } catch (error) {
       console.error('Error generating guide user behavior:', error);
       return {
-        timeToFirstInteraction: 15,
+        timeToFirstInteraction: null, // NOT AVAILABLE - Pendo API does not provide this metric
         averageSessionDuration: 120,
         returnUserRate: 35,
-        shares: 25,
+        shares: null, // NOT AVAILABLE - Pendo API does not provide this metric
         clickThroughRate: 20,
-        formInteractions: 50,
+        formInteractions: null, // NOT AVAILABLE - Pendo API does not provide this metric
         lastShownAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       };
     }
@@ -2043,9 +2038,10 @@ class PendoAPIClient {
       // Calculate engagement metrics based on real data
       // avgTimeOnPage will be calculated from event breakdown data after it's fetched
       let avgTimeOnPage = 0;
-      const bounceRate = totals.viewedCount > 0 ? Math.floor(20 + Math.random() * 30) : 0;
-      const exitRate = totals.viewedCount > 0 ? Math.floor(15 + Math.random() * 25) : 0;
-      const conversionRate = totals.viewedCount > 0 ? Math.floor(2 + Math.random() * 13) : 0;
+      // NOT AVAILABLE - Pendo API does not provide these metrics
+      const bounceRate = null;
+      const exitRate = null;
+      const conversionRate = null;
 
       // Build comprehensive page data with all required fields
       const comprehensiveData: ComprehensivePageData = {
@@ -2062,9 +2058,9 @@ class PendoAPIClient {
 
         // Engagement Metrics (calculated from real data)
         avgTimeOnPage,
-        bounceRate,
-        exitRate,
-        conversionRate,
+        bounceRate, // NOT AVAILABLE via Pendo API
+        exitRate, // NOT AVAILABLE via Pendo API
+        conversionRate, // NOT AVAILABLE via Pendo API
 
         // Time series data (real from aggregation API)
         dailyTraffic: timeSeriesData,
@@ -2349,15 +2345,15 @@ class PendoAPIClient {
         geographicDistribution: [],
         deviceBreakdown: [],
 
-        // Performance Analytics (fallback)
-        errorRate: Math.floor(Math.random() * 3) + 1,
-        responseTime: Math.floor(Math.random() * 200) + 100,
-        successRate: 97 + Math.floor(Math.random() * 3),
+        // Performance Analytics (NOT AVAILABLE - Pendo API does not provide these metrics)
+        errorRate: null,
+        responseTime: null,
+        successRate: null,
 
         // Business Impact (fallback)
         conversionEvents: Math.floor(totals.usageCount * 0.15),
         revenueImpact: totals.usageCount > 0 ? Math.floor(totals.usageCount * 50) : 0,
-        productivityGain: Math.floor(Math.random() * 40) + 10,
+        productivityGain: null, // NOT AVAILABLE - Pendo API does not provide this metric
 
         // Timing Data (real from feature metadata)
         createdAt: feature.createdAt,
@@ -3896,38 +3892,7 @@ class PendoAPIClient {
         }
       ],
 
-      segmentPerformance: [
-        {
-          segmentName: 'New Users',
-          segmentId: 'seg_new',
-          viewedCount: 450,
-          completedCount: 280,
-          completionRate: 62.2,
-          averageTimeToComplete: 110,
-          engagementRate: 75,
-          dropOffRate: 37.8
-        },
-        {
-          segmentName: 'Power Users',
-          segmentId: 'seg_power',
-          viewedCount: 200,
-          completedCount: 85,
-          completionRate: 42.5,
-          averageTimeToComplete: 95,
-          engagementRate: 80,
-          dropOffRate: 57.5
-        },
-        {
-          segmentName: 'Enterprise',
-          segmentId: 'seg_enterprise',
-          viewedCount: 100,
-          completedCount: 35,
-          completionRate: 35,
-          averageTimeToComplete: 140,
-          engagementRate: 65,
-          dropOffRate: 65
-        }
-      ],
+      segmentPerformance: null, // NOT AVAILABLE - Pendo API does not provide segment performance data
 
       deviceBreakdown: [
         { device: 'Desktop', platform: 'Windows', browser: 'Chrome', users: 400, percentage: 53.3, completionRate: 58, averageTimeSpent: 115 },
@@ -3948,37 +3913,19 @@ class PendoAPIClient {
       weeklyTrends: this.generateFallbackWeeklyData(),
 
       // User Behavior (Mock)
-      timeToFirstInteraction: 15,
+      timeToFirstInteraction: null, // NOT AVAILABLE - Pendo API does not provide this metric
       averageSessionDuration: 180,
       returnUserRate: 35,
-      shares: 25,
+      shares: null, // NOT AVAILABLE - Pendo API does not provide this metric
 
-      // A/B Testing (Mock)
-      variant: 'A',
-      variantPerformance: [
-        { variant: 'A', conversionRate: 53, engagementScore: 75, userCount: 375 },
-        { variant: 'B', conversionRate: 48, engagementScore: 70, userCount: 375 }
-      ],
+      // A/B Testing (NOT AVAILABLE)
+      variant: undefined, // NOT AVAILABLE - Pendo API does not provide A/B test variant data
+      variantPerformance: null, // NOT AVAILABLE - Pendo API does not provide A/B test variant data
 
-      // Content Analytics (Mock)
-      polls: [
-        {
-          id: 'poll1',
-          question: 'How helpful was this guide?',
-          type: 'rating' as const,
-          responseCount: 200,
-          averageRating: 4.2,
-          responses: [
-            { option: '5 stars', count: 80, percentage: 40 },
-            { option: '4 stars', count: 60, percentage: 30 },
-            { option: '3 stars', count: 40, percentage: 20 },
-            { option: '2 stars', count: 15, percentage: 7.5 },
-            { option: '1 star', count: 5, percentage: 2.5 }
-          ]
-        }
-      ],
+      // Content Analytics (NOT AVAILABLE)
+      polls: null, // NOT AVAILABLE - Pendo API does not provide poll data
       clickThroughRate: 12.5,
-      formInteractions: 45,
+      formInteractions: null, // NOT AVAILABLE - Pendo API does not provide this metric
 
       // Timing Data
       createdAt: guide.createdAt,

@@ -97,7 +97,7 @@ export interface ComprehensiveGuideData {
 
   // Advanced Analytics
   steps: GuideStep[];
-  segmentPerformance: GuideSegment[];
+  segmentPerformance: GuideSegment[] | null; // NOT AVAILABLE via Pendo API
   deviceBreakdown: GuideDeviceAnalytics[];
   geographicDistribution: GuideGeographic[];
   dailyStats: GuideTimeAnalytics[];
@@ -105,10 +105,10 @@ export interface ComprehensiveGuideData {
   weeklyTrends: GuideTimeAnalytics[];
 
   // User Behavior
-  timeToFirstInteraction: number;
+  timeToFirstInteraction: number | null; // NOT AVAILABLE via Pendo API
   averageSessionDuration: number;
   returnUserRate: number;
-  shares: number;
+  shares: number | null; // NOT AVAILABLE via Pendo API
 
   // A/B Testing
   variant?: string;
@@ -117,12 +117,12 @@ export interface ComprehensiveGuideData {
     conversionRate: number;
     engagementScore: number;
     userCount: number;
-  }[];
+  }[] | null; // NOT AVAILABLE via Pendo API
 
   // Content Analytics
-  polls?: GuidePoll[];
+  polls?: GuidePoll[] | null; // NOT AVAILABLE via Pendo API
   clickThroughRate: number;
-  formInteractions: number;
+  formInteractions: number | null; // NOT AVAILABLE via Pendo API
 
   // Timing Data
   createdAt: string;
@@ -229,14 +229,14 @@ export interface ComprehensiveFeatureData {
   deviceBreakdown: GuideDeviceAnalytics[];
 
   // Performance Analytics
-  errorRate: number;
-  responseTime: number;
-  successRate: number;
+  errorRate: number | null; // NOT AVAILABLE via Pendo API
+  responseTime: number | null; // NOT AVAILABLE via Pendo API
+  successRate: number | null; // NOT AVAILABLE via Pendo API
 
   // Business Impact
   conversionEvents: number;
   revenueImpact?: number;
-  productivityGain?: number;
+  productivityGain?: number | null; // NOT AVAILABLE via Pendo API
 
   // Timing Data
   createdAt: string;
@@ -329,9 +329,9 @@ export interface ComprehensivePageData {
 
   // Engagement Metrics
   avgTimeOnPage: number;
-  bounceRate: number;
-  exitRate: number;
-  conversionRate: number;
+  bounceRate: number | null; // NOT AVAILABLE via Pendo API
+  exitRate: number | null; // NOT AVAILABLE via Pendo API
+  conversionRate: number | null; // NOT AVAILABLE via Pendo API
 
   // Advanced Analytics
   navigationPaths: NavigationPath[];
