@@ -745,9 +745,9 @@ export const DataTables: React.FC = () => {
         />
 
         {/* Data Tables */}
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white rounded-lg shadow relative z-20">
           {/* Tabs */}
-          <div className="border-b border-gray-200">
+          <div className="border-b border-gray-200 relative z-30">
             <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
               {tabs.map((tab) => {
                 const Icon = tab.icon;

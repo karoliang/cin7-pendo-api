@@ -61,7 +61,9 @@ export const Login: React.FC = () => {
               <BlockStack gap="400">
                 <div className="flex justify-center">
                   <div className="p-4 bg-[var(--cin7-hept-blue,#0033A0)] rounded-full">
-                    <Icon source={LockIcon} tone="base" />
+                    <div className="[&_svg]:fill-white [&_svg]:stroke-white">
+                      <Icon source={LockIcon} tone="base" />
+                    </div>
                   </div>
                 </div>
                 <BlockStack gap="200">

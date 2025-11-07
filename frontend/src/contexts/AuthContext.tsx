@@ -43,6 +43,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await supabaseSignOut();
           setSession(null);
           setUser(null);
+          // Show user-friendly error message
+          alert(`Access Denied\n\nOnly @cin7.com email addresses are allowed to access this application.\n\nYou attempted to sign in with: ${session.user.email}\n\nPlease contact your IT administrator if you believe this is an error.`);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -66,6 +68,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await supabaseSignOut();
         setSession(null);
         setUser(null);
+        // Show user-friendly error message
+        alert(`Access Denied\n\nOnly @cin7.com email addresses are allowed to access this application.\n\nYou attempted to sign in with: ${session.user.email}\n\nPlease contact your IT administrator if you believe this is an error.`);
       }
 
       setLoading(false);

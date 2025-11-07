@@ -63,7 +63,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   ];
 
   return (
-    <Card className={className}>
+    <Card className={`${className} relative z-10`}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
