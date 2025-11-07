@@ -9,8 +9,8 @@ import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
 import { Cin7Button as Button } from '@/components/polaris';
-import { useDashboardOverview } from '@/hooks/usePendoData'; // Using Pendo API (Supabase metadata-only for now)
-// import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // TODO: Enable when analytics are synced
+// import { useDashboardOverview } from '@/hooks/usePendoData'; // Using Pendo API (causes browser crash with 368k+ events)
+import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // Using Supabase synced data (300 records)
 import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import { InlineSpinner } from '@/components/ui/Spinner';
@@ -551,10 +551,10 @@ export const Dashboard: React.FC = () => {
           ))}
         </div>
 
-        {/* Guide Performance Chart - Full Width */}
-        <GuidePerformanceChart
+        {/* Guide Performance Chart - Temporarily disabled (uses Pendo API aggregation that causes crashes) */}
+        {/* <GuidePerformanceChart
           guides={sortedData.guides as Guide[]}
-        />
+        /> */}
 
         {/* Top Performers - Full Width */}
         <TopPerformers

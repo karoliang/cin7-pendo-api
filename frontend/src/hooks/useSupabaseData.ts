@@ -97,10 +97,39 @@ export const useSupabaseDashboard = (daysBack: number = 7) => {
   const featuresQuery = useSupabaseFeatures(daysBack);
   const pagesQuery = useSupabasePages(daysBack);
 
+  // Transform Supabase data to match Pendo types
+  const transformedGuides = (guidesQuery.data || []).map(guide => ({
+    ...guide,
+    createdAt: guide.created_at,
+    updatedAt: guide.last_updated_at,
+    lastShownCount: guide.views,
+    viewedCount: guide.views,
+    completedCount: guide.completions,
+  }));
+
+  const transformedFeatures = (featuresQuery.data || []).map(feature => ({
+    ...feature,
+    createdAt: feature.created_at,
+    updatedAt: feature.last_updated_at,
+    usageCount: feature.usage_count,
+    visitorCount: feature.unique_users, // Map unique_users to visitorCount
+    accountCount: 0, // Not available in synced data
+    eventType: 'click' as const, // Default value
+  }));
+
+  const transformedPages = (pagesQuery.data || []).map(page => ({
+    ...page,
+    createdAt: page.created_at,
+    updatedAt: page.last_updated_at,
+    viewedCount: page.views,
+    visitorCount: page.unique_visitors,
+  }));
+
   return {
-    guides: guidesQuery.data || [],
-    features: featuresQuery.data || [],
-    pages: pagesQuery.data || [],
+    guides: transformedGuides as any, // Type assertion for Pendo compatibility
+    features: transformedFeatures as any, // Type assertion for Pendo compatibility
+    pages: transformedPages as any, // Type assertion for Pendo compatibility
+    reports: [] as any, // Reports not synced yet
     isLoading: guidesQuery.isLoading || featuresQuery.isLoading || pagesQuery.isLoading,
     error: guidesQuery.error || featuresQuery.error || pagesQuery.error,
     refetch: () => {

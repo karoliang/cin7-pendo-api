@@ -5,8 +5,8 @@ import { Cin7DataTable } from '@/components/polaris/Cin7DataTable';
 import { DetailModal } from '@/components/tables/DetailModal';
 import { Button } from '@/components/ui/button';
 import { FilterPanel } from '@/components/filters/FilterPanel';
-import { useDashboardOverview } from '@/hooks/usePendoData'; // Using Pendo API (Supabase metadata-only for now)
-// import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // TODO: Enable when analytics are synced
+// import { useDashboardOverview } from '@/hooks/usePendoData'; // Using Pendo API (causes browser crash with 368k+ events)
+import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // Using Supabase synced data (300 records)
 import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
