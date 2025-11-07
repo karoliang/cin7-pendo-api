@@ -356,6 +356,41 @@ export const DataTables: React.FC = () => {
       return lastRun >= weekAgo;
     }).length;
 
+    // Events metrics
+    const eventsData = sortedData.events as Event[];
+    const eventTypeBreakdown = eventsData.reduce((acc, event) => {
+      const type = event.event_type || 'unknown';
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const topEventTypes = Object.entries(eventTypeBreakdown)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([type, count]) => ({ type, count }));
+
+    const entityTypeBreakdown = eventsData.reduce((acc, event) => {
+      const type = event.entity_type || 'other';
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const topCountries = eventsData.reduce((acc, event) => {
+      const country = event.country || 'Unknown';
+      acc[country] = (acc[country] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const topCountriesList = Object.entries(topCountries)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([country, count]) => ({ country, count }));
+
+    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const recentEventsCount = eventsData.filter(e =>
+      new Date(e.browser_time) >= last24Hours
+    ).length;
+
     return {
       guides: {
         published: publishedGuides,
@@ -382,6 +417,13 @@ export const DataTables: React.FC = () => {
         withRuns: reportsWithRuns,
         neverRun: reportsNeverRun,
         recentRuns: recentReports
+      },
+      events: {
+        topEventTypes,
+        entityTypeBreakdown,
+        topCountries: topCountriesList,
+        recentCount: recentEventsCount,
+        totalEvents: eventsData.length
       }
     };
   }, [sortedData]);
@@ -767,6 +809,121 @@ export const DataTables: React.FC = () => {
                               <div className="text-sm font-bold text-blue-600">{page.viewedCount.toLocaleString()}</div>
                               <div className="text-xs text-gray-500">{page.visitorCount.toLocaleString()} visitors</div>
                             </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'reports' && (
+              <div className="mb-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium">Report Execution Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center p-4 bg-green-50 rounded-lg">
+                        <div className="text-2xl font-bold text-green-600">{summaryMetrics.reports.withRuns}</div>
+                        <div className="text-xs text-gray-600 mt-1">Reports Executed</div>
+                      </div>
+                      <div className="text-center p-4 bg-gray-50 rounded-lg">
+                        <div className="text-2xl font-bold text-gray-600">{summaryMetrics.reports.neverRun}</div>
+                        <div className="text-xs text-gray-600 mt-1">Never Run</div>
+                      </div>
+                      <div className="text-center p-4 bg-blue-50 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-600">{summaryMetrics.reports.recentRuns}</div>
+                        <div className="text-xs text-gray-600 mt-1">Run in Last 7 Days</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {activeTab === 'events' && (
+              <div className="mb-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Event Summary</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center p-4 bg-blue-50 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-600">{summaryMetrics.events.totalEvents.toLocaleString()}</div>
+                          <div className="text-xs text-gray-600 mt-1">Total Events</div>
+                        </div>
+                        <div className="text-center p-4 bg-green-50 rounded-lg">
+                          <div className="text-2xl font-bold text-green-600">{summaryMetrics.events.recentCount.toLocaleString()}</div>
+                          <div className="text-xs text-gray-600 mt-1">Last 24 Hours</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Entity Breakdown</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {Object.entries(summaryMetrics.events.entityTypeBreakdown).map(([type, count]) => (
+                          <div key={type} className="flex items-center justify-between py-2 border-b last:border-0">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              type === 'guide' ? 'bg-purple-100 text-purple-800' :
+                              type === 'feature' ? 'bg-blue-100 text-blue-800' :
+                              type === 'page' ? 'bg-green-100 text-green-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {type}
+                            </span>
+                            <span className="text-sm font-bold text-gray-700">{(count as number).toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {summaryMetrics.events.topEventTypes.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Top 5 Event Types</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {summaryMetrics.events.topEventTypes.map((event, index) => (
+                          <div key={event.type} className="flex items-center justify-between py-2 border-b last:border-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-400 w-6">{index + 1}.</span>
+                              <span className="text-sm font-medium text-gray-700">{event.type}</span>
+                            </div>
+                            <span className="text-sm font-bold text-blue-600">{event.count.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {summaryMetrics.events.topCountries.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Top 5 Countries</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {summaryMetrics.events.topCountries.map((location, index) => (
+                          <div key={location.country} className="flex items-center justify-between py-2 border-b last:border-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-400 w-6">{index + 1}.</span>
+                              <span className="text-sm font-medium text-gray-700">{location.country}</span>
+                            </div>
+                            <span className="text-sm font-bold text-green-600">{location.count.toLocaleString()}</span>
                           </div>
                         ))}
                       </div>
