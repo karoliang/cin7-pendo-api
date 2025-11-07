@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
+import { BreadcrumbWithHome } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/polaris/Cin7Button';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
 import { Cin7Badge as Badge } from '@/components/polaris';
@@ -316,6 +317,16 @@ export const ReportDetails: React.FC = () => {
     return (
       <Layout showNavigation={true}>
         <div className="px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumb Navigation */}
+          <BreadcrumbWithHome
+            items={[
+              { label: 'Data Tables', href: '/data' },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Loading...', href: '/data' },
+              { label: 'Loading...' }
+            ]}
+            className="mb-6"
+          />
+
           {/* Spinner overlay */}
           <div className="flex justify-center items-center py-12">
             <InlineSpinner message="Loading report data..." size="lg" />
@@ -345,6 +356,16 @@ export const ReportDetails: React.FC = () => {
     return (
       <Layout showNavigation={true}>
         <div className="px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumb Navigation */}
+          <BreadcrumbWithHome
+            items={[
+              { label: 'Data Tables', href: '/data' },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Error', href: '/data' },
+              { label: 'Error' }
+            ]}
+            className="mb-6"
+          />
+
           <div className="text-center">
             <ExclamationTriangleIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
@@ -386,6 +407,16 @@ export const ReportDetails: React.FC = () => {
     return (
       <Layout showNavigation={true}>
         <div className="px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumb Navigation */}
+          <BreadcrumbWithHome
+            items={[
+              { label: 'Data Tables', href: '/data' },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Data', href: '/data' },
+              { label: data.name }
+            ]}
+            className="mb-6"
+          />
+
           <div className="flex items-center justify-between mb-6">
             <Button
               variant="ghost"
@@ -713,9 +744,29 @@ export const ReportDetails: React.FC = () => {
     return false;
   };
 
+  // Helper to get tab label from type
+  const getTabLabel = () => {
+    switch (type) {
+      case 'guides': return 'Guides';
+      case 'features': return 'Features';
+      case 'pages': return 'Pages';
+      case 'reports': return 'Reports';
+      default: return 'Data';
+    }
+  };
+
   return (
     <Layout showNavigation={true}>
       <div className="px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Breadcrumb Navigation */}
+        <BreadcrumbWithHome
+          items={[
+            { label: 'Data Tables', href: '/data' },
+            { label: getTabLabel(), href: '/data' },
+            { label: data.name }
+          ]}
+        />
+
         {/* Header - Redesigned for better UX */}
         <div className="space-y-4">
           {/* Row 1: Navigation and Actions */}
