@@ -153,12 +153,39 @@ export const DataTables: React.FC = () => {
       return true;
     };
 
+    // Separate filter for events (simpler logic)
+    const filterEvents = (eventsList: Event[]): Event[] => {
+      return eventsList.filter(event => {
+        if (filters.searchQuery) {
+          const searchLower = filters.searchQuery.toLowerCase();
+          const typeMatch = event.event_type?.toLowerCase().includes(searchLower);
+          const entityMatch = event.entity_type?.toLowerCase().includes(searchLower);
+          const countryMatch = event.country?.toLowerCase().includes(searchLower);
+          if (!typeMatch && !entityMatch && !countryMatch) {
+            return false;
+          }
+        }
+
+        if (filters.dateRange?.start || filters.dateRange?.end) {
+          const eventDate = new Date(event.browser_time);
+          if (filters.dateRange.start && eventDate < filters.dateRange.start) {
+            return false;
+          }
+          if (filters.dateRange.end && eventDate > filters.dateRange.end) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    };
+
     return {
       guides: filterArray(guides || [], createFilterFn),
       features: filterArray(features || [], createFilterFn),
       pages: filterArray(pages || [], createFilterFn),
       reports: filterArray(reports || [], createFilterFn),
-      events: filterArray(events || [], createFilterFn)
+      events: filterEvents(events || [])
     };
   }, [guides, features, pages, reports, events, filters]);
 
@@ -788,16 +815,18 @@ export const DataTables: React.FC = () => {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      <DetailModal
-        item={selectedItem}
-        type={detailModalType!}
-        isOpen={!!selectedItem && !!detailModalType}
-        onClose={() => {
-          setSelectedItem(null);
-          setDetailModalType(null);
-        }}
-      />
+      {/* Detail Modal - Only for non-Event types */}
+      {selectedItem && detailModalType && detailModalType !== 'event' && (
+        <DetailModal
+          item={selectedItem as Guide | Feature | Page | Report}
+          type={detailModalType as 'guide' | 'feature' | 'page' | 'report'}
+          isOpen={true}
+          onClose={() => {
+            setSelectedItem(null);
+            setDetailModalType(null);
+          }}
+        />
+      )}
     </Layout>
   );
 };

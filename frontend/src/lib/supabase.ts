@@ -71,6 +71,20 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['pendo_pages']['Row'], 'last_synced'>;
         Update: Partial<Database['public']['Tables']['pendo_pages']['Insert']>;
       };
+      pendo_reports: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          last_success_run_at: string | null;
+          configuration: any;
+          created_at: string;
+          last_updated_at: string;
+          last_synced: string;
+        };
+        Insert: Omit<Database['public']['Tables']['pendo_reports']['Row'], 'last_synced'>;
+        Update: Partial<Database['public']['Tables']['pendo_reports']['Insert']>;
+      };
       pendo_events: {
         Row: {
           id: string;
