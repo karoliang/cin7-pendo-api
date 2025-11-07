@@ -763,7 +763,7 @@ export const DataTables: React.FC = () => {
 
             {activeTab === 'features' && (
               <div className="mb-6">
-                {summaryMetrics.features.topFeatures.length > 0 && (
+                {summaryMetrics.features.topFeatures.length > 0 && summaryMetrics.features.topFeatures.some(f => f.usageCount > 0) && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm font-medium">Top 5 Features by Usage</CardTitle>
