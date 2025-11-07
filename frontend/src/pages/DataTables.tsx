@@ -934,8 +934,8 @@ export const DataTables: React.FC = () => {
             )}
 
 
-            {/* Coming Soon Notice for Features and Reports */}
-            {(activeTab === 'features' || activeTab === 'reports') && (
+            {/* Coming Soon Notice for Reports */}
+            {(activeTab === 'reports') && (
               <div className="mb-4 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0">
