@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Cin7DataTable } from '@/components/polaris/Cin7DataTable';
 import { DetailModal } from '@/components/tables/DetailModal';
@@ -77,6 +77,7 @@ export const DataTables: React.FC = () => {
   });
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { guides, features, pages, reports, events, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters } = useFilterStore();
 
@@ -90,7 +91,16 @@ export const DataTables: React.FC = () => {
     console.log('  Events:', events.length);
   }, [guides.length, features.length, pages.length, reports.length, events.length]);
 
-  const [activeTab, setActiveTab] = useState<TabType>('pages');
+  // Get active tab from URL, default to 'pages'
+  const tabFromUrl = searchParams.get('tab') as TabType | null;
+  const activeTab: TabType = tabFromUrl && ['guides', 'features', 'pages', 'reports', 'events'].includes(tabFromUrl)
+    ? tabFromUrl
+    : 'pages';
+
+  // Function to change tab and update URL
+  const setActiveTab = (tab: TabType) => {
+    setSearchParams({ tab });
+  };
   const [selectedItem, setSelectedItem] = useState<Guide | Feature | Page | Report | Event | null>(null);
   const [detailModalType, setDetailModalType] = useState<'guide' | 'feature' | 'page' | 'report' | 'event' | null>(null);
   const [tableState, setTableState] = useState<TableState>({
@@ -639,13 +649,13 @@ export const DataTables: React.FC = () => {
   };
 
   const handleRowClick = (item: Guide | Feature | Page | Report | Event) => {
-    // Navigate to detailed report page instead of showing modal
+    // Navigate to detailed report page with tab state for back navigation
     console.log('Navigating to:', `/report/${activeTab}/${item.id}`, {
       activeTab,
       itemId: item.id,
       itemName: 'name' in item ? item.name : 'event_type' in item ? item.event_type : 'Unknown'
     });
-    navigate(`/report/${activeTab}/${item.id}`);
+    navigate(`/report/${activeTab}/${item.id}`, { state: { fromTab: activeTab } });
   };
 
   const handlePaginationChange = (pagination: { page?: number; limit?: number }) => {
@@ -703,7 +713,7 @@ export const DataTables: React.FC = () => {
         {/* Breadcrumb Navigation */}
         <BreadcrumbWithHome
           items={[
-            { label: 'Data Tables', href: '/tables' },
+            { label: 'Data Tables', href: `/tables?tab=${activeTab}` },
             { label: currentTab.label }
           ]}
         />

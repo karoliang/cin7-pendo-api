@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { BreadcrumbWithHome } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/polaris/Cin7Button';
@@ -85,6 +85,8 @@ interface ReportDataWithState {
 export const ReportDetails: React.FC = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromTab = (location.state as { fromTab?: string })?.fromTab || type;
 
   // Set page title
   usePageTitle({
@@ -221,7 +223,7 @@ export const ReportDetails: React.FC = () => {
     console.log('ReportDetails route accessed:', { type, id, isValid: type ? isValidType(type) : false });
     if (!type || !id || !isValidType(type)) {
       console.log('Invalid route params, navigating to tables');
-      navigate('/tables');
+      navigate(`/tables?tab=${fromTab}`);
     }
   }, [type, id, navigate]);
 
@@ -320,8 +322,8 @@ export const ReportDetails: React.FC = () => {
           {/* Breadcrumb Navigation */}
           <BreadcrumbWithHome
             items={[
-              { label: 'Data Tables', href: '/tables' },
-              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Loading...', href: '/tables' },
+              { label: 'Data Tables', href: `/tables?tab=${fromTab}` },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Loading...', href: `/tables?tab=${fromTab}` },
               { label: 'Loading...' }
             ]}
             className="mb-6"
@@ -359,8 +361,8 @@ export const ReportDetails: React.FC = () => {
           {/* Breadcrumb Navigation */}
           <BreadcrumbWithHome
             items={[
-              { label: 'Data Tables', href: '/tables' },
-              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Error', href: '/tables' },
+              { label: 'Data Tables', href: `/tables?tab=${fromTab}` },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Error', href: `/tables?tab=${fromTab}` },
               { label: 'Error' }
             ]}
             className="mb-6"
@@ -389,7 +391,7 @@ export const ReportDetails: React.FC = () => {
               </div>
             )}
             <div className="space-x-4">
-              <Button onClick={() => navigate('/tables')}>
+              <Button onClick={() => navigate(`/tables?tab=${fromTab}`)}>
                 Back to Data Tables
               </Button>
               <Button variant="outline" onClick={() => window.location.reload()}>
@@ -410,8 +412,8 @@ export const ReportDetails: React.FC = () => {
           {/* Breadcrumb Navigation */}
           <BreadcrumbWithHome
             items={[
-              { label: 'Data Tables', href: '/tables' },
-              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Data', href: '/tables' },
+              { label: 'Data Tables', href: `/tables?tab=${fromTab}` },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Data', href: `/tables?tab=${fromTab}` },
               { label: data.name }
             ]}
             className="mb-6"
@@ -421,7 +423,7 @@ export const ReportDetails: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/tables')}
+              onClick={() => navigate(`/tables?tab=${fromTab}`)}
               className="text-gray-500 hover:text-gray-700"
             >
               Back to Tables
@@ -490,7 +492,7 @@ export const ReportDetails: React.FC = () => {
             </Card>
 
             <div className="mt-8 space-x-4">
-              <Button onClick={() => navigate('/tables')}>
+              <Button onClick={() => navigate(`/tables?tab=${fromTab}`)}>
                 Back to Data Tables
               </Button>
               <Button variant="outline" onClick={() => window.location.reload()}>
@@ -761,8 +763,8 @@ export const ReportDetails: React.FC = () => {
         {/* Breadcrumb Navigation */}
         <BreadcrumbWithHome
           items={[
-            { label: 'Data Tables', href: '/tables' },
-            { label: getTabLabel(), href: '/tables' },
+            { label: 'Data Tables', href: `/tables?tab=${fromTab}` },
+            { label: getTabLabel(), href: `/tables?tab=${fromTab}` },
             { label: data.name }
           ]}
         />
@@ -774,7 +776,7 @@ export const ReportDetails: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/tables')}
+              onClick={() => navigate(`/tables?tab=${fromTab}`)}
               className="text-gray-500 hover:text-gray-700"
             >
               Back to Tables
