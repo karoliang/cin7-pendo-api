@@ -183,9 +183,9 @@ const getReportPromptTemplate = (type: string, data: ReportDataForSummary, exper
 const getStandardPromptTemplate = (type: string, data: ReportDataForSummary): string => {
   const templates = {
     guides: `Analyze this Pendo Guide analytics data and provide:
-1. Overall Performance Summary (2-3 sentences)
-2. Key Insights (3-5 bullet points)
-3. Recommendations (2-3 specific actions)
+1. Overall Performance Summary (2-3 sentences, considering launch method, targeting, and configuration)
+2. Key Insights (3-5 bullet points, include analysis of multi-step flow, auto-advance effectiveness, and audience fit)
+3. Recommendations (2-3 specific actions to improve completion rate and engagement)
 
 Guide: ${data.name}
 Type: ${data.type}
@@ -195,7 +195,9 @@ Metrics:
 ${formatMetrics(data.metrics)}
 
 ${data.trends ? `\nTrends:\n${formatTrends(data.trends)}` : ''}
-${data.topInsights ? `\nTop Insights:\n${data.topInsights.map(i => `- ${i}`).join('\n')}` : ''}`,
+${data.topInsights ? `\nTop Insights:\n${data.topInsights.map(i => `- ${i}`).join('\n')}` : ''}
+
+Focus areas: Consider how launch method, step count, auto-advance settings, and audience targeting impact completion rates and user experience.`,
 
     features: `Analyze this Pendo Feature usage data and provide:
 1. Usage Summary (2-3 sentences)
@@ -266,6 +268,10 @@ Consider these key areas:
 - Engagement quality and timing in user journey
 - Step-by-step analysis of friction points
 - User segmentation patterns
+- Launch method effectiveness (auto-trigger vs. manual vs. url-trigger) - does it align with user intent?
+- Multi-step configuration impact - are too many steps causing fatigue?
+- Auto-advance settings - does automatic progression enhance or disrupt the experience?
+- Audience targeting precision - is the right user segment seeing this guide?
 
 For each recommendation, specify:
 - Impact (High/Medium/Low)
@@ -642,6 +648,10 @@ function compressReportData(
         'Drop-off Rate': `${(guideData.dropOffRate || 0).toFixed(1)}%`,
         'Steps': guideData.stepCount || 0,
         'State': guideData.state || 'unknown',
+        'Launch Method': guideData.launchMethod || 'auto',
+        'Multi-Step Guide': guideData.isMultiStep ? 'Yes' : 'No',
+        'Auto-Advance': guideData.autoAdvance ? 'Enabled' : 'Disabled',
+        'Has Audience Targeting': guideData.audience ? 'Yes' : 'No',
       };
       break;
     }
