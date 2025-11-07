@@ -46,6 +46,9 @@ import { CompletionFunnel } from '@/components/charts/CompletionFunnel';
 // Import AI Summary component
 import { AISummary } from '@/components/ai/AISummary';
 
+// Import Guide-specific components
+import { AudienceTargetingDisplay } from '@/components/guides/AudienceTargetingDisplay';
+
 // Import Spinner component
 import { InlineSpinner } from '@/components/ui/Spinner';
 
@@ -877,19 +880,7 @@ export const ReportDetails: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {typeof (data as ComprehensiveGuideData).audience === 'object' && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono">
-                          {JSON.stringify((data as ComprehensiveGuideData).audience, null, 2)}
-                        </pre>
-                      </div>
-                    )}
-                    <div className="text-sm text-gray-600">
-                      <p className="font-medium mb-2">Targeting Configuration:</p>
-                      <p>This guide is configured to appear for specific user segments based on the rules defined above.</p>
-                    </div>
-                  </div>
+                  <AudienceTargetingDisplay audience={(data as ComprehensiveGuideData).audience} />
                 </CardContent>
               </Card>
             </div>
