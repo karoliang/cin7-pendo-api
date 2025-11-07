@@ -668,6 +668,38 @@ export const ReportDetails: React.FC = () => {
     window.print();
   };
 
+  // Helper function to check if geographic data contains only zeros
+  const hasValidGeographicData = (): boolean => {
+    if (type === 'pages') {
+      const geoData = (data as ComprehensivePageData).geographicDistribution;
+      if (!geoData || geoData.length === 0) return false;
+      // Check if all visitors and views are 0
+      return geoData.some(geo => geo.visitors > 0 || geo.views > 0);
+    } else if (type === 'guides') {
+      const geoData = (data as ComprehensiveGuideData).geographicDistribution;
+      if (!geoData || geoData.length === 0) return false;
+      // Check if all users are 0
+      return geoData.some(geo => geo.users > 0);
+    }
+    return false;
+  };
+
+  // Helper function to check if device/browser data contains only zeros
+  const hasValidDeviceData = (): boolean => {
+    if (type === 'pages') {
+      const deviceData = (data as ComprehensivePageData).deviceBrowserBreakdown;
+      if (!deviceData || deviceData.length === 0) return false;
+      // Check if all users are 0
+      return deviceData.some(device => device.users > 0);
+    } else if (type === 'guides') {
+      const deviceData = (data as ComprehensiveGuideData).deviceBreakdown;
+      if (!deviceData || deviceData.length === 0) return false;
+      // Check if all users are 0
+      return deviceData.some(device => device.users > 0);
+    }
+    return false;
+  };
+
   return (
     <Layout showNavigation={true}>
       <div className="px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -1301,8 +1333,7 @@ export const ReportDetails: React.FC = () => {
           )}
 
           {/* POSITION 7: Geographic Distribution Section (MOVED UP) */}
-          {((type === 'pages' && (data as ComprehensivePageData).geographicDistribution && (data as ComprehensivePageData).geographicDistribution!.length > 0) ||
-            (type === 'guides' && (data as ComprehensiveGuideData).geographicDistribution && (data as ComprehensiveGuideData).geographicDistribution.length > 0)) && (
+          {hasValidGeographicData() && (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold text-gray-900">Geographic Distribution (Real Data)</h2>
@@ -1442,8 +1473,7 @@ export const ReportDetails: React.FC = () => {
           )}
 
           {/* POSITION 8: Device & Browser Breakdown Section */}
-          {((type === 'pages' && (data as ComprehensivePageData).deviceBrowserBreakdown && (data as ComprehensivePageData).deviceBrowserBreakdown!.length > 0) ||
-            (type === 'guides' && (data as ComprehensiveGuideData).deviceBreakdown && (data as ComprehensiveGuideData).deviceBreakdown.length > 0)) && (
+          {hasValidDeviceData() && (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold text-gray-900">Device & Browser Breakdown (Real Data)</h2>
