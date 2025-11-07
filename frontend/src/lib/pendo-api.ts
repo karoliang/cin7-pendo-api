@@ -241,7 +241,7 @@ class PendoAPIClient {
   private getCachedResult<T>(key: string): T | null {
     const cached = this.cache.get(key);
     if (cached && Date.now() - cached.timestamp < cached.ttl) {
-      console.log(`📦 Using cached result for: ${key}`);
+      // console.log(`📦 Using cached result for: ${key}`);
       return cached.data as T;
     }
     if (cached) {
@@ -251,7 +251,7 @@ class PendoAPIClient {
   }
 
   private setCachedResult<T>(key: string, data: T, ttl: number = this.CACHE_TTL): void {
-    console.log(`💾 Caching result for: ${key}`);
+    // console.log(`💾 Caching result for: ${key}`);
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
@@ -333,26 +333,16 @@ class PendoAPIClient {
       };
     }
 
-    console.log(`🌐 Making ${method} request to: ${url}`);
+    // console.log(`🌐 Making ${method} request to: ${url}`);
     if (params) {
-      console.log(`📋 Parameters:`, params);
+      // console.log(`📋 Parameters:`, params);
     }
 
     const response = await fetch(url, requestOptions);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ Pendo API error: ${response.status} ${response.statusText}`);
-      console.error(`📄 Error details:`, errorText);
-
-      // Try to parse error response for more details
-      try {
-        const errorData = JSON.parse(errorText);
-        console.error(`🔍 Parsed error:`, errorData);
-      } catch {
-        // Error response is not JSON
-      }
-
+      console.error(`Pendo API error: ${response.status} ${response.statusText}`, errorText);
       throw new Error(`Pendo API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
@@ -365,7 +355,7 @@ class PendoAPIClient {
   }
 
   private async handleAggregationRequest(params?: AggregationParams, method: string = 'POST'): Promise<PendoApiResponse> {
-    console.log(`🔧 Attempting to fix aggregation API access with multiple approaches`);
+    // console.log(`🔧 Attempting to fix aggregation API access with multiple approaches`);
 
     // Try different aggregation API formats to find what works
     const approaches = [
@@ -397,18 +387,18 @@ class PendoAPIClient {
 
     for (const approach of approaches) {
       try {
-        console.log(`🔄 Trying approach: ${approach.name}`);
+        // console.log(`🔄 Trying approach: ${approach.name}`);
         const result = await this.makeAggregationCall(approach.body, method);
-        console.log(`✅ Success with approach: ${approach.name}`);
+        // console.log(`✅ Success with approach: ${approach.name}`);
         return result;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.log(`❌ Approach failed: ${approach.name} - ${errorMessage}`);
+        // console.log(`❌ Approach failed: ${approach.name} - ${errorMessage}`);
         continue;
       }
     }
 
-    console.log(`⚠️ All aggregation API approaches failed, using alternative analytics approach`);
+    // console.log(`⚠️ All aggregation API approaches failed, using alternative analytics approach`);
     // Return structured empty data instead of throwing error to allow graceful fallback
     return {
       message: 'Aggregation API not accessible, using alternative analytics approach',
@@ -523,7 +513,7 @@ class PendoAPIClient {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       controller.abort();
-      console.error(`⏱️ Aggregation API call timed out after 30 seconds`);
+      console.error(`Aggregation API call timed out after 30 seconds`);
     }, 30000); // 30 second timeout
 
     const requestOptions: RequestInit = {
@@ -552,8 +542,8 @@ class PendoAPIClient {
       };
     }
 
-    console.log(`🔬 Making aggregation ${method} call to: ${url}`);
-    console.log(`📋 Request params:`, params);
+    // console.log(`🔬 Making aggregation ${method} call to: ${url}`);
+    // console.log(`📋 Request params:`, params);
 
     try {
       const response = await fetch(url, requestOptions);
@@ -561,16 +551,7 @@ class PendoAPIClient {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ Aggregation API error: ${response.status} ${response.statusText}`);
-        console.error(`📄 Error details:`, errorText);
-
-        try {
-          const errorData = JSON.parse(errorText);
-          console.error(`🔍 Parsed error:`, errorData);
-        } catch {
-          // Error response is not JSON
-        }
-
+        console.error(`Aggregation API error: ${response.status} ${response.statusText}`, errorText);
         throw new Error(`Aggregation API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
@@ -578,21 +559,16 @@ class PendoAPIClient {
       const responseText = await response.text();
 
       if (!responseText || responseText.trim() === '') {
-        console.error(`❌ Pendo API returned empty response body`);
-        console.error(`   Status: ${response.status} ${response.statusText}`);
-        console.error(`   Content-Type: ${response.headers.get('Content-Type')}`);
-        console.error(`   This could indicate: (1) API rate limiting, (2) Invalid request parameters, (3) API service issue`);
+        console.error(`Pendo API returned empty response - Status: ${response.status}`);
         throw new Error(`Pendo API returned empty response - Status: ${response.status}`);
       }
 
       try {
         const result = JSON.parse(responseText);
-        console.log(`✅ Aggregation response:`, result);
+        // console.log(`✅ Aggregation response:`, result);
         return result;
       } catch (parseError) {
-        console.error(`❌ Failed to parse Pendo API response as JSON`);
-        console.error(`   Response text (first 500 chars):`, responseText.substring(0, 500));
-        console.error(`   Parse error:`, parseError);
+        console.error(`Failed to parse Pendo API response as JSON:`, parseError);
         throw new Error(`Invalid JSON response from Pendo API: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
       }
     } catch (error) {
@@ -616,7 +592,7 @@ class PendoAPIClient {
     try {
       const response = await this.request<PendoGuideResponse[]>('/api/v1/guide', params);
 
-      console.log(`📋 Fetched ${response.length} guides from Pendo API`);
+      // console.log(`📋 Fetched ${response.length} guides from Pendo API`);
 
       return response.map(this.transformGuide);
     } catch (error) {
@@ -670,7 +646,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideTotals(id: string, _daysBack: number = 90): Promise<{ viewedCount: number; completedCount: number; lastShownCount: number }> {
     try {
-      console.log(`📊 Fetching total analytics for guide ${id} from aggregation API`);
+      // console.log(`📊 Fetching total analytics for guide ${id} from aggregation API`);
 
       // Use pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
@@ -712,14 +688,14 @@ class PendoAPIClient {
           }
         }
 
-        console.log(`✅ Aggregation totals: ${viewedCount} views, ${completedCount} completions, ${lastShownCount} shown`);
+        // console.log(`✅ Aggregation totals: ${viewedCount} views, ${completedCount} completions, ${lastShownCount} shown`);
         return { viewedCount, completedCount, lastShownCount };
       }
 
-      console.warn(`⚠️ No aggregation results for guide ${id}`);
+      // console.warn(`⚠️ No aggregation results for guide ${id}`);
       return { viewedCount: 0, completedCount: 0, lastShownCount: 0 };
     } catch (error) {
-      console.warn(`⚠️ Failed to fetch guide totals from aggregation API:`, error);
+      // console.warn(`⚠️ Failed to fetch guide totals from aggregation API:`, error);
       return { viewedCount: 0, completedCount: 0, lastShownCount: 0 };
     }
   }
@@ -727,16 +703,16 @@ class PendoAPIClient {
   // Guide Analytics - Complete Real Data Implementation
   async getGuideById(id: string, fetchAnalytics: boolean = false): Promise<Guide> {
     try {
-      console.log(`🔍 Fetching guide metadata for ID: ${id}`);
+      // console.log(`🔍 Fetching guide metadata for ID: ${id}`);
 
       // NOTE: Pendo API does NOT support GET /api/v1/guide/:id endpoint (always returns 404)
       // We must fetch from the list endpoint instead
       const guides = await this.request<PendoGuideResponse[]>('/api/v1/guide', { limit: 1000 });
-      console.log(`📊 Retrieved ${guides.length} total guides from Pendo`);
+      // console.log(`📊 Retrieved ${guides.length} total guides from Pendo`);
 
       const guide = guides.find(g => g.id === id);
       if (guide) {
-        console.log(`✅ Found guide: "${guide.name}" (${guide.state})`);
+        // console.log(`✅ Found guide: "${guide.name}" (${guide.state})`);
 
         // Optionally fetch real analytics from aggregation API
         if (fetchAnalytics) {
@@ -744,47 +720,47 @@ class PendoAPIClient {
           guide.viewedCount = totals.viewedCount;
           guide.completedCount = totals.completedCount;
           guide.lastShownCount = totals.lastShownCount;
-          console.log(`📈 Enriched with aggregation data: ${totals.viewedCount} views, ${totals.completedCount} completions`);
+          // console.log(`📈 Enriched with aggregation data: ${totals.viewedCount} views, ${totals.completedCount} completions`);
         }
 
         return this.transformGuide(guide);
       }
 
       // Guide not found - provide helpful debug info
-      console.error(`❌ Guide ${id} not found in ${guides.length} available guides`);
-      console.log(`📋 Available guide IDs (first 10):`);
+      console.error(`Guide ${id} not found in ${guides.length} available guides`);
+      // console.log(`📋 Available guide IDs (first 10):`);
       guides.slice(0, 10).forEach((g: PendoGuideResponse, i: number) => {
-        console.log(`  ${i + 1}. ${g.id} - "${g.name}" (${g.state})`);
+        // console.log(`  ${i + 1}. ${g.id} - "${g.name}" (${g.state})`);
       });
 
       throw new Error(`Guide ${id} not found. Check console for available guide IDs.`);
     } catch (error) {
-      console.error(`❌ Error fetching guide ${id}:`, error);
+      console.error(`Error fetching guide ${id}:`, error);
       throw error;
     }
   }
 
   async getGuideAnalytics(id: string, period: { start: string; end: string }): Promise<ComprehensiveGuideData> {
     try {
-      console.log(`🚀 Starting analytics fetch for guide ID: ${id}`);
-      console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
+      // console.log(`🚀 Starting analytics fetch for guide ID: ${id}`);
+      // console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
 
       // Get base guide data with real analytics from aggregation API
       const guide = await this.getGuideById(id, true);
-      console.log(`📊 Base guide data retrieved: ${guide.name} (${guide.state})`);
-      console.log(`📈 Analytics: ${guide.viewedCount} views, ${guide.completedCount} completions`);
+      // console.log(`📊 Base guide data retrieved: ${guide.name} (${guide.state})`);
+      // console.log(`📈 Analytics: ${guide.viewedCount} views, ${guide.completedCount} completions`);
 
       // Validate guide has meaningful data
       if (guide.viewedCount === 0 && guide.completedCount === 0 && guide.state === 'published') {
-        console.warn(`⚠️ Guide ${id} is published but has no usage metrics. This might indicate:`);
-        console.warn(`   1. The guide was recently published and hasn't been shown to users yet`);
-        console.warn(`   2. The guide's targeting criteria are too restrictive`);
-        console.warn(`   3. There might be an issue with guide delivery`);
-        console.warn(`   4. The aggregation API might not have data for this guide yet`);
+        // console.warn(`⚠️ Guide ${id} is published but has no usage metrics. This might indicate:`);
+        // console.warn(`   1. The guide was recently published and hasn't been shown to users yet`);
+        // console.warn(`   2. The guide's targeting criteria are too restrictive`);
+        // console.warn(`   3. There might be an issue with guide delivery`);
+        // console.warn(`   4. The aggregation API might not have data for this guide yet`);
       }
 
       // Fetch all real Pendo analytics data with enhanced error handling
-      console.log(`🔄 Fetching comprehensive analytics data...`);
+      // console.log(`🔄 Fetching comprehensive analytics data...`);
       const [
         timeSeriesData,
         stepAnalytics,
@@ -831,7 +807,7 @@ class PendoAPIClient {
         variantData: null, // NOT AVAILABLE - Pendo API does not provide A/B test variant data
       };
 
-      console.log(`✅ Successfully compiled analytics data for ${guide.name}`);
+      // console.log(`✅ Successfully compiled analytics data for ${guide.name}`);
 
       // Calculate comprehensive metrics based on real Pendo data
       const completionRate = guide.viewedCount > 0 ? (guide.completedCount / guide.viewedCount) * 100 : 0;
@@ -906,21 +882,12 @@ class PendoAPIClient {
 
       // Enhanced error messages with specific guidance
       if (error instanceof Error && error.message.includes('404')) {
-        console.error(`🚨 Guide ${id} not found in Pendo system. This could mean:`);
-        console.error(`   1. The guide ID doesn't exist in your Pendo instance`);
-        console.error(`   2. The guide exists but isn't accessible via API`);
-        console.error(`   3. The guide has been deleted or archived`);
-        console.error(`   4. API key doesn't have permission to access this guide`);
-        console.error(`   💡 Check console output for available guide IDs`);
+        console.error(`Guide ${id} not found in Pendo system`);
         throw new Error(`Guide ${id} not found. This dashboard only displays real Pendo data.`);
       }
 
       if (error instanceof Error && error.message.includes('not accessible')) {
-        console.error(`🚨 Pendo API access issues detected. This could mean:`);
-        console.error(`   1. API key permissions are insufficient`);
-        console.error(`   2. Aggregation API is not enabled for your subscription`);
-        console.error(`   3. Network connectivity issues`);
-        console.error(`   💡 Contact Pendo support to verify API access`);
+        console.error(`Pendo API access issues detected`);
         throw new Error(`Pendo API access limited. Some features may be unavailable.`);
       }
 
@@ -941,7 +908,7 @@ class PendoAPIClient {
     visitors: number;
   }[]> {
     try {
-      console.log(`📊 Fetching performance time series for ALL guides (last ${daysBack} days)`);
+      // console.log(`📊 Fetching performance time series for ALL guides (last ${daysBack} days)`);
 
       // Calculate time range
       const endTime = Date.now();
@@ -967,12 +934,12 @@ class PendoAPIClient {
         }
       };
 
-      console.log(`🔍 Aggregation request:`, JSON.stringify(aggregationRequest, null, 2));
+      // console.log(`🔍 Aggregation request:`, JSON.stringify(aggregationRequest, null, 2));
 
       try {
         const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
-        console.log(`✅ Aggregation API response received with ${response.results?.length || 0} results`);
+        // console.log(`✅ Aggregation API response received with ${response.results?.length || 0} results`);
 
         if (response.results && Array.isArray(response.results) && response.results.length > 0) {
           // Group events by day
@@ -1018,24 +985,24 @@ class PendoAPIClient {
             }))
             .sort((a, b) => a.date.localeCompare(b.date));
 
-          console.log(`✅ Parsed ${timeSeriesData.length} days of real aggregated data`);
+          // console.log(`✅ Parsed ${timeSeriesData.length} days of real aggregated data`);
           return timeSeriesData;
         }
 
-        console.warn(`⚠️ Aggregation API returned no results, falling back to distributed data`);
+        // console.warn(`⚠️ Aggregation API returned no results, falling back to distributed data`);
       } catch (aggError) {
-        console.warn(`⚠️ Aggregation API failed:`, aggError);
+        // console.warn(`⚠️ Aggregation API failed:`, aggError);
       }
 
       // Fallback: Fetch all guides and distribute their totals
-      console.log(`📦 Falling back to guide metadata distribution`);
+      // console.log(`📦 Falling back to guide metadata distribution`);
       const guides = await this.getGuides({ limit: 1000 });
 
       const totalViews = guides.reduce((sum, g) => sum + (g.viewedCount || 0), 0);
       const totalCompletions = guides.reduce((sum, g) => sum + (g.completedCount || 0), 0);
       const estimatedVisitors = Math.floor(totalViews * 0.7); // Estimate ~70% unique
 
-      console.log(`📈 Distributing ${totalViews} views, ${totalCompletions} completions over ${daysBack} days`);
+      // console.log(`📈 Distributing ${totalViews} views, ${totalCompletions} completions over ${daysBack} days`);
 
       const timeSeriesData = [];
       for (let i = 0; i < daysBack; i++) {
@@ -1057,7 +1024,7 @@ class PendoAPIClient {
         });
       }
 
-      console.log(`✅ Generated ${timeSeriesData.length} days of distributed time series data`);
+      // console.log(`✅ Generated ${timeSeriesData.length} days of distributed time series data`);
       return timeSeriesData;
 
     } catch (error) {
@@ -1087,7 +1054,7 @@ class PendoAPIClient {
     if (promise.status === 'fulfilled') {
       return promise.value;
     } else {
-      console.warn(`⚠️ API call failed, using fallback: ${promise.reason?.message || 'Unknown error'}`);
+      // console.warn(`⚠️ API call failed, using fallback: ${promise.reason?.message || 'Unknown error'}`);
       return fallback;
     }
   }
@@ -1095,7 +1062,7 @@ class PendoAPIClient {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideTimeSeries(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`📊 Fetching time series analytics for guide ${id} from Pendo Aggregation API`);
+      // console.log(`📊 Fetching time series analytics for guide ${id} from Pendo Aggregation API`);
 
       // Calculate time range in milliseconds
       const startTime = new Date(_period.start).getTime();
@@ -1116,13 +1083,13 @@ class PendoAPIClient {
         requestId: `timeseries_${Date.now()}`
       };
 
-      console.log(`🔍 Aggregation request:`, JSON.stringify(aggregationRequest, null, 2));
+      // console.log(`🔍 Aggregation request:`, JSON.stringify(aggregationRequest, null, 2));
 
       try {
         // Make the aggregation API call
         const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
-        console.log(`✅ Aggregation API response:`, response);
+        // console.log(`✅ Aggregation API response:`, response);
 
         // Parse the aggregation response
         const timeSeriesData = [];
@@ -1147,14 +1114,14 @@ class PendoAPIClient {
             });
           }
 
-          console.log(`✅ Parsed ${timeSeriesData.length} days of real time series data`);
+          // console.log(`✅ Parsed ${timeSeriesData.length} days of real time series data`);
           return timeSeriesData;
         }
 
-        console.warn(`⚠️ Aggregation API returned no results, falling back to guide metadata`);
+        // console.warn(`⚠️ Aggregation API returned no results, falling back to guide metadata`);
       } catch (aggError) {
-        console.warn(`⚠️ Aggregation API failed:`, aggError);
-        console.log(`📦 Falling back to guide metadata distribution`);
+        // console.warn(`⚠️ Aggregation API failed:`, aggError);
+        // console.log(`📦 Falling back to guide metadata distribution`);
       }
 
       // Fallback: Get guide metadata and distribute it
@@ -1162,7 +1129,7 @@ class PendoAPIClient {
       const totalViews = guide.viewedCount || 0;
       const totalCompletions = guide.completedCount || 0;
 
-      console.log(`📈 Distributing ${totalViews} views and ${totalCompletions} completions over ${days} days`);
+      // console.log(`📈 Distributing ${totalViews} views and ${totalCompletions} completions over ${days} days`);
 
       const timeSeriesData = [];
       for (let i = 0; i < days; i++) {
@@ -1186,8 +1153,8 @@ class PendoAPIClient {
         });
       }
 
-      console.log(`✅ Generated ${timeSeriesData.length} days of time series data from real guide metrics`);
-      console.log(`📊 Guide ${id} (${guide.name}): ${totalViews} views, ${totalCompletions} completions`);
+      // console.log(`✅ Generated ${timeSeriesData.length} days of time series data from real guide metrics`);
+      // console.log(`📊 Guide ${id} (${guide.name}): ${totalViews} views, ${totalCompletions} completions`);
 
       return timeSeriesData;
 
@@ -1217,7 +1184,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideStepAnalytics(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Fetching real step analytics for guide ${id} from guideEvents`);
+      // console.log(`🚀 Fetching real step analytics for guide ${id} from guideEvents`);
 
       // Query guideEvents for step-level data
       const aggregationRequest = {
@@ -1254,12 +1221,12 @@ class PendoAPIClient {
         }
       };
 
-      console.log(`🌐 Making aggregation request for guide steps`);
+      // console.log(`🌐 Making aggregation request for guide steps`);
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results) && response.results.length > 0) {
-        console.log(`✅ Retrieved ${response.results.length} step records`);
-        console.log(`📋 Sample step record:`, response.results[0]);
+        // console.log(`✅ Retrieved ${response.results.length} step records`);
+        // console.log(`📋 Sample step record:`, response.results[0]);
 
         // Transform to step data
         const stepMap = new Map();
@@ -1289,13 +1256,13 @@ class PendoAPIClient {
 
         // If we got real data, use it
         if (stepData.length > 0) {
-          console.log(`✅ Generated ${stepData.length} steps from real guideEvents data`);
+          // console.log(`✅ Generated ${stepData.length} steps from real guideEvents data`);
           return stepData;
         }
       }
 
       // Fallback to estimated data if no step data available
-      console.warn(`⚠️ No step data from guideEvents, falling back to estimates`);
+      // console.warn(`⚠️ No step data from guideEvents, falling back to estimates`);
       const guide = await this.getGuideById(id);
       return this.generateStepDataFromGuideTotals(guide);
 
@@ -1312,7 +1279,7 @@ class PendoAPIClient {
   }
 
   private generateStepDataFromGuideTotals(guide: Guide): GuideStepData[] {
-    console.log(`🚀 Generating step analytics from guide totals`);
+    // console.log(`🚀 Generating step analytics from guide totals`);
     const totalViews = guide.viewedCount || 0;
     const totalCompletions = guide.completedCount || 0;
     const estimatedSteps = this.estimateStepCount(guide);
@@ -1338,7 +1305,7 @@ class PendoAPIClient {
       });
     }
 
-    console.log(`✅ Generated ${stepData.length} estimated steps`);
+    // console.log(`✅ Generated ${stepData.length} estimated steps`);
     return stepData;
   }
 
@@ -1396,7 +1363,7 @@ class PendoAPIClient {
 
     // If no step data found, create default step structure
     if (maxStep === 0) {
-      console.log(`⚠️ No step numbers found, creating default step structure...`);
+      // console.log(`⚠️ No step numbers found, creating default step structure...`);
       return this.generateFallbackStepData();
     }
 
@@ -1429,7 +1396,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideSegmentPerformance(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating segment performance for guide ${id} using alternative approach`);
+      // console.log(`🚀 Generating segment performance for guide ${id} using alternative approach`);
 
       // Since aggregation API is not accessible, generate segment data based on guide metrics
       const guide = await this.getGuideById(id);
@@ -1487,7 +1454,7 @@ class PendoAPIClient {
         segment.dropOffRate = segment.viewedCount > 0 ? ((segment.viewedCount - segment.completedCount) / segment.viewedCount) * 100 : 0;
       });
 
-      console.log(`✅ Generated segment performance for ${totalViews} total views`);
+      // console.log(`✅ Generated segment performance for ${totalViews} total views`);
       return segmentData;
 
     } catch (error) {
@@ -1499,7 +1466,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideDeviceBreakdown(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating device breakdown for guide ${id} using realistic data`);
+      // console.log(`🚀 Generating device breakdown for guide ${id} using realistic data`);
 
       // Get the guide's real metrics from the API
       const guide = await this.getGuideById(id);
@@ -1554,7 +1521,7 @@ class PendoAPIClient {
         },
       ];
 
-      console.log(`✅ Generated device breakdown for ${totalViews} total views`);
+      // console.log(`✅ Generated device breakdown for ${totalViews} total views`);
       return deviceBreakdown;
 
     } catch (error) {
@@ -1566,7 +1533,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideGeographicData(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating geographic data for guide ${id} using realistic distributions`);
+      // console.log(`🚀 Generating geographic data for guide ${id} using realistic distributions`);
 
       // Get the guide's real metrics from the API
       const guide = await this.getGuideById(id);
@@ -1648,7 +1615,7 @@ class PendoAPIClient {
         },
       ];
 
-      console.log(`✅ Generated geographic distribution for ${totalViews} total views`);
+      // console.log(`✅ Generated geographic distribution for ${totalViews} total views`);
       return geographicData;
 
     } catch (error) {
@@ -1660,7 +1627,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuidePollData(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating poll data for guide ${id} using alternative approach`);
+      // console.log(`🚀 Generating poll data for guide ${id} using alternative approach`);
 
       // Since aggregation API is not accessible, generate realistic poll data
       const guide = await this.getGuideById(id);
@@ -1698,7 +1665,7 @@ class PendoAPIClient {
         }
       ];
 
-      console.log(`✅ Generated poll data for ${totalViews} total views`);
+      // console.log(`✅ Generated poll data for ${totalViews} total views`);
       return pollData;
 
     } catch (error) {
@@ -1710,7 +1677,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideUserBehavior(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating user behavior data for guide ${id} using alternative approach`);
+      // console.log(`🚀 Generating user behavior data for guide ${id} using alternative approach`);
 
       // Since aggregation API is not accessible, generate behavior data based on guide metrics
       const guide = await this.getGuideById(id);
@@ -1746,7 +1713,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideHourlyAnalytics(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating hourly analytics for guide ${id} using alternative approach`);
+      // console.log(`🚀 Generating hourly analytics for guide ${id} using alternative approach`);
 
       // Since aggregation API is not accessible, generate realistic hourly data
       const guide = await this.getGuideById(id);
@@ -1783,7 +1750,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideWeeklyAnalytics(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating weekly analytics for guide ${id} using alternative approach`);
+      // console.log(`🚀 Generating weekly analytics for guide ${id} using alternative approach`);
 
       // Since aggregation API is not accessible, generate realistic weekly data
       const guide = await this.getGuideById(id);
@@ -1824,7 +1791,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideVariantPerformance(id: string, _period: { start: string; end: string }) {
     try {
-      console.log(`🚀 Generating variant performance for guide ${id} using alternative approach`);
+      // console.log(`🚀 Generating variant performance for guide ${id} using alternative approach`);
 
       // Since aggregation API is not accessible, generate realistic variant data
       const guide = await this.getGuideById(id);
@@ -1861,7 +1828,7 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getPageTotals(id: string, _daysBack: number = 30): Promise<{ viewedCount: number; visitorCount: number; uniqueVisitors: number }> {
     try {
-      console.log(`📊 Fetching total analytics for page ${id} from aggregation API`);
+      // console.log(`📊 Fetching total analytics for page ${id} from aggregation API`);
 
       // Use pipeline format (required by Pendo Aggregation API)
       // Note: pageEvents source requires timeSeries configuration
@@ -1897,8 +1864,8 @@ class PendoAPIClient {
 
       if (response.results && Array.isArray(response.results)) {
         if (response.results.length === 0) {
-          console.warn(`⚠️ Page ${id} returned empty results array - no pageEvents data in last ${_daysBack} days`);
-          console.warn(`   This could mean: (1) Page has no identified visitors, (2) No events in time range, or (3) Page not tagged`);
+          // console.warn(`⚠️ Page ${id} returned empty results array - no pageEvents data in last ${_daysBack} days`);
+          // console.warn(`   This could mean: (1) Page has no identified visitors, (2) No events in time range, or (3) Page not tagged`);
           return { viewedCount: 0, visitorCount: 0, uniqueVisitors: 0 };
         }
 
@@ -1915,14 +1882,14 @@ class PendoAPIClient {
 
         const visitorCount = uniqueVisitorIds.size;
 
-        console.log(`✅ Aggregation page totals: ${viewedCount} views, ${visitorCount} unique visitors`);
+        // console.log(`✅ Aggregation page totals: ${viewedCount} views, ${visitorCount} unique visitors`);
         return { viewedCount, visitorCount, uniqueVisitors: visitorCount };
       }
 
-      console.error(`❌ Invalid response structure for page ${id} - missing or invalid 'results' array:`, response);
+      console.error(`Invalid response structure for page ${id} - missing or invalid 'results' array:`, response);
       return { viewedCount: 0, visitorCount: 0, uniqueVisitors: 0 };
     } catch (error) {
-      console.error(`❌ API error fetching page totals for ${id}:`, error);
+      console.error(`API error fetching page totals for ${id}:`, error);
       if (error instanceof Error) {
         console.error(`   Error message: ${error.message}`);
       }
@@ -1933,7 +1900,7 @@ class PendoAPIClient {
   // Fetch page time series data from aggregation API
   private async getPageTimeSeries(id: string, period: { start: string; end: string }) {
     try {
-      console.log(`📊 Fetching time series analytics for page ${id} from Pendo Aggregation API`);
+      // console.log(`📊 Fetching time series analytics for page ${id} from Pendo Aggregation API`);
 
       // Calculate time range in milliseconds
       const startTime = new Date(period.start).getTime();
@@ -1980,7 +1947,7 @@ class PendoAPIClient {
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
-        console.log(`✅ Retrieved ${response.results.length} time series data points for page`);
+        // console.log(`✅ Retrieved ${response.results.length} time series data points for page`);
 
         // Results are now grouped by day with aggregate fields
         return response.results
@@ -2002,10 +1969,10 @@ class PendoAPIClient {
           .sort((a, b) => a.date.localeCompare(b.date));
       }
 
-      console.warn(`⚠️ No time series data for page ${id}`);
+      // console.warn(`⚠️ No time series data for page ${id}`);
       return this.generateFallbackTimeSeries(days);
     } catch (error) {
-      console.warn(`⚠️ Failed to fetch page time series:`, error);
+      // console.warn(`⚠️ Failed to fetch page time series:`, error);
       return this.generateFallbackTimeSeries(30);
     }
   }
@@ -2014,33 +1981,33 @@ class PendoAPIClient {
   async getPageAnalytics(id: string, period: { start: string; end: string }): Promise<ComprehensivePageData> {
     const startTime = Date.now();
     try {
-      console.log(`🚀 Starting page analytics fetch for ID: ${id}`);
-      console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
+      // console.log(`🚀 Starting page analytics fetch for ID: ${id}`);
+      // console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
 
       // Get page metadata
-      console.log(`⏱️ [1/4] Fetching page metadata...`);
+      // console.log(`⏱️ [1/4] Fetching page metadata...`);
       const pagesStart = Date.now();
       const pages = await this.getPages();
       const page = pages.find(p => p.id === id);
-      console.log(`   ✓ Completed in ${Date.now() - pagesStart}ms`);
+      // console.log(`   ✓ Completed in ${Date.now() - pagesStart}ms`);
 
       if (!page) {
         throw new Error(`Page ${id} not found in pages list (${pages.length} pages checked)`);
       }
 
-      console.log(`📊 Base page data retrieved: ${page.name || page.url}`);
+      // console.log(`📊 Base page data retrieved: ${page.name || page.url}`);
 
       // Fetch real analytics from aggregation API
-      console.log(`⏱️ [2/4] Fetching page totals...`);
+      // console.log(`⏱️ [2/4] Fetching page totals...`);
       const totalsStart = Date.now();
       const totals = await this.getPageTotals(id);
-      console.log(`   ✓ Completed in ${Date.now() - totalsStart}ms - ${totals.viewedCount} views, ${totals.visitorCount} unique visitors`);
+      // console.log(`   ✓ Completed in ${Date.now() - totalsStart}ms - ${totals.viewedCount} views, ${totals.visitorCount} unique visitors`);
 
       // Fetch time series data
-      console.log(`⏱️ [3/4] Fetching time series data...`);
+      // console.log(`⏱️ [3/4] Fetching time series data...`);
       const timeSeriesStart = Date.now();
       const timeSeriesData = await this.getPageTimeSeries(id, period);
-      console.log(`   ✓ Completed in ${Date.now() - timeSeriesStart}ms - ${timeSeriesData.length} data points`);
+      // console.log(`   ✓ Completed in ${Date.now() - timeSeriesStart}ms - ${timeSeriesData.length} data points`);
 
       // Calculate engagement metrics based on real data
       // avgTimeOnPage will be calculated from event breakdown data after it's fetched
@@ -2150,7 +2117,7 @@ class PendoAPIClient {
       };
 
       // Fetch additional real data from new API methods
-      console.log(`⏱️ [4/4] Fetching additional page analytics data (5 parallel calls)...`);
+      // console.log(`⏱️ [4/4] Fetching additional page analytics data (5 parallel calls)...`);
       const additionalDataStart = Date.now();
 
       try {
@@ -2169,7 +2136,7 @@ class PendoAPIClient {
         const successfulCalls = results.filter(r => r.status === 'fulfilled');
 
         if (failedCalls.length > 0) {
-          console.warn(`⚠️ ${failedCalls.length}/5 additional API calls failed:`);
+          // console.warn(`⚠️ ${failedCalls.length}/5 additional API calls failed:`);
           const callNames = ['topVisitors', 'topAccounts', 'eventBreakdown', 'featuresTargeting', 'guidesTargeting'];
           results.forEach((result, index) => {
             if (result.status === 'rejected') {
@@ -2180,7 +2147,7 @@ class PendoAPIClient {
 
         // Warn if ALL calls failed
         if (failedCalls.length === 5) {
-          console.error(`❌ CRITICAL: All 5 additional API calls failed - page analytics will be incomplete`);
+          console.error(`CRITICAL: All 5 additional API calls failed - page analytics will be incomplete`);
         }
 
         // Add data if successful, empty arrays if failed
@@ -2192,7 +2159,7 @@ class PendoAPIClient {
 
         // Calculate aggregated summaries from event breakdown data
         if (comprehensiveData.eventBreakdown && comprehensiveData.eventBreakdown.length > 0) {
-          console.log(`📊 Calculating aggregated summaries from ${comprehensiveData.eventBreakdown.length} event records...`);
+          // console.log(`📊 Calculating aggregated summaries from ${comprehensiveData.eventBreakdown.length} event records...`);
 
           comprehensiveData.frustrationMetrics = this.calculateFrustrationMetrics(comprehensiveData.eventBreakdown);
           comprehensiveData.geographicDistribution = this.aggregateGeographicData(comprehensiveData.eventBreakdown);
@@ -2219,25 +2186,25 @@ class PendoAPIClient {
           if (eventsWithTime > 0) {
             avgTimeOnPage = Math.floor(totalTimeOnPage / eventsWithTime);
             comprehensiveData.avgTimeOnPage = avgTimeOnPage;
-            console.log(`   ✓ Real avgTimeOnPage: ${avgTimeOnPage}s (calculated from ${eventsWithTime} events)`);
+            // console.log(`   ✓ Real avgTimeOnPage: ${avgTimeOnPage}s (calculated from ${eventsWithTime} events)`);
           }
 
-          console.log(`   ✓ Frustration metrics: ${comprehensiveData.frustrationMetrics.frustrationRate.toFixed(1)}% frustration rate`);
-          console.log(`   ✓ Geographic: ${comprehensiveData.geographicDistribution.length} regions`);
-          console.log(`   ✓ Daily time series: ${comprehensiveData.dailyTimeSeries.length} days`);
-          console.log(`   ✓ Device/Browser: ${comprehensiveData.deviceBrowserBreakdown.length} combinations`);
+          // console.log(`   ✓ Frustration metrics: ${comprehensiveData.frustrationMetrics.frustrationRate.toFixed(1)}% frustration rate`);
+          // console.log(`   ✓ Geographic: ${comprehensiveData.geographicDistribution.length} regions`);
+          // console.log(`   ✓ Daily time series: ${comprehensiveData.dailyTimeSeries.length} days`);
+          // console.log(`   ✓ Device/Browser: ${comprehensiveData.deviceBrowserBreakdown.length} combinations`);
         }
 
-        console.log(`   ✓ Completed in ${Date.now() - additionalDataStart}ms - ${successfulCalls.length}/5 successful`);
-        console.log(`   Data summary:`, {
-          visitors: comprehensiveData.topVisitors?.length || 0,
-          accounts: comprehensiveData.topAccounts?.length || 0,
-          events: comprehensiveData.eventBreakdown?.length || 0,
-          features: comprehensiveData.featuresTargeting?.length || 0,
-          guides: comprehensiveData.guidesTargeting?.length || 0,
-        });
+        // console.log(`   ✓ Completed in ${Date.now() - additionalDataStart}ms - ${successfulCalls.length}/5 successful`);
+        // console.log(`   Data summary:`, {
+        //   visitors: comprehensiveData.topVisitors?.length || 0,
+        //   accounts: comprehensiveData.topAccounts?.length || 0,
+        //   events: comprehensiveData.eventBreakdown?.length || 0,
+        //   features: comprehensiveData.featuresTargeting?.length || 0,
+        //   guides: comprehensiveData.guidesTargeting?.length || 0,
+        // });
       } catch (error) {
-        console.error(`❌ Unexpected error in Promise.allSettled (this should never happen):`, error);
+        console.error(`Unexpected error in Promise.allSettled (this should never happen):`, error);
         // Initialize with empty arrays if fetch fails
         comprehensiveData.topVisitors = [];
         comprehensiveData.topAccounts = [];
@@ -2247,12 +2214,12 @@ class PendoAPIClient {
       }
 
       const totalTime = Date.now() - startTime;
-      console.log(`✅ Page analytics completed successfully in ${totalTime}ms`);
-      console.log(`📊 Final data: ${totals.viewedCount} views, ${totals.visitorCount} visitors, ${timeSeriesData.length} time points`);
+      // console.log(`✅ Page analytics completed successfully in ${totalTime}ms`);
+      // console.log(`📊 Final data: ${totals.viewedCount} views, ${totals.visitorCount} visitors, ${timeSeriesData.length} time points`);
       return comprehensiveData;
 
     } catch (error) {
-      console.error(`❌ Error fetching page analytics for ${id}:`, error);
+      console.error(`Error fetching page analytics for ${id}:`, error);
       throw error;
     }
   }
@@ -2267,33 +2234,33 @@ class PendoAPIClient {
   async getFeatureAnalytics(id: string, period: { start: string; end: string }): Promise<ComprehensiveFeatureData> {
     const startTime = Date.now();
     try {
-      console.log(`🚀 Starting feature analytics fetch for ID: ${id}`);
-      console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
+      // console.log(`🚀 Starting feature analytics fetch for ID: ${id}`);
+      // console.log(`📅 Analytics period: ${period.start} to ${period.end}`);
 
       // Get feature metadata
-      console.log(`⏱️ [1/4] Fetching feature metadata...`);
+      // console.log(`⏱️ [1/4] Fetching feature metadata...`);
       const featuresStart = Date.now();
       const features = await this.getFeatures();
       const feature = features.find(f => f.id === id);
-      console.log(`   ✓ Completed in ${Date.now() - featuresStart}ms`);
+      // console.log(`   ✓ Completed in ${Date.now() - featuresStart}ms`);
 
       if (!feature) {
         throw new Error(`Feature ${id} not found in features list (${features.length} features checked)`);
       }
 
-      console.log(`📊 Base feature data retrieved: ${feature.name}`);
+      // console.log(`📊 Base feature data retrieved: ${feature.name}`);
 
       // Fetch real analytics from aggregation API
-      console.log(`⏱️ [2/4] Fetching feature totals...`);
+      // console.log(`⏱️ [2/4] Fetching feature totals...`);
       const totalsStart = Date.now();
       const totals = await this.getFeatureTotals(id);
-      console.log(`   ✓ Completed in ${Date.now() - totalsStart}ms - ${totals.usageCount} uses, ${totals.visitorCount} visitors`);
+      // console.log(`   ✓ Completed in ${Date.now() - totalsStart}ms - ${totals.usageCount} uses, ${totals.visitorCount} visitors`);
 
       // Fetch time series data
-      console.log(`⏱️ [3/4] Fetching time series data...`);
+      // console.log(`⏱️ [3/4] Fetching time series data...`);
       const timeSeriesStart = Date.now();
       const timeSeriesData = await this.getFeatureTimeSeries(id, period);
-      console.log(`   ✓ Completed in ${Date.now() - timeSeriesStart}ms - ${timeSeriesData.length} data points`);
+      // console.log(`   ✓ Completed in ${Date.now() - timeSeriesStart}ms - ${timeSeriesData.length} data points`);
 
       // Calculate metrics based on real data
       const adoptionRate = totals.visitorCount > 0 ? Math.min(100, Math.floor((totals.visitorCount / 1000) * 100)) : 0;
@@ -2377,7 +2344,7 @@ class PendoAPIClient {
       };
 
       // Fetch additional real data from new API methods
-      console.log(`⏱️ [4/4] Fetching additional feature analytics data (2 parallel calls)...`);
+      // console.log(`⏱️ [4/4] Fetching additional feature analytics data (2 parallel calls)...`);
       const additionalDataStart = Date.now();
 
       try {
@@ -2393,7 +2360,7 @@ class PendoAPIClient {
         const successfulCalls = results.filter(r => r.status === 'fulfilled');
 
         if (failedCalls.length > 0) {
-          console.warn(`⚠️ ${failedCalls.length}/2 additional API calls failed:`);
+          // console.warn(`⚠️ ${failedCalls.length}/2 additional API calls failed:`);
           const callNames = ['topUsers', 'topAccounts'];
           results.forEach((result, index) => {
             if (result.status === 'rejected') {
@@ -2420,22 +2387,22 @@ class PendoAPIClient {
           ];
         }
 
-        console.log(`   ✓ Completed in ${Date.now() - additionalDataStart}ms - ${successfulCalls.length}/2 successful`);
-        console.log(`   Data summary:`, {
-          users: topUsersList.length,
-          accounts: topAccountsList.length,
-        });
+        // console.log(`   ✓ Completed in ${Date.now() - additionalDataStart}ms - ${successfulCalls.length}/2 successful`);
+        // console.log(`   Data summary:`, {
+        //   users: topUsersList.length,
+        //   accounts: topAccountsList.length,
+        // });
       } catch (error) {
-        console.error(`❌ Unexpected error in Promise.allSettled (this should never happen):`, error);
+        console.error(`Unexpected error in Promise.allSettled (this should never happen):`, error);
       }
 
       const totalTime = Date.now() - startTime;
-      console.log(`✅ Feature analytics completed successfully in ${totalTime}ms`);
-      console.log(`📊 Final data: ${totals.usageCount} uses, ${totals.visitorCount} visitors, ${timeSeriesData.length} time points`);
+      // console.log(`✅ Feature analytics completed successfully in ${totalTime}ms`);
+      // console.log(`📊 Final data: ${totals.usageCount} uses, ${totals.visitorCount} visitors, ${timeSeriesData.length} time points`);
       return comprehensiveData;
 
     } catch (error) {
-      console.error(`❌ Error fetching feature analytics for ${id}:`, error);
+      console.error(`Error fetching feature analytics for ${id}:`, error);
       throw error;
     }
   }
@@ -2446,7 +2413,7 @@ class PendoAPIClient {
    */
   private async getFeatureTotals(id: string, _daysBack: number = 30): Promise<{ usageCount: number; visitorCount: number; accountCount: number }> {
     try {
-      console.log(`📊 Fetching total analytics for feature ${id} from aggregation API`);
+      // console.log(`📊 Fetching total analytics for feature ${id} from aggregation API`);
 
       const aggregationRequest = {
         response: { mimeType: "application/json" },
@@ -2477,7 +2444,7 @@ class PendoAPIClient {
 
       if (response.results && Array.isArray(response.results)) {
         if (response.results.length === 0) {
-          console.warn(`⚠️ Feature ${id} returned empty results array - no featureEvents data in last ${_daysBack} days`);
+          // console.warn(`⚠️ Feature ${id} returned empty results array - no featureEvents data in last ${_daysBack} days`);
           return { usageCount: 0, visitorCount: 0, accountCount: 0 };
         }
 
@@ -2499,14 +2466,14 @@ class PendoAPIClient {
         const visitorCount = uniqueVisitorIds.size;
         const accountCount = uniqueAccountIds.size;
 
-        console.log(`✅ Aggregation feature totals: ${usageCount} uses, ${visitorCount} unique visitors, ${accountCount} accounts`);
+        // console.log(`✅ Aggregation feature totals: ${usageCount} uses, ${visitorCount} unique visitors, ${accountCount} accounts`);
         return { usageCount, visitorCount, accountCount };
       }
 
-      console.error(`❌ Invalid response structure for feature ${id}:`, response);
+      console.error(`Invalid response structure for feature ${id}:`, response);
       return { usageCount: 0, visitorCount: 0, accountCount: 0 };
     } catch (error) {
-      console.error(`❌ API error fetching feature totals for ${id}:`, error);
+      console.error(`API error fetching feature totals for ${id}:`, error);
       return { usageCount: 0, visitorCount: 0, accountCount: 0 };
     }
   }
@@ -2517,7 +2484,7 @@ class PendoAPIClient {
    */
   private async getFeatureTimeSeries(id: string, period: { start: string; end: string }): Promise<GuideTimeAnalytics[]> {
     try {
-      console.log(`📊 Fetching time series analytics for feature ${id} from Pendo Aggregation API`);
+      // console.log(`📊 Fetching time series analytics for feature ${id} from Pendo Aggregation API`);
 
       const startTime = new Date(period.start).getTime();
       const endTime = new Date(period.end).getTime();
@@ -2562,7 +2529,7 @@ class PendoAPIClient {
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
-        console.log(`✅ Retrieved ${response.results.length} time series data points for feature`);
+        // console.log(`✅ Retrieved ${response.results.length} time series data points for feature`);
 
         return response.results
           .map(result => {
@@ -2583,10 +2550,10 @@ class PendoAPIClient {
           .sort((a, b) => a.date.localeCompare(b.date));
       }
 
-      console.warn(`⚠️ No time series data for feature ${id}`);
+      // console.warn(`⚠️ No time series data for feature ${id}`);
       return this.generateFallbackTimeSeries(days);
     } catch (error) {
-      console.warn(`⚠️ Failed to fetch feature time series:`, error);
+      // console.warn(`⚠️ Failed to fetch feature time series:`, error);
       return this.generateFallbackTimeSeries(30);
     }
   }
@@ -2597,7 +2564,7 @@ class PendoAPIClient {
    */
   async getTopUsersForFeature(featureId: string, limit: number = 10): Promise<PageVisitor[]> {
     try {
-      console.log(`👥 Fetching top ${limit} users for feature ${featureId}`);
+      // console.log(`👥 Fetching top ${limit} users for feature ${featureId}`);
 
       const aggregationRequest = {
         response: { mimeType: "application/json" },
@@ -2665,7 +2632,7 @@ class PendoAPIClient {
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
-        console.log(`✅ Found ${response.results.length} users`);
+        // console.log(`✅ Found ${response.results.length} users`);
 
         const users: PageVisitor[] = response.results
           .slice(0, limit)
@@ -2679,11 +2646,11 @@ class PendoAPIClient {
         return users;
       }
 
-      console.warn(`⚠️ No user results for feature ${featureId}`);
+      // console.warn(`⚠️ No user results for feature ${featureId}`);
       return [];
 
     } catch (error) {
-      console.error(`❌ Error fetching top users for feature ${featureId}:`, error);
+      console.error(`Error fetching top users for feature ${featureId}:`, error);
       return [];
     }
   }
@@ -2694,7 +2661,7 @@ class PendoAPIClient {
    */
   async getTopAccountsForFeature(featureId: string, limit: number = 10): Promise<Array<PageAccount & { usageCount: number }>> {
     try {
-      console.log(`🏢 Fetching top ${limit} accounts for feature ${featureId}`);
+      // console.log(`🏢 Fetching top ${limit} accounts for feature ${featureId}`);
 
       const aggregationRequest = {
         response: { mimeType: "application/json" },
@@ -2763,7 +2730,7 @@ class PendoAPIClient {
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
-        console.log(`✅ Found ${response.results.length} accounts`);
+        // console.log(`✅ Found ${response.results.length} accounts`);
 
         const accounts = response.results
           .slice(0, limit)
@@ -2779,11 +2746,11 @@ class PendoAPIClient {
         return accounts;
       }
 
-      console.warn(`⚠️ No account results for feature ${featureId}`);
+      // console.warn(`⚠️ No account results for feature ${featureId}`);
       return [];
 
     } catch (error) {
-      console.error(`❌ Error fetching top accounts for feature ${featureId}:`, error);
+      console.error(`Error fetching top accounts for feature ${featureId}:`, error);
       return [];
     }
   }
@@ -2797,7 +2764,7 @@ class PendoAPIClient {
    */
   async getTopVisitorsForPage(pageId: string, limit: number = 10): Promise<PageVisitor[]> {
     try {
-      console.log(`👥 Fetching top ${limit} visitors for page ${pageId}`);
+      // console.log(`👥 Fetching top ${limit} visitors for page ${pageId}`);
 
       const endTime = Date.now();
       const startTime = endTime - (90 * 24 * 60 * 60 * 1000); // Last 90 days
@@ -2871,12 +2838,12 @@ class PendoAPIClient {
         }
       };
 
-      console.log(`🔍 Request pipeline:`, JSON.stringify(aggregationRequest, null, 2));
+      // console.log(`🔍 Request pipeline:`, JSON.stringify(aggregationRequest, null, 2));
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
-        console.log(`✅ Found ${response.results.length} visitors`);
+        // console.log(`✅ Found ${response.results.length} visitors`);
 
         const visitors: PageVisitor[] = response.results
           .slice(0, limit)
@@ -2887,15 +2854,15 @@ class PendoAPIClient {
             viewCount: Number(result.viewCount || result[0]?.viewCount || 0)
           }));
 
-        console.log(`📊 Top visitors:`, visitors);
+        // console.log(`📊 Top visitors:`, visitors);
         return visitors;
       }
 
-      console.warn(`⚠️ No visitor results for page ${pageId}`);
+      // console.warn(`⚠️ No visitor results for page ${pageId}`);
       return [];
 
     } catch (error) {
-      console.error(`❌ Error fetching top visitors for page ${pageId}:`, error);
+      console.error(`Error fetching top visitors for page ${pageId}:`, error);
       // Return empty array on error to handle gracefully
       return [];
     }
@@ -2910,7 +2877,7 @@ class PendoAPIClient {
    */
   async getTopAccountsForPage(pageId: string, limit: number = 10): Promise<PageAccount[]> {
     try {
-      console.log(`🏢 Fetching top ${limit} accounts for page ${pageId}`);
+      // console.log(`🏢 Fetching top ${limit} accounts for page ${pageId}`);
 
       const endTime = Date.now();
       const startTime = endTime - (90 * 24 * 60 * 60 * 1000); // Last 90 days
@@ -2985,12 +2952,12 @@ class PendoAPIClient {
         }
       };
 
-      console.log(`🔍 Request pipeline:`, JSON.stringify(aggregationRequest, null, 2));
+      // console.log(`🔍 Request pipeline:`, JSON.stringify(aggregationRequest, null, 2));
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
-        console.log(`✅ Found ${response.results.length} accounts`);
+        // console.log(`✅ Found ${response.results.length} accounts`);
 
         const accounts: PageAccount[] = response.results
           .slice(0, limit)
@@ -3002,15 +2969,15 @@ class PendoAPIClient {
             viewCount: Number(result.viewCount || result[0]?.viewCount || 0)
           }));
 
-        console.log(`📊 Top accounts:`, accounts);
+        // console.log(`📊 Top accounts:`, accounts);
         return accounts;
       }
 
-      console.warn(`⚠️ No account results for page ${pageId}`);
+      // console.warn(`⚠️ No account results for page ${pageId}`);
       return [];
 
     } catch (error) {
-      console.error(`❌ Error fetching top accounts for page ${pageId}:`, error);
+      console.error(`Error fetching top accounts for page ${pageId}:`, error);
       // Return empty array on error to handle gracefully
       return [];
     }
@@ -3286,8 +3253,8 @@ class PendoAPIClient {
    */
   async getPageEventBreakdown(pageId: string, limit: number = 1000): Promise<PageEventRow[]> {
     try {
-      console.log(`📊 Fetching page event breakdown for page ${pageId}`);
-      console.log(`📋 Server-side limit: 1000 rows (client-side slice: ${limit})`);
+      // console.log(`📊 Fetching page event breakdown for page ${pageId}`);
+      // console.log(`📋 Server-side limit: 1000 rows (client-side slice: ${limit})`);
 
       // Calculate time range for last 30 days
       const endTime = Date.now();
@@ -3328,18 +3295,18 @@ class PendoAPIClient {
         }
       };
 
-      console.log(`🌐 Making aggregation request with pageEvents source (pipeline format)`);
-      console.log(`📅 Time range: ${new Date(startTime).toISOString()} to ${new Date(endTime).toISOString()}`);
+      // console.log(`🌐 Making aggregation request with pageEvents source (pipeline format)`);
+      // console.log(`📅 Time range: ${new Date(startTime).toISOString()} to ${new Date(endTime).toISOString()}`);
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
       if (response.results && Array.isArray(response.results)) {
-        console.log(`✅ Retrieved ${response.results.length} raw event records`);
+        // console.log(`✅ Retrieved ${response.results.length} raw event records`);
 
         // Log sample result to understand structure
         if (response.results.length > 0) {
-          console.log(`📋 Sample event record structure:`, response.results[0]);
-          console.log(`📋 Available fields:`, Object.keys(response.results[0]));
+          // console.log(`📋 Sample event record structure:`, response.results[0]);
+          // console.log(`📋 Available fields:`, Object.keys(response.results[0]));
 
           // NEW: Diagnostic logging for date distribution
           const uniqueDays = new Set(response.results.map(r => {
@@ -3349,14 +3316,14 @@ class PendoAPIClient {
             }
             return 'unknown';
           }));
-          console.log(`📊 Date distribution: ${uniqueDays.size} unique days`, Array.from(uniqueDays).sort().slice(0, 10));
+          // console.log(`📊 Date distribution: ${uniqueDays.size} unique days`, Array.from(uniqueDays).sort().slice(0, 10));
 
           // NEW: Diagnostic logging for geographic data
           const withGeo = response.results.filter(r => r.region || r.country).length;
-          console.log(`🌍 Geographic data: ${withGeo}/${response.results.length} events have region/country (${(withGeo/response.results.length*100).toFixed(1)}%)`);
+          // console.log(`🌍 Geographic data: ${withGeo}/${response.results.length} events have region/country (${(withGeo/response.results.length*100).toFixed(1)}%)`);
           if (withGeo > 0) {
             const sampleGeo = response.results.find(r => r.region || r.country);
-            console.log(`🗺️ Sample geographic data:`, {region: sampleGeo?.region, country: sampleGeo?.country, lat: sampleGeo?.latitude, lon: sampleGeo?.longitude});
+            // console.log(`🗺️ Sample geographic data:`, {region: sampleGeo?.region, country: sampleGeo?.country, lat: sampleGeo?.latitude, lon: sampleGeo?.longitude});
           }
         }
 
@@ -3442,8 +3409,8 @@ class PendoAPIClient {
           })
           .slice(0, limit); // Apply limit
 
-        console.log(`✅ Processed ${rows.length} page event breakdown rows`);
-        console.log(`📊 Date range in results: ${rows[rows.length - 1]?.date} to ${rows[0]?.date}`);
+        // console.log(`✅ Processed ${rows.length} page event breakdown rows`);
+        // console.log(`📊 Date range in results: ${rows[rows.length - 1]?.date} to ${rows[0]?.date}`);
 
         // Log sample of frustration metrics availability
         const hasFrustrationMetrics = rows.some(r =>
@@ -3452,15 +3419,15 @@ class PendoAPIClient {
           (r.errorClicks && r.errorClicks > 0) ||
           (r.rageClicks && r.rageClicks > 0)
         );
-        console.log(`📊 Frustration metrics available: ${hasFrustrationMetrics}`);
+        // console.log(`📊 Frustration metrics available: ${hasFrustrationMetrics}`);
 
         return rows;
       }
 
-      console.warn(`⚠️ No event data returned for page ${pageId}`);
+      // console.warn(`⚠️ No event data returned for page ${pageId}`);
       return [];
     } catch (error) {
-      console.error(`❌ Error fetching page event breakdown for ${pageId}:`, error);
+      console.error(`Error fetching page event breakdown for ${pageId}:`, error);
       throw error;
     }
   }
@@ -4018,11 +3985,11 @@ class PendoAPIClient {
    */
   async getFeaturesTargetingPage(pageId: string, limit: number = 10): Promise<PageFeature[]> {
     try {
-      console.log(`📊 Fetching top features by usage (Note: Pendo API does not support filtering features by page)`);
+      // console.log(`📊 Fetching top features by usage (Note: Pendo API does not support filtering features by page)`);
 
       // Step 1: Get all features metadata
       const features = await this.getFeatures({ limit: 1000 });
-      console.log(`✅ Retrieved ${features.length} total features (cannot filter by page)`);
+      // console.log(`✅ Retrieved ${features.length} total features (cannot filter by page)`);
 
       // Step 2: Get feature event counts from aggregation API
       const featureEventCounts = new Map<string, number>();
@@ -4078,10 +4045,10 @@ class PendoAPIClient {
             }
           });
 
-          console.log(`✅ Processed ${response.results.length} feature aggregations`);
+          // console.log(`✅ Processed ${response.results.length} feature aggregations`);
         }
       } catch (aggError) {
-        console.warn(`⚠️ Could not fetch feature event counts from aggregation API:`, aggError);
+        // console.warn(`⚠️ Could not fetch feature event counts from aggregation API:`, aggError);
         // Continue with zero counts
       }
 
@@ -4097,14 +4064,14 @@ class PendoAPIClient {
         .sort((a, b) => b.eventCount - a.eventCount)
         .slice(0, limit);
 
-      console.log(`✅ Returning top ${topFeatures.length} features by event count (all features, not filtered by page)`);
-      console.warn(`⚠️ API LIMITATION: Cannot filter features by page - Pendo's featureEvents do not include pageId/pageUrl`);
-      console.warn(`⚠️ API LIMITATION: Frustration metrics not available - would require separate 'events' source query`);
+      // console.log(`✅ Returning top ${topFeatures.length} features by event count (all features, not filtered by page)`);
+      // console.warn(`⚠️ API LIMITATION: Cannot filter features by page - Pendo's featureEvents do not include pageId/pageUrl`);
+      // console.warn(`⚠️ API LIMITATION: Frustration metrics not available - would require separate 'events' source query`);
 
       return topFeatures;
 
     } catch (error) {
-      console.error(`❌ Error fetching features for page ${pageId}:`, error);
+      console.error(`Error fetching features for page ${pageId}:`, error);
       // Return empty array on error
       return [];
     }
@@ -4128,22 +4095,22 @@ class PendoAPIClient {
    */
   async getGuidesTargetingPage(pageId: string, limit: number = 175): Promise<PageGuide[]> {
     try {
-      console.log(`📊 Fetching all active guides (Note: Pendo API does not support filtering guides by page)`);
+      // console.log(`📊 Fetching all active guides (Note: Pendo API does not support filtering guides by page)`);
 
       // Step 1: Get page metadata to extract URL for matching
       const pages = await this.getPages({ limit: 1000 });
       const targetPage = pages.find(p => p.id === pageId);
 
       if (!targetPage) {
-        console.warn(`⚠️ Page ${pageId} not found`);
+        // console.warn(`⚠️ Page ${pageId} not found`);
         return [];
       }
 
-      console.log(`✅ Found target page: ${targetPage.url}`);
+      // console.log(`✅ Found target page: ${targetPage.url}`);
 
       // Step 2: Get all guides
       const allGuides = await this.getGuides({ limit: 1000 });
-      console.log(`✅ Retrieved ${allGuides.length} total guides`);
+      // console.log(`✅ Retrieved ${allGuides.length} total guides`);
 
       // Step 3: Fetch full guide data to check targeting rules
       // Note: This is a simplified approach - actual guide targeting is complex
@@ -4168,19 +4135,19 @@ class PendoAPIClient {
             break;
           }
         } catch (error) {
-          console.warn(`⚠️ Could not process guide ${guide.id}:`, error);
+          // console.warn(`⚠️ Could not process guide ${guide.id}:`, error);
           // Continue with next guide
         }
       }
 
-      console.log(`✅ Returning ${guidesForPage.length} guides (all guides, not filtered by page)`);
-      console.warn(`⚠️ API LIMITATION: Cannot accurately filter guides by page - guide targeting rules not fully accessible via API`);
-      console.warn(`⚠️ API LIMITATION: segment field may not be accurately represented - using audience as approximation`);
+      // console.log(`✅ Returning ${guidesForPage.length} guides (all guides, not filtered by page)`);
+      // console.warn(`⚠️ API LIMITATION: Cannot accurately filter guides by page - guide targeting rules not fully accessible via API`);
+      // console.warn(`⚠️ API LIMITATION: segment field may not be accurately represented - using audience as approximation`);
 
       return guidesForPage;
 
     } catch (error) {
-      console.error(`❌ Error fetching guides for page ${pageId}:`, error);
+      console.error(`Error fetching guides for page ${pageId}:`, error);
       return [];
     }
   }
@@ -4196,17 +4163,17 @@ class PendoAPIClient {
    */
   async getAllGuidesWithAnalytics(daysBack: number = 7): Promise<Guide[]> {
     try {
-      console.log('🎯 Fetching enriched guides with analytics (last', daysBack, 'days)');
+      // console.log('🎯 Fetching enriched guides with analytics (last', daysBack, 'days)');
 
       // 1. Fetch metadata
       const guides = await this.getGuides({ limit: 1000 });
-      console.log(`✅ Fetched ${guides.length} guides from metadata API`);
+      // console.log(`✅ Fetched ${guides.length} guides from metadata API`);
 
       // 2. Fetch aggregation data using proven working format
       const endTime = Date.now();
       const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
 
-      console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
+      // console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
 
       // Use the pipeline format required by Pendo Aggregation API
       const aggregationRequest = {
@@ -4228,28 +4195,28 @@ class PendoAPIClient {
         }
       };
 
-      console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
+      // console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
-      console.log('📊 Aggregation response:', {
-        hasResults: !!response.results,
-        resultCount: response.results?.length || 0,
-        sampleResults: response.results?.slice(0, 3),
-        responseKeys: Object.keys(response)
-      });
+      // console.log('📊 Aggregation response:', {
+      //   hasResults: !!response.results,
+      //   resultCount: response.results?.length || 0,
+      //   sampleResults: response.results?.slice(0, 3),
+      //   responseKeys: Object.keys(response)
+      // });
 
       if (!response.results || response.results.length === 0) {
-        console.warn('⚠️ Aggregation API returned empty results for guides');
-        console.log('📋 Possible reasons:');
-        console.log('   1. No guide events exist in the last', daysBack, 'days');
-        console.log('   2. API permissions may not allow access to guideEvents');
-        console.log('   3. Try a different time range');
-        console.log('📊 Returning guides with metadata only (analytics will be 0)');
+        // console.warn('⚠️ Aggregation API returned empty results for guides');
+        // console.log('📋 Possible reasons:');
+        // console.log('   1. No guide events exist in the last', daysBack, 'days');
+        // console.log('   2. API permissions may not allow access to guideEvents');
+        // console.log('   3. Try a different time range');
+        // console.log('📊 Returning guides with metadata only (analytics will be 0)');
         return guides;
       }
 
-      console.log(`✅ Successfully fetched ${response.results.length} guide events`);
+      // console.log(`✅ Successfully fetched ${response.results.length} guide events`);
 
       // Safety check: limit processing to prevent browser crashes
       const maxEvents = 2000; // Process max 2k events (very conservative)
@@ -4258,7 +4225,7 @@ class PendoAPIClient {
         : response.results;
 
       if (response.results.length > maxEvents) {
-        console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
+        // console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
       }
 
       // 3. Group by guideId and count events
@@ -4266,7 +4233,7 @@ class PendoAPIClient {
 
       eventsToProcess.forEach((event, index) => {
         if (index < 5) {
-          console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
+          // console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
         }
 
         const guideId = event.guideId;
@@ -4295,9 +4262,9 @@ class PendoAPIClient {
         }
       });
 
-      console.log(`✅ Aggregated analytics for ${analyticsMap.size} guides`);
+      // console.log(`✅ Aggregated analytics for ${analyticsMap.size} guides`);
       if (analyticsMap.size > 0) {
-        console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5));
+        // console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5));
       }
 
       // 4. Merge analytics into guides
@@ -4311,7 +4278,7 @@ class PendoAPIClient {
       });
 
       const guidesWithAnalytics = enrichedGuides.filter(g => g.viewedCount > 0 || g.completedCount > 0);
-      console.log(`✅ Returning ${enrichedGuides.length} guides (${guidesWithAnalytics.length} with analytics data)`);
+      // console.log(`✅ Returning ${enrichedGuides.length} guides (${guidesWithAnalytics.length} with analytics data)`);
 
       return enrichedGuides;
 
@@ -4332,17 +4299,17 @@ class PendoAPIClient {
    */
   async getAllFeaturesWithAnalytics(daysBack: number = 7): Promise<Feature[]> {
     try {
-      console.log('🎯 Fetching enriched features with analytics (last', daysBack, 'days)');
+      // console.log('🎯 Fetching enriched features with analytics (last', daysBack, 'days)');
 
       // 1. Fetch metadata
       const features = await this.getFeatures({ limit: 1000 });
-      console.log(`✅ Fetched ${features.length} features from metadata API`);
+      // console.log(`✅ Fetched ${features.length} features from metadata API`);
 
       // 2. Fetch aggregation data using proven working format
       const endTime = Date.now();
       const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
 
-      console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
+      // console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
 
       // Use the pipeline format required by Pendo Aggregation API
       const aggregationRequest = {
@@ -4364,28 +4331,28 @@ class PendoAPIClient {
         }
       };
 
-      console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
+      // console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
-      console.log('📊 Aggregation response:', {
-        hasResults: !!response.results,
-        resultCount: response.results?.length || 0,
-        sampleResults: response.results?.slice(0, 3),
-        responseKeys: Object.keys(response)
-      });
+      // console.log('📊 Aggregation response:', {
+      //   hasResults: !!response.results,
+      //   resultCount: response.results?.length || 0,
+      //   sampleResults: response.results?.slice(0, 3),
+      //   responseKeys: Object.keys(response)
+      // });
 
       if (!response.results || response.results.length === 0) {
-        console.warn('⚠️ Aggregation API returned empty results for features');
-        console.log('📋 Possible reasons:');
-        console.log('   1. No feature events exist in the last', daysBack, 'days');
-        console.log('   2. API permissions may not allow access to featureEvents');
-        console.log('   3. Try a different time range');
-        console.log('📊 Returning features with metadata only (analytics will be 0)');
+        // console.warn('⚠️ Aggregation API returned empty results for features');
+        // console.log('📋 Possible reasons:');
+        // console.log('   1. No feature events exist in the last', daysBack, 'days');
+        // console.log('   2. API permissions may not allow access to featureEvents');
+        // console.log('   3. Try a different time range');
+        // console.log('📊 Returning features with metadata only (analytics will be 0)');
         return features;
       }
 
-      console.log(`✅ Successfully fetched ${response.results.length} feature events`);
+      // console.log(`✅ Successfully fetched ${response.results.length} feature events`);
 
       // Safety check: limit processing to prevent browser crashes
       const maxEvents = 2000; // Process max 2k events (very conservative)
@@ -4394,7 +4361,7 @@ class PendoAPIClient {
         : response.results;
 
       if (response.results.length > maxEvents) {
-        console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
+        // console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
       }
 
       // 3. Count usage events by featureId
@@ -4402,7 +4369,7 @@ class PendoAPIClient {
 
       eventsToProcess.forEach((event, index) => {
         if (index < 5) {
-          console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
+          // console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
         }
 
         const featureId = event.featureId;
@@ -4414,9 +4381,9 @@ class PendoAPIClient {
         analyticsMap.set(featureId, currentCount + 1);
       });
 
-      console.log(`✅ Aggregated analytics for ${analyticsMap.size} features`);
+      // console.log(`✅ Aggregated analytics for ${analyticsMap.size} features`);
       if (analyticsMap.size > 0) {
-        console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5));
+        // console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5));
       }
 
       // 4. Merge analytics into features
@@ -4429,7 +4396,7 @@ class PendoAPIClient {
       });
 
       const featuresWithAnalytics = enrichedFeatures.filter(f => f.usageCount > 0);
-      console.log(`✅ Returning ${enrichedFeatures.length} features (${featuresWithAnalytics.length} with analytics data)`);
+      // console.log(`✅ Returning ${enrichedFeatures.length} features (${featuresWithAnalytics.length} with analytics data)`);
 
       return enrichedFeatures;
 
@@ -4450,17 +4417,17 @@ class PendoAPIClient {
    */
   async getAllPagesWithAnalytics(daysBack: number = 7): Promise<Page[]> {
     try {
-      console.log('🎯 Fetching enriched pages with analytics (last', daysBack, 'days)');
+      // console.log('🎯 Fetching enriched pages with analytics (last', daysBack, 'days)');
 
       // 1. Fetch metadata
       const pages = await this.getPages({ limit: 1000 });
-      console.log(`✅ Fetched ${pages.length} pages from metadata API`);
+      // console.log(`✅ Fetched ${pages.length} pages from metadata API`);
 
       // 2. Fetch aggregation data using proven working format
       const endTime = Date.now();
       const startTime = endTime - (daysBack * 24 * 60 * 60 * 1000);
 
-      console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
+      // console.log('📅 Time range:', new Date(startTime).toISOString(), 'to', new Date(endTime).toISOString());
 
       // Use the pipeline format required by Pendo Aggregation API
       const aggregationRequest = {
@@ -4482,28 +4449,28 @@ class PendoAPIClient {
         }
       };
 
-      console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
+      // console.log('📋 Aggregation request:', JSON.stringify(aggregationRequest, null, 2));
 
       const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
 
-      console.log('📊 Aggregation response:', {
-        hasResults: !!response.results,
-        resultCount: response.results?.length || 0,
-        sampleResults: response.results?.slice(0, 3),
-        responseKeys: Object.keys(response)
-      });
+      // console.log('📊 Aggregation response:', {
+      //   hasResults: !!response.results,
+      //   resultCount: response.results?.length || 0,
+      //   sampleResults: response.results?.slice(0, 3),
+      //   responseKeys: Object.keys(response)
+      // });
 
       if (!response.results || response.results.length === 0) {
-        console.warn('⚠️ Aggregation API returned empty results for pages');
-        console.log('📋 Possible reasons:');
-        console.log('   1. No page events exist in the last', daysBack, 'days');
-        console.log('   2. API permissions may not allow access to pageEvents');
-        console.log('   3. Try a different time range');
-        console.log('📊 Returning pages with metadata only (analytics will be 0)');
+        // console.warn('⚠️ Aggregation API returned empty results for pages');
+        // console.log('📋 Possible reasons:');
+        // console.log('   1. No page events exist in the last', daysBack, 'days');
+        // console.log('   2. API permissions may not allow access to pageEvents');
+        // console.log('   3. Try a different time range');
+        // console.log('📊 Returning pages with metadata only (analytics will be 0)');
         return pages;
       }
 
-      console.log(`✅ Successfully fetched ${response.results.length} page events`);
+      // console.log(`✅ Successfully fetched ${response.results.length} page events`);
 
       // Safety check: limit processing to prevent browser crashes
       const maxEvents = 2000; // Process max 2k events (very conservative)
@@ -4512,7 +4479,7 @@ class PendoAPIClient {
         : response.results;
 
       if (response.results.length > maxEvents) {
-        console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
+        // console.warn(`⚠️ Limiting to ${maxEvents} events (received ${response.results.length})`);
       }
 
       // 3. Count views and unique visitors by pageId
@@ -4520,7 +4487,7 @@ class PendoAPIClient {
 
       eventsToProcess.forEach((event, index) => {
         if (index < 5) {
-          console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
+          // console.log(`🔍 Sample event ${index + 1}:`, JSON.stringify(event, null, 2));
         }
 
         const pageId = event.pageId || (event as { 0?: PendoAggregationResult })[0]?.pageId;
@@ -4541,13 +4508,13 @@ class PendoAPIClient {
         }
       });
 
-      console.log(`✅ Aggregated analytics for ${analyticsMap.size} pages`);
+      // console.log(`✅ Aggregated analytics for ${analyticsMap.size} pages`);
       if (analyticsMap.size > 0) {
-        console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5).map(([id, data]) => ({
-          pageId: id,
-          views: data.views,
-          visitors: data.visitors.size
-        })));
+        // console.log('📊 Sample analytics:', Array.from(analyticsMap.entries()).slice(0, 5).map(([id, data]) => ({
+        //   pageId: id,
+        //   views: data.views,
+        //   visitors: data.visitors.size
+        // })));
       }
 
       // 4. Merge analytics into pages
@@ -4561,7 +4528,7 @@ class PendoAPIClient {
       });
 
       const pagesWithAnalytics = enrichedPages.filter(p => p.viewedCount > 0 || p.visitorCount > 0);
-      console.log(`✅ Returning ${enrichedPages.length} pages (${pagesWithAnalytics.length} with analytics data)`);
+      // console.log(`✅ Returning ${enrichedPages.length} pages (${pagesWithAnalytics.length} with analytics data)`);
 
       return enrichedPages;
 
@@ -4577,7 +4544,7 @@ class PendoAPIClient {
    * @returns Promise<boolean> - true if API is accessible, false otherwise
    */
   async testAggregationAPI(): Promise<boolean> {
-    console.log('🧪 Testing Aggregation API accessibility...');
+    // console.log('🧪 Testing Aggregation API accessibility...');
 
     const testRequests = [
       {
@@ -4619,26 +4586,26 @@ class PendoAPIClient {
 
     for (const { name, request } of testRequests) {
       try {
-        console.log(`🔄 Testing approach: ${name}`);
-        console.log('📋 Request:', JSON.stringify(request, null, 2));
+        // console.log(`🔄 Testing approach: ${name}`);
+        // console.log('📋 Request:', JSON.stringify(request, null, 2));
 
         const response = await this.makeAggregationCall(request, 'POST');
 
-        console.log('✅ Aggregation API test successful with approach:', name);
-        console.log('📊 Response:', response);
+        // console.log('✅ Aggregation API test successful with approach:', name);
+        // console.log('📊 Response:', response);
 
         return true;
       } catch (error) {
-        console.error(`❌ Aggregation API test failed with approach ${name}:`, error);
+        console.error(`Aggregation API test failed with approach ${name}:`, error);
         continue;
       }
     }
 
     console.error('❌ All aggregation API test approaches failed');
-    console.log('📋 This indicates:');
-    console.log('   1. The integration key may not have aggregation API permissions');
-    console.log('   2. The aggregation endpoint may not be available for this account');
-    console.log('   3. Network or authentication issues');
+    // console.log('📋 This indicates:');
+    // console.log('   1. The integration key may not have aggregation API permissions');
+    // console.log('   2. The aggregation endpoint may not be available for this account');
+    // console.log('   3. Network or authentication issues');
 
     return false;
   }
@@ -4653,18 +4620,18 @@ export const pendoAPI = new PendoAPIClient();
  * Call this function to test different API approaches and see detailed logs
  */
 export async function testPendoAPIFixes(guideId?: string) {
-  console.log('🧪 Starting Pendo API Fix Validation');
-  console.log('=====================================');
+  // console.log('🧪 Starting Pendo API Fix Validation');
+  // console.log('=====================================');
 
   try {
     // Test basic guide listing first
-    console.log('\n1️⃣ Testing basic guide listing...');
+    // console.log('\n1️⃣ Testing basic guide listing...');
     const guides = await pendoAPI.getGuides({ limit: 5 });
-    console.log(`✅ Found ${guides.length} guides`);
+    // console.log(`✅ Found ${guides.length} guides`);
 
     if (guides.length > 0) {
       const testGuideId = guideId || guides[0].id;
-      console.log(`📋 Using guide: ${guides[0].name} (ID: ${testGuideId})`);
+      // console.log(`📋 Using guide: ${guides[0].name} (ID: ${testGuideId})`);
 
       // Define test period (last 30 days)
       const period = {
@@ -4672,23 +4639,23 @@ export async function testPendoAPIFixes(guideId?: string) {
         end: new Date().toISOString()
       };
 
-      console.log(`📅 Test period: ${period.start} to ${period.end}`);
+      // console.log(`📅 Test period: ${period.start} to ${period.end}`);
 
       // Test aggregation methods
-      console.log('\n2️⃣ Testing guide time series aggregation...');
+      // console.log('\n2️⃣ Testing guide time series aggregation...');
       const timeSeries = await pendoAPI.getGuideAnalytics(testGuideId, period);
-      console.log(`✅ Time series data retrieved: ${timeSeries.dailyStats?.length || 0} days`);
+      // console.log(`✅ Time series data retrieved: ${timeSeries.dailyStats?.length || 0} days`);
 
-      console.log('\n3️⃣ Testing guide step analytics...');
-      console.log(`✅ Step analytics retrieved: ${timeSeries.steps?.length || 0} steps`);
+      // console.log('\n3️⃣ Testing guide step analytics...');
+      // console.log(`✅ Step analytics retrieved: ${timeSeries.steps?.length || 0} steps`);
 
-      console.log('\n4️⃣ Testing device breakdown...');
-      console.log(`✅ Device breakdown retrieved: ${timeSeries.deviceBreakdown?.length || 0} devices`);
+      // console.log('\n4️⃣ Testing device breakdown...');
+      // console.log(`✅ Device breakdown retrieved: ${timeSeries.deviceBreakdown?.length || 0} devices`);
 
-      console.log('\n5️⃣ Testing geographic data...');
-      console.log(`✅ Geographic data retrieved: ${timeSeries.geographicDistribution?.length || 0} locations`);
+      // console.log('\n5️⃣ Testing geographic data...');
+      // console.log(`✅ Geographic data retrieved: ${timeSeries.geographicDistribution?.length || 0} locations`);
 
-      console.log('\n🎉 All tests completed successfully!');
+      // console.log('\n🎉 All tests completed successfully!');
       return {
         success: true,
         guideId: testGuideId,
@@ -4702,7 +4669,7 @@ export async function testPendoAPIFixes(guideId?: string) {
       };
 
     } else {
-      console.log('⚠️ No guides found to test with');
+      // console.log('⚠️ No guides found to test with');
       return { success: false, error: 'No guides available' };
     }
 
@@ -4719,7 +4686,7 @@ export async function testPendoAPIFixes(guideId?: string) {
  * Quick test function for a single aggregation call
  */
 export async function testSingleAggregationCall(guideId: string) {
-  console.log(`🔬 Testing single aggregation call for guide ${guideId}`);
+  // console.log(`🔬 Testing single aggregation call for guide ${guideId}`);
 
   const period = {
     start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // Last 7 days
@@ -4743,7 +4710,7 @@ export async function testSingleAggregationCall(guideId: string) {
       ]
     }, 'POST');
 
-    console.log(`✅ Aggregation call successful: ${response.length} records returned`);
+    // console.log(`✅ Aggregation call successful: ${response.length} records returned`);
     return { success: true, data: response };
 
   } catch (error) {
@@ -4756,18 +4723,18 @@ export async function testSingleAggregationCall(guideId: string) {
  * Comprehensive test function for the new aggregation API fixes
  */
 export async function testNewAggregationFixes(guideId?: string) {
-  console.log('🧪 Starting COMPREHENSIVE Pendo Aggregation API Fix Test');
-  console.log('=======================================================');
+  // console.log('🧪 Starting COMPREHENSIVE Pendo Aggregation API Fix Test');
+  // console.log('=======================================================');
 
   try {
     // Test basic guide listing first
-    console.log('\n1️⃣ Testing basic guide listing...');
+    // console.log('\n1️⃣ Testing basic guide listing...');
     const guides = await pendoAPI.getGuides({ limit: 5 });
-    console.log(`✅ Found ${guides.length} guides`);
+    // console.log(`✅ Found ${guides.length} guides`);
 
     if (guides.length > 0) {
       const testGuideId = guideId || guides[0].id;
-      console.log(`📋 Using guide: ${guides[0].name} (ID: ${testGuideId})`);
+      // console.log(`📋 Using guide: ${guides[0].name} (ID: ${testGuideId})`);
 
       // Define test period (last 7 days for testing)
       const period = {
@@ -4775,41 +4742,41 @@ export async function testNewAggregationFixes(guideId?: string) {
         end: new Date().toISOString()
       };
 
-      console.log(`📅 Test period: ${period.start} to ${period.end}`);
+      // console.log(`📅 Test period: ${period.start} to ${period.end}`);
 
       // Test 1: Time series aggregation with multiple approaches
-      console.log('\n2️⃣ Testing enhanced time series aggregation...');
+      // console.log('\n2️⃣ Testing enhanced time series aggregation...');
       try {
         const timeSeries = await pendoAPI['getGuideTimeSeries'](testGuideId, period);
-        console.log(`✅ Time series data retrieved: ${timeSeries.length} days`);
+        // console.log(`✅ Time series data retrieved: ${timeSeries.length} days`);
 
         // Show sample of the data
         if (timeSeries.length > 0) {
-          console.log('📊 Sample time series data:');
-          console.log(JSON.stringify(timeSeries.slice(0, 3), null, 2));
+          // console.log('📊 Sample time series data:');
+          // console.log(JSON.stringify(timeSeries.slice(0, 3), null, 2));
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.log(`❌ Time series aggregation failed:`, errorMessage);
+        // console.log(`❌ Time series aggregation failed:`, errorMessage);
       }
 
       // Test 2: Step analytics
-      console.log('\n3️⃣ Testing enhanced step analytics...');
+      // console.log('\n3️⃣ Testing enhanced step analytics...');
       try {
         const stepAnalytics = await pendoAPI['getGuideStepAnalytics'](testGuideId, period);
-        console.log(`✅ Step analytics retrieved: ${stepAnalytics.length} steps`);
+        // console.log(`✅ Step analytics retrieved: ${stepAnalytics.length} steps`);
 
         if (stepAnalytics.length > 0) {
-          console.log('📊 Sample step data:');
-          console.log(JSON.stringify(stepAnalytics.slice(0, 2), null, 2));
+          // console.log('📊 Sample step data:');
+          // console.log(JSON.stringify(stepAnalytics.slice(0, 2), null, 2));
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.log(`❌ Step analytics failed:`, errorMessage);
+        // console.log(`❌ Step analytics failed:`, errorMessage);
       }
 
       // Test 3: Raw aggregation pipeline test
-      console.log('\n4️⃣ Testing raw aggregation pipeline...');
+      // console.log('\n4️⃣ Testing raw aggregation pipeline...');
       try {
         const pipelineResponse = await pendoAPI.request('/api/v1/aggregation', {
           pipeline: [
@@ -4817,27 +4784,27 @@ export async function testNewAggregationFixes(guideId?: string) {
             { $group: { _id: '$eventType', count: { $sum: 1 } } }
           ]
         }, 'POST');
-        console.log(`✅ Raw pipeline successful:`, pipelineResponse);
+        // console.log(`✅ Raw pipeline successful:`, pipelineResponse);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.log(`❌ Raw pipeline failed:`, errorMessage);
+        // console.log(`❌ Raw pipeline failed:`, errorMessage);
       }
 
       // Test 4: Test the jzb encoding
-      console.log('\n5️⃣ Testing jzb encoding approach...');
+      // console.log('\n5️⃣ Testing jzb encoding approach...');
       try {
         const testPipeline = [{ $match: { guideId: testGuideId } }];
         const jzbResponse = await pendoAPI.request('/api/v1/aggregation', {
           pipeline: testPipeline,
           jzb: btoa(JSON.stringify(testPipeline))
         }, 'POST');
-        console.log(`✅ JZB approach successful:`, jzbResponse);
+        // console.log(`✅ JZB approach successful:`, jzbResponse);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.log(`❌ JZB approach failed:`, errorMessage);
+        // console.log(`❌ JZB approach failed:`, errorMessage);
       }
 
-      console.log('\n🎉 Comprehensive testing completed!');
+      // console.log('\n🎉 Comprehensive testing completed!');
       return {
         success: true,
         guideId: testGuideId,
@@ -4846,7 +4813,7 @@ export async function testNewAggregationFixes(guideId?: string) {
       };
 
     } else {
-      console.log('⚠️ No guides found to test with');
+      // console.log('⚠️ No guides found to test with');
       return { success: false, error: 'No guides available' };
     }
 
@@ -4863,18 +4830,18 @@ export async function testNewAggregationFixes(guideId?: string) {
  * Comprehensive test function to validate all Pendo API fixes
  */
 export async function testComprehensivePendoAPIFixes(guideId?: string) {
-  console.log('🧪 Starting COMPREHENSIVE Pendo API Fix Validation');
-  console.log('==================================================');
+  // console.log('🧪 Starting COMPREHENSIVE Pendo API Fix Validation');
+  // console.log('==================================================');
 
   try {
     // Test 1: Basic guide listing with cache test
-    console.log('\n1️⃣ Testing basic guide listing and caching...');
+    // console.log('\n1️⃣ Testing basic guide listing and caching...');
     const guides1 = await pendoAPI.getGuides({ limit: 5 });
-    console.log(`✅ Found ${guides1.length} guides (first call)`);
+    // console.log(`✅ Found ${guides1.length} guides (first call)`);
 
     // Test caching - should use cached result
     const guides2 = await pendoAPI.getGuides({ limit: 5 });
-    console.log(`✅ Found ${guides2.length} guides (cached call)`);
+    // console.log(`✅ Found ${guides2.length} guides (cached call)`);
 
     if (guides1.length === 0) {
       throw new Error('No guides found in Pendo system');
@@ -4882,34 +4849,34 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
 
     const testGuideId = guideId || guides1[0].id;
     const testGuide = guides1[0];
-    console.log(`📋 Using test guide: ${testGuide.name} (ID: ${testGuideId})`);
+    // console.log(`📋 Using test guide: ${testGuide.name} (ID: ${testGuideId})`);
 
     // Test 2: Enhanced individual guide access with fallbacks
-    console.log('\n2️⃣ Testing individual guide access with enhanced fallbacks...');
+    // console.log('\n2️⃣ Testing individual guide access with enhanced fallbacks...');
     try {
       const individualGuide = await pendoAPI.getGuideById(testGuideId);
-      console.log(`✅ Individual guide access successful: ${individualGuide.name}`);
+      // console.log(`✅ Individual guide access successful: ${individualGuide.name}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log(`⚠️ Individual guide access failed, fallbacks tested: ${errorMessage}`);
+      // console.log(`⚠️ Individual guide access failed, fallbacks tested: ${errorMessage}`);
     }
 
     // Test 3: Aggregation API multiple approaches
-    console.log('\n3️⃣ Testing aggregation API with multiple approaches...');
+    // console.log('\n3️⃣ Testing aggregation API with multiple approaches...');
     try {
       const aggregationResult = await pendoAPI['handleAggregationRequest']({
         source: 'guideEvent',
         guideId: testGuideId,
         timeSeries: 'daily'
       }, 'POST');
-      console.log(`✅ Aggregation API result:`, (aggregationResult as { message?: string })?.message || 'Success');
+      // console.log(`✅ Aggregation API result:`, (aggregationResult as { message?: string })?.message || 'Success');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log(`⚠️ Aggregation API test: ${errorMessage}`);
+      // console.log(`⚠️ Aggregation API test: ${errorMessage}`);
     }
 
     // Test 4: Comprehensive analytics with real data
-    console.log('\n4️⃣ Testing comprehensive analytics with real data...');
+    // console.log('\n4️⃣ Testing comprehensive analytics with real data...');
     const period = {
       start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
       end: new Date().toISOString()
@@ -4917,36 +4884,36 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
 
     try {
       const analytics = await pendoAPI.getGuideAnalytics(testGuideId, period);
-      console.log(`✅ Comprehensive analytics successful for: ${analytics.name}`);
-      console.log(`📊 Analytics summary:`);
-      console.log(`   • Views: ${analytics.viewedCount}`);
-      console.log(`   • Completions: ${analytics.completedCount}`);
-      console.log(`   • Completion Rate: ${analytics.completionRate.toFixed(1)}%`);
-      console.log(`   • Steps: ${analytics.steps.length}`);
-      console.log(`   • Segments: ${analytics.segmentPerformance.length}`);
-      console.log(`   • Devices: ${analytics.deviceBreakdown.length}`);
-      console.log(`   • Daily stats: ${analytics.dailyStats.length}`);
-      console.log(`   • Hourly data: ${analytics.hourlyEngagement.length}`);
-      console.log(`   • Weekly trends: ${analytics.weeklyTrends.length}`);
-      console.log(`   • Polls: ${analytics.polls.length}`);
-      console.log(`   • Variants: ${analytics.variantPerformance.length}`);
+      // console.log(`✅ Comprehensive analytics successful for: ${analytics.name}`);
+      // console.log(`📊 Analytics summary:`);
+      // console.log(`   • Views: ${analytics.viewedCount}`);
+      // console.log(`   • Completions: ${analytics.completedCount}`);
+      // console.log(`   • Completion Rate: ${analytics.completionRate.toFixed(1)}%`);
+      // console.log(`   • Steps: ${analytics.steps.length}`);
+      // console.log(`   • Segments: ${analytics.segmentPerformance.length}`);
+      // console.log(`   • Devices: ${analytics.deviceBreakdown.length}`);
+      // console.log(`   • Daily stats: ${analytics.dailyStats.length}`);
+      // console.log(`   • Hourly data: ${analytics.hourlyEngagement.length}`);
+      // console.log(`   • Weekly trends: ${analytics.weeklyTrends.length}`);
+      // console.log(`   • Polls: ${analytics.polls.length}`);
+      // console.log(`   • Variants: ${analytics.variantPerformance.length}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log(`❌ Comprehensive analytics failed: ${errorMessage}`);
+      // console.log(`❌ Comprehensive analytics failed: ${errorMessage}`);
     }
 
     // Test 5: Error handling for invalid guide ID
-    console.log('\n5️⃣ Testing error handling for invalid guide ID...');
+    // console.log('\n5️⃣ Testing error handling for invalid guide ID...');
     try {
       await pendoAPI.getGuideById('invalid-guide-id-12345');
-      console.log(`⚠️ Invalid guide ID should have failed`);
+      // console.log(`⚠️ Invalid guide ID should have failed`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log(`✅ Error handling works correctly: ${errorMessage}`);
+      // console.log(`✅ Error handling works correctly: ${errorMessage}`);
     }
 
     // Test 6: Performance metrics
-    console.log('\n6️⃣ Testing performance and caching...');
+    // console.log('\n6️⃣ Testing performance and caching...');
     const startTime = Date.now();
 
     // Multiple calls to test caching
@@ -4957,9 +4924,9 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
     ]);
 
     const endTime = Date.now();
-    console.log(`✅ Performance test completed in ${endTime - startTime}ms (with caching)`);
+    // console.log(`✅ Performance test completed in ${endTime - startTime}ms (with caching)`);
 
-    console.log('\n🎉 All comprehensive tests completed successfully!');
+    // console.log('\n🎉 All comprehensive tests completed successfully!');
     return {
       success: true,
       guideId: testGuideId,
@@ -4993,10 +4960,10 @@ export async function testComprehensivePendoAPIFixes(guideId?: string) {
  * Test specific aggregation errors to validate our fixes
  */
 export async function testSpecificErrors() {
-  console.log('🔧 Testing specific error scenarios...');
+  // console.log('🔧 Testing specific error scenarios...');
 
   // Test the original error case
-  console.log('\n1️⃣ Testing original error case (missing pipeline)...');
+  // console.log('\n1️⃣ Testing original error case (missing pipeline)...');
   try {
     await pendoAPI.request('/api/v1/aggregation', {
       source: 'guideEvent',
@@ -5007,11 +4974,11 @@ export async function testSpecificErrors() {
     }, 'POST');
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log(`❌ Original error (expected):`, errorMessage);
+    // console.log(`❌ Original error (expected):`, errorMessage);
   }
 
   // Test with pipeline
-  console.log('\n2️⃣ Testing with pipeline field...');
+  // console.log('\n2️⃣ Testing with pipeline field...');
   try {
     const response = await pendoAPI.request('/api/v1/aggregation', {
       pipeline: [
@@ -5020,39 +4987,39 @@ export async function testSpecificErrors() {
         { $group: { _id: '$eventTime', visitorId: { $sum: 1 } } }
       ]
     }, 'POST');
-    console.log(`✅ Pipeline approach successful:`, response);
+    // console.log(`✅ Pipeline approach successful:`, response);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log(`❌ Pipeline approach failed:`, errorMessage);
+    // console.log(`❌ Pipeline approach failed:`, errorMessage);
   }
 
   // Test the enhanced aggregation handler
-  console.log('\n3️⃣ Testing enhanced aggregation handler...');
+  // console.log('\n3️⃣ Testing enhanced aggregation handler...');
   try {
     const result = await pendoAPI['handleAggregationRequest']({
       source: 'guideEvent',
       guideId: "test-guide",
       timeSeries: 'daily'
     }, 'POST');
-    console.log(`✅ Enhanced handler result:`, (result as { message?: string })?.message || 'Success');
+    // console.log(`✅ Enhanced handler result:`, (result as { message?: string })?.message || 'Success');
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log(`❌ Enhanced handler failed:`, errorMessage);
+    // console.log(`❌ Enhanced handler failed:`, errorMessage);
   }
 
-  console.log('\n✅ Specific error testing completed');
+  // console.log('\n✅ Specific error testing completed');
 }
 
 /**
  * Quick validation function for real-time testing
  */
 export async function quickValidatePendoAPI(guideId?: string) {
-  console.log('⚡ Quick Pendo API Validation');
-  console.log('==============================');
+  // console.log('⚡ Quick Pendo API Validation');
+  // console.log('==============================');
 
   try {
     const guides = await pendoAPI.getGuides({ limit: 3 });
-    console.log(`✅ Found ${guides.length} guides`);
+    // console.log(`✅ Found ${guides.length} guides`);
 
     if (guides.length > 0) {
       const testId = guideId || guides[0].id;
@@ -5061,9 +5028,9 @@ export async function quickValidatePendoAPI(guideId?: string) {
         end: new Date().toISOString()
       });
 
-      console.log(`✅ Analytics loaded for: ${analytics.name}`);
-      console.log(`📊 ${analytics.viewedCount} views, ${analytics.completedCount} completions`);
-      console.log(`📈 ${analytics.completionRate.toFixed(1)}% completion rate`);
+      // console.log(`✅ Analytics loaded for: ${analytics.name}`);
+      // console.log(`📊 ${analytics.viewedCount} views, ${analytics.completedCount} completions`);
+      // console.log(`📈 ${analytics.completionRate.toFixed(1)}% completion rate`);
 
       return { success: true, guideName: analytics.name, completionRate: analytics.completionRate };
     }
@@ -5071,7 +5038,7 @@ export async function quickValidatePendoAPI(guideId?: string) {
     return { success: false, error: 'No guides found' };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`❌ Validation failed: ${errorMessage}`);
+    console.error(`Validation failed: ${errorMessage}`);
     return { success: false, error: errorMessage };
   }
 }
