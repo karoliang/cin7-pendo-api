@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Cin7DataTable } from '@/components/polaris/Cin7DataTable';
 import { DetailModal } from '@/components/tables/DetailModal';
 import { Button } from '@/components/ui/button';
+import { BreadcrumbWithHome } from '@/components/ui/breadcrumb';
 import { FilterPanel } from '@/components/filters/FilterPanel';
 // import { useDashboardOverview } from '@/hooks/usePendoData'; // Using Pendo API (causes browser crash with 368k+ events)
 import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // Using Supabase synced data (300 records)
@@ -699,6 +700,14 @@ export const DataTables: React.FC = () => {
       subtitle="Detailed view of all Pendo data with search, filtering, and export capabilities"
     >
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <BreadcrumbWithHome
+          items={[
+            { label: 'Data Tables', href: '/data' },
+            { label: currentTab.label }
+          ]}
+        />
+
         {/* Info Banner */}
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start gap-3">
