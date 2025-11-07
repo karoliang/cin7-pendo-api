@@ -648,6 +648,10 @@ class PendoAPIClient {
     try {
       // console.log(`📊 Fetching total analytics for guide ${id} from aggregation API`);
 
+      // Calculate time period
+      const endTime = Date.now();
+      const startTime = endTime - (_daysBack * 24 * 60 * 60 * 1000);
+
       // Use pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
         response: { mimeType: "application/json" },
@@ -655,7 +659,12 @@ class PendoAPIClient {
           pipeline: [
             {
               source: {
-                guideEvents: null
+                guideEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: _daysBack,
+                  period: "dayRange"
+                }
               }
             },
             {
@@ -1069,18 +1078,27 @@ class PendoAPIClient {
       const endTime = new Date(_period.end).getTime();
       const days = Math.ceil((endTime - startTime) / (24 * 60 * 60 * 1000));
 
-      // Use the flat format that works (from test_aggregation.js)
+      // Use proper pipeline format (required by Pendo Aggregation API)
       const aggregationRequest = {
-        source: {
-          guideEvents: null,
-          timeSeries: {
-            first: startTime,
-            count: days,
-            period: "dayRange"
-          }
-        },
-        filter: `guideId == "${id}"`,
-        requestId: `timeseries_${Date.now()}`
+        response: { mimeType: "application/json" },
+        request: {
+          pipeline: [
+            {
+              source: {
+                guideEvents: null,
+                timeSeries: {
+                  first: startTime,
+                  count: days,
+                  period: "dayRange"
+                }
+              }
+            },
+            {
+              filter: `guideId == "${id}"`
+            }
+          ],
+          requestId: `timeseries_${Date.now()}`
+        }
       };
 
       // console.log(`🔍 Aggregation request:`, JSON.stringify(aggregationRequest, null, 2));
@@ -1186,6 +1204,11 @@ class PendoAPIClient {
     try {
       // console.log(`🚀 Fetching real step analytics for guide ${id} from guideEvents`);
 
+      // Calculate time range in milliseconds
+      const startTime = new Date(_period.start).getTime();
+      const endTime = new Date(_period.end).getTime();
+      const days = Math.ceil((endTime - startTime) / (24 * 60 * 60 * 1000));
+
       // Query guideEvents for step-level data
       const aggregationRequest = {
         response: { mimeType: "application/json" },
@@ -1195,8 +1218,8 @@ class PendoAPIClient {
               source: {
                 guideEvents: null,
                 timeSeries: {
-                  first: "now()",
-                  count: -30,
+                  first: startTime,
+                  count: days,
                   period: "dayRange"
                 }
               }
