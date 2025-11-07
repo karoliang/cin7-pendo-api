@@ -7,8 +7,13 @@
 ## Executive Summary
 
 ✅ **Database is correctly synced** with what the Pendo API provides
-⚠️ **Discrepancy confirmed**: Pendo UI shows 748 pages, but API returns only 358
-📊 **Root cause**: API access limitation or data filtering on Pendo's side
+⚠️ **CRITICAL DISCREPANCY**: Missing 52% of pages and 45% of features
+📊 **Root cause**: API integration key only accesses ONE app (ID: -323232), but account has MULTIPLE apps
+
+### Updated Findings from Screenshots:
+- **Pages:** UI shows 748, API returns 358 (missing 390 / 52%)
+- **Features:** UI shows 1,726, API returns 956 (missing 770 / 45%)
+- **Reports:** UI shows 495, API returns 485 (missing 10 / 2%)
 
 ---
 
