@@ -1,5 +1,6 @@
-// Simplified Supabase Edge Function to sync Pendo metadata only
-// This is a lightweight version that doesn't fetch events to avoid resource limits
+// Incremental Supabase Edge Function for cron jobs
+// Only fetches recent records to avoid timeout
+// For full sync, use the local script: node scripts/sync-all-pendo-data.mjs
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
@@ -9,24 +10,23 @@ const PENDO_BASE_URL = 'https://app.pendo.io/api/v1';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 
+// Limit for incremental updates (prevents timeout)
+const MAX_RECORDS_PER_TYPE = 5000;
+const BATCH_SIZE = 500;
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-// Fetch data from Pendo API with pagination
-async function fetchPendoData(endpoint: string, params: Record<string, any> = {}) {
+// Fetch LIMITED data from Pendo API (for incremental updates)
+async function fetchPendoDataLimited(endpoint: string, maxRecords: number = MAX_RECORDS_PER_TYPE) {
   let allResults: any[] = [];
   let offset = 0;
-  const limit = 500; // Fetch 500 at a time
-  let hasMore = true;
 
-  while (hasMore) {
+  console.log(`📥 Fetching up to ${maxRecords} ${endpoint} records (incremental)...`);
+
+  while (allResults.length < maxRecords) {
     const url = new URL(`${PENDO_BASE_URL}/${endpoint}`);
-    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('limit', BATCH_SIZE.toString());
     url.searchParams.append('offset', offset.toString());
-    Object.keys(params).forEach(key => {
-      if (key !== 'limit' && key !== 'offset') {
-        url.searchParams.append(key, params[key]);
-      }
-    });
 
     const response = await fetch(url.toString(), {
       method: 'GET',
@@ -43,28 +43,27 @@ async function fetchPendoData(endpoint: string, params: Record<string, any> = {}
     const data = await response.json();
     const results = data.results || data || [];
 
-    allResults = allResults.concat(results);
+    if (results.length === 0) break;
 
-    // Check if we got fewer results than the limit, which means we're done
-    if (results.length < limit) {
-      hasMore = false;
-    } else {
-      offset += limit;
+    allResults = allResults.concat(results);
+    console.log(`  ✓ Fetched ${results.length} records (total: ${allResults.length})`);
+
+    // Stop if we've reached our limit or got fewer results than requested
+    if (allResults.length >= maxRecords || results.length < BATCH_SIZE) {
+      break;
     }
 
-    console.log(`Fetched ${results.length} ${endpoint} records (total: ${allResults.length})`);
+    offset += BATCH_SIZE;
   }
 
-  return allResults;
+  console.log(`✅ Total ${endpoint}: ${allResults.length}\n`);
+  return allResults.slice(0, maxRecords);
 }
 
-// Sync guides metadata (lightweight)
-async function syncGuidesMetadata() {
-  console.log('Fetching guides metadata...');
-
-  const guides = await fetchPendoData('guide');
-
-  console.log(`Processing ${guides.length} guides`);
+// Sync guides (limited)
+async function syncGuidesIncremental() {
+  console.log('📊 Syncing Guides (incremental)...');
+  const guides = await fetchPendoDataLimited('guide');
 
   const guidesFormatted = guides.map((guide: any) => ({
     id: guide.id,
@@ -72,7 +71,7 @@ async function syncGuidesMetadata() {
     state: guide.state || 'unknown',
     created_at: guide.createdAt ? new Date(guide.createdAt).toISOString() : new Date().toISOString(),
     last_updated_at: guide.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toISOString() : new Date().toISOString(),
-    views: 0, // Will be updated by separate analytics sync
+    views: 0,
     completions: 0,
     completion_rate: 0,
     avg_time_to_complete: 0,
@@ -80,25 +79,23 @@ async function syncGuidesMetadata() {
     last_synced: new Date().toISOString(),
   }));
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('pendo_guides')
     .upsert(guidesFormatted, { onConflict: 'id' });
 
   if (error) {
-    console.error('Error upserting guides:', error);
+    console.error('❌ Error upserting guides:', error);
     throw error;
   }
 
+  console.log(`✅ Synced ${guidesFormatted.length} guides\n`);
   return guidesFormatted.length;
 }
 
-// Sync features metadata (lightweight)
-async function syncFeaturesMetadata() {
-  console.log('Fetching features metadata...');
-
-  const features = await fetchPendoData('feature');
-
-  console.log(`Processing ${features.length} features`);
+// Sync features (limited)
+async function syncFeaturesIncremental() {
+  console.log('📊 Syncing Features (incremental)...');
+  const features = await fetchPendoDataLimited('feature');
 
   const featuresFormatted = features.map((feature: any) => ({
     id: feature.id,
@@ -111,25 +108,23 @@ async function syncFeaturesMetadata() {
     last_synced: new Date().toISOString(),
   }));
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('pendo_features')
     .upsert(featuresFormatted, { onConflict: 'id' });
 
   if (error) {
-    console.error('Error upserting features:', error);
+    console.error('❌ Error upserting features:', error);
     throw error;
   }
 
+  console.log(`✅ Synced ${featuresFormatted.length} features\n`);
   return featuresFormatted.length;
 }
 
-// Sync pages metadata (lightweight)
-async function syncPagesMetadata() {
-  console.log('Fetching pages metadata...');
-
-  const pages = await fetchPendoData('page');
-
-  console.log(`Processing ${pages.length} pages`);
+// Sync pages (limited)
+async function syncPagesIncremental() {
+  console.log('📊 Syncing Pages (incremental)...');
+  const pages = await fetchPendoDataLimited('page');
 
   const pagesFormatted = pages.map((page: any) => ({
     id: page.id,
@@ -141,20 +136,19 @@ async function syncPagesMetadata() {
     unique_visitors: 0,
     avg_time_on_page: 0,
     bounce_rate: 0,
-    geographic_data: {},
-    top_accounts: {},
     last_synced: new Date().toISOString(),
   }));
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('pendo_pages')
     .upsert(pagesFormatted, { onConflict: 'id' });
 
   if (error) {
-    console.error('Error upserting pages:', error);
+    console.error('❌ Error upserting pages:', error);
     throw error;
   }
 
+  console.log(`✅ Synced ${pagesFormatted.length} pages\n`);
   return pagesFormatted.length;
 }
 
@@ -173,51 +167,52 @@ async function updateSyncStatus(entityType: string, status: string, recordsProce
 // Main handler
 serve(async (req) => {
   try {
-    console.log('Starting lightweight Pendo metadata sync...');
+    console.log('🔄 Starting incremental Pendo sync (limited to avoid timeout)...');
+    console.log(`   Max records per type: ${MAX_RECORDS_PER_TYPE}\n`);
 
     const results: Record<string, number> = {};
 
-    // Sync guides metadata
+    // Sync guides
     try {
-      const guidesCount = await syncGuidesMetadata();
+      const guidesCount = await syncGuidesIncremental();
       results.guides = guidesCount;
       await updateSyncStatus('guides', 'completed', guidesCount);
     } catch (error: any) {
-      console.error('Error syncing guides:', error);
+      console.error('❌ Error syncing guides:', error);
       await updateSyncStatus('guides', 'failed', 0, error.message);
       results.guides = 0;
     }
 
-    // Sync features metadata
+    // Sync features
     try {
-      const featuresCount = await syncFeaturesMetadata();
+      const featuresCount = await syncFeaturesIncremental();
       results.features = featuresCount;
       await updateSyncStatus('features', 'completed', featuresCount);
     } catch (error: any) {
-      console.error('Error syncing features:', error);
+      console.error('❌ Error syncing features:', error);
       await updateSyncStatus('features', 'failed', 0, error.message);
       results.features = 0;
     }
 
-    // Sync pages metadata
+    // Sync pages
     try {
-      const pagesCount = await syncPagesMetadata();
+      const pagesCount = await syncPagesIncremental();
       results.pages = pagesCount;
       await updateSyncStatus('pages', 'completed', pagesCount);
     } catch (error: any) {
-      console.error('Error syncing pages:', error);
+      console.error('❌ Error syncing pages:', error);
       await updateSyncStatus('pages', 'failed', 0, error.message);
       results.pages = 0;
     }
 
-    console.log('Metadata sync completed:', results);
+    console.log('✅ Incremental sync completed:', results);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Pendo metadata sync completed (analytics will be added separately)',
+        message: `Incremental sync completed (limited to ${MAX_RECORDS_PER_TYPE} per type)`,
         results,
-        note: 'This is a lightweight sync. Analytics data will be computed separately.',
+        note: 'For full sync, run: node scripts/sync-all-pendo-data.mjs',
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -225,7 +220,7 @@ serve(async (req) => {
       }
     );
   } catch (error: any) {
-    console.error('Sync error:', error);
+    console.error('❌ Sync error:', error);
     return new Response(
       JSON.stringify({
         success: false,

@@ -63,6 +63,15 @@ export const DataTables: React.FC = () => {
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters } = useFilterStore();
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('🔍 Data fetched from Supabase:');
+    console.log('  Guides:', guides.length);
+    console.log('  Features:', features.length);
+    console.log('  Pages:', pages.length);
+    console.log('  Reports:', reports.length);
+  }, [guides.length, features.length, pages.length, reports.length]);
+
   const [activeTab, setActiveTab] = useState<TabType>('pages');
   const [selectedItem, setSelectedItem] = useState<Guide | Feature | Page | Report | null>(null);
   const [detailModalType, setDetailModalType] = useState<'guide' | 'feature' | 'page' | 'report' | null>(null);
@@ -519,14 +528,16 @@ export const DataTables: React.FC = () => {
 
   if (error) {
     return (
-      <Layout
-        showNavigation={true}
-        title="Data Tables"
-        subtitle="Error loading data"
-      >
-        <div className="flex flex-col items-center justify-center h-64">
-          <p className="text-red-600 mb-4">Error loading data</p>
-          <Button onClick={() => refetch()}>Try Again</Button>
+      <Layout showNavigation={true}>
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">Data Tables</h1>
+            <p className="mt-1 text-sm text-red-600">Error loading data</p>
+          </div>
+          <div className="flex flex-col items-center justify-center h-64">
+            <p className="text-red-600 mb-4">Error loading data</p>
+            <Button onClick={() => refetch()}>Try Again</Button>
+          </div>
         </div>
       </Layout>
     );
@@ -600,88 +611,9 @@ export const DataTables: React.FC = () => {
 
           {/* Table Content */}
           <div className="p-6">
-            {/* Summary Cards */}
-            {activeTab === 'guides' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">Published</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-600">{summaryMetrics.guides.published}</div>
-                    <p className="text-xs text-gray-500 mt-1">Active guides</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">Draft</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-yellow-600">{summaryMetrics.guides.draft}</div>
-                    <p className="text-xs text-gray-500 mt-1">In progress</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">Completion Rate</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-blue-600">{summaryMetrics.guides.avgCompletionRate}%</div>
-                    <p className="text-xs text-gray-500 mt-1">Average across all guides</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">Last 7 Days</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-purple-600">{summaryMetrics.guides.recentCount}</div>
-                    <p className="text-xs text-gray-500 mt-1">New guides created</p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
 
             {activeTab === 'features' && (
               <div className="mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-gray-600">Total Usage</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-blue-600">{summaryMetrics.features.totalUsage.toLocaleString()}</div>
-                      <p className="text-xs text-gray-500 mt-1">Feature interactions</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-gray-600">Active Features</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-green-600">{summaryMetrics.features.activeCount}</div>
-                      <p className="text-xs text-gray-500 mt-1">With usage data</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-gray-600">Avg Usage</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-purple-600">{summaryMetrics.features.avgUsage.toLocaleString()}</div>
-                      <p className="text-xs text-gray-500 mt-1">Per feature</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-gray-600">Total Features</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-gray-600">{sortedData.features.length}</div>
-                      <p className="text-xs text-gray-500 mt-1">Tracked features</p>
-                    </CardContent>
-                  </Card>
-                </div>
                 {summaryMetrics.features.topFeatures.length > 0 && (
                   <Card>
                     <CardHeader>
@@ -707,45 +639,8 @@ export const DataTables: React.FC = () => {
 
             {activeTab === 'pages' && (
               <div className="mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-gray-600">Total Views</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-blue-600">{summaryMetrics.pages.totalViews.toLocaleString()}</div>
-                      <p className="text-xs text-gray-500 mt-1">Page views</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-gray-600">Total Visitors</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-green-600">{summaryMetrics.pages.totalVisitors.toLocaleString()}</div>
-                      <p className="text-xs text-gray-500 mt-1">Unique visitors</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-gray-600">Avg Views/Page</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-purple-600">{summaryMetrics.pages.avgViewsPerPage.toLocaleString()}</div>
-                      <p className="text-xs text-gray-500 mt-1">Average views</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-gray-600">Total Pages</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-gray-600">{sortedData.pages.length}</div>
-                      <p className="text-xs text-gray-500 mt-1">Tracked pages</p>
-                    </CardContent>
-                  </Card>
-                </div>
-                {summaryMetrics.pages.topPages.length > 0 && (
+                {/* Only show top pages if they have actual view data */}
+                {summaryMetrics.pages.topPages.length > 0 && summaryMetrics.pages.topPages.some(page => page.viewedCount > 0) && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm font-medium">Top 5 Pages by Views</CardTitle>
@@ -774,46 +669,6 @@ export const DataTables: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'reports' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">With Runs</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-600">{summaryMetrics.reports.withRuns}</div>
-                    <p className="text-xs text-gray-500 mt-1">Successfully executed</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">Never Run</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-yellow-600">{summaryMetrics.reports.neverRun}</div>
-                    <p className="text-xs text-gray-500 mt-1">Not yet executed</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">Recent Runs</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-blue-600">{summaryMetrics.reports.recentRuns}</div>
-                    <p className="text-xs text-gray-500 mt-1">In last 7 days</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-600">Total Reports</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-gray-600">{sortedData.reports.length}</div>
-                    <p className="text-xs text-gray-500 mt-1">Available reports</p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
 
             {/* Coming Soon Notice for Guides, Features, and Reports */}
             {(activeTab === 'guides' || activeTab === 'features' || activeTab === 'reports') && (
@@ -846,7 +701,7 @@ export const DataTables: React.FC = () => {
               onSort={handleSort}
               onRowClick={handleRowClick as any}
               onRefresh={refetch}
-              title={`${currentTab.label} Overview`}
+              title={currentTab.label}
               searchPlaceholder={`Search ${currentTab.label.toLowerCase()}...`}
             />
           </div>

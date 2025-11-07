@@ -299,7 +299,7 @@ export const ReportDetails: React.FC = () => {
   if (isLoading) {
     return (
       <Layout showNavigation={true}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
           {/* Spinner overlay */}
           <div className="flex justify-center items-center py-12">
             <InlineSpinner message="Loading report data..." size="lg" />
@@ -328,7 +328,7 @@ export const ReportDetails: React.FC = () => {
 
     return (
       <Layout showNavigation={true}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <ExclamationTriangleIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
@@ -353,11 +353,9 @@ export const ReportDetails: React.FC = () => {
             )}
             <div className="space-x-4">
               <Button onClick={() => navigate('/tables')}>
-                <ArrowLeftIcon className="h-4 w-4 mr-2" />
                 Back to Data Tables
               </Button>
               <Button variant="outline" onClick={() => window.location.reload()}>
-                <ArrowPathIcon className="h-4 w-4 mr-2" />
                 Retry
               </Button>
             </div>
@@ -371,7 +369,7 @@ export const ReportDetails: React.FC = () => {
   if (hasZeroData) {
     return (
       <Layout showNavigation={true}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between mb-6">
             <Button
               variant="ghost"
@@ -379,7 +377,6 @@ export const ReportDetails: React.FC = () => {
               onClick={() => navigate('/tables')}
               className="text-gray-500 hover:text-gray-700"
             >
-              <ArrowLeftIcon className="h-4 w-4 mr-2" />
               Back to Tables
             </Button>
           </div>
@@ -447,11 +444,9 @@ export const ReportDetails: React.FC = () => {
 
             <div className="mt-8 space-x-4">
               <Button onClick={() => navigate('/tables')}>
-                <ArrowLeftIcon className="h-4 w-4 mr-2" />
                 Back to Data Tables
               </Button>
               <Button variant="outline" onClick={() => window.location.reload()}>
-                <ArrowPathIcon className="h-4 w-4 mr-2" />
                 Refresh Data
               </Button>
             </div>
@@ -526,50 +521,173 @@ export const ReportDetails: React.FC = () => {
   const primaryKPIs = getPrimaryKPIs();
 
   const handleExport = (format: 'pdf' | 'csv') => {
-    // TODO: Implement export functionality
-    console.log(`Exporting ${type} ${id} as ${format}`);
+    if (format === 'csv') {
+      exportToCSV();
+    } else {
+      exportToPDF();
+    }
+  };
+
+  const exportToCSV = () => {
+    const csvRows: string[] = [];
+
+    // Add header information
+    csvRows.push(`Report Type,${type.toUpperCase()}`);
+    csvRows.push(`ID,${id}`);
+    csvRows.push(`Name,${data.name}`);
+    csvRows.push(`Generated,${new Date().toLocaleString()}`);
+    csvRows.push(''); // Empty row
+
+    // Add KPIs section
+    csvRows.push('KEY PERFORMANCE INDICATORS');
+    csvRows.push('Metric,Value');
+    primaryKPIs.forEach(kpi => {
+      csvRows.push(`${kpi.label},${kpi.value}`);
+    });
+    csvRows.push(''); // Empty row
+
+    // Add type-specific data
+    if (type === 'guides') {
+      const guideData = data as ComprehensiveGuideData;
+      csvRows.push('GUIDE DETAILS');
+      csvRows.push('Field,Value');
+      csvRows.push(`State,${guideData.state}`);
+      csvRows.push(`Type,${guideData.type}`);
+      csvRows.push(`Kind,${guideData.kind}`);
+      csvRows.push(`Created At,${new Date(guideData.createdAt).toLocaleString()}`);
+      csvRows.push(`Updated At,${new Date(guideData.updatedAt).toLocaleString()}`);
+      csvRows.push(`Last Shown Count,${guideData.lastShownCount}`);
+      csvRows.push(`Viewed Count,${guideData.viewedCount}`);
+      csvRows.push(`Completed Count,${guideData.completedCount}`);
+      csvRows.push(`Completion Rate,${guideData.completionRate.toFixed(2)}%`);
+      csvRows.push(`Engagement Rate,${guideData.engagementRate.toFixed(2)}%`);
+      csvRows.push(`Average Time to Complete,${guideData.averageTimeToComplete} seconds`);
+      csvRows.push(`Drop Off Rate,${guideData.dropOffRate.toFixed(2)}%`);
+      csvRows.push(''); // Empty row
+
+      // Add steps if available
+      if (guideData.steps && guideData.steps.length > 0) {
+        csvRows.push('GUIDE STEPS');
+        csvRows.push('Step Number,Step Name,Viewed Count,Completed Count,Time Spent (s),Drop Off Count,Drop Off Rate');
+        guideData.steps.forEach(step => {
+          csvRows.push(`${step.order},"${step.name.replace(/"/g, '""')}",${step.viewedCount},${step.completedCount},${step.timeSpent},${step.dropOffCount},${step.dropOffRate.toFixed(2)}%`);
+        });
+      }
+    } else if (type === 'features') {
+      const featureData = data as ComprehensiveFeatureData;
+      csvRows.push('FEATURE DETAILS');
+      csvRows.push('Field,Value');
+      csvRows.push(`Type,${featureData.type}`);
+      csvRows.push(`Event Type,${featureData.eventType}`);
+      csvRows.push(`Visitor Count,${featureData.visitorCount}`);
+      csvRows.push(`Account Count,${featureData.accountCount}`);
+      csvRows.push(`Usage Count,${featureData.usageCount}`);
+      csvRows.push(`Unique Users,${featureData.uniqueUsers}`);
+      csvRows.push(`Adoption Rate,${featureData.adoptionRate}%`);
+      csvRows.push(`Usage Frequency,${featureData.usageFrequency}x/day`);
+      csvRows.push(`Retention Rate,${featureData.retentionRate}%`);
+      csvRows.push(`Stickiness Index,${featureData.stickinessIndex}`);
+      csvRows.push(`Power User Percentage,${featureData.powerUserPercentage}%`);
+      csvRows.push(`Created At,${new Date(featureData.createdAt).toLocaleString()}`);
+      csvRows.push(`Updated At,${new Date(featureData.updatedAt).toLocaleString()}`);
+    } else if (type === 'pages') {
+      const pageData = data as ComprehensivePageData;
+      csvRows.push('PAGE DETAILS');
+      csvRows.push('Field,Value');
+      csvRows.push(`URL,${pageData.url}`);
+      csvRows.push(`Title,${pageData.title || 'N/A'}`);
+      csvRows.push(`Type,${pageData.type}`);
+      csvRows.push(`Viewed Count,${pageData.viewedCount}`);
+      csvRows.push(`Visitor Count,${pageData.visitorCount}`);
+      csvRows.push(`Unique Visitors,${pageData.uniqueVisitors}`);
+      csvRows.push(`Average Time on Page,${pageData.avgTimeOnPage} seconds`);
+      csvRows.push(`Load Time,${pageData.loadTime} ms`);
+      csvRows.push(`Interaction Latency,${pageData.interactionLatency} ms`);
+      csvRows.push(`Error Rate,${pageData.errorRate}%`);
+      csvRows.push(`Created At,${new Date(pageData.createdAt).toLocaleString()}`);
+      csvRows.push(`Updated At,${new Date(pageData.updatedAt).toLocaleString()}`);
+      csvRows.push(''); // Empty row
+
+      // Add event breakdown if available
+      if (pageData.eventBreakdown && pageData.eventBreakdown.length > 0) {
+        csvRows.push('EVENT BREAKDOWN');
+        csvRows.push('Visitor ID,Account ID,Date,Total Views,U-turns,Dead Clicks,Error Clicks,Rage Clicks,Server Name,Browser Name,Browser Version');
+        pageData.eventBreakdown.forEach(event => {
+          csvRows.push(`${event.visitorId},${event.accountId || ''},${event.date},${event.totalViews},${event.uTurns || 0},${event.deadClicks || 0},${event.errorClicks || 0},${event.rageClicks || 0},${event.serverName || ''},${event.browserName || ''},${event.browserVersion || ''}`);
+        });
+      }
+    } else if (type === 'reports') {
+      const reportData = data as ComprehensiveReportData;
+      csvRows.push('REPORT DETAILS');
+      csvRows.push('Field,Value');
+      csvRows.push(`Type,${reportData.type}`);
+      csvRows.push(`Kind,${reportData.kind}`);
+      csvRows.push(`Level,${reportData.level}`);
+      csvRows.push(`Total Views,${reportData.totalViews}`);
+      csvRows.push(`Unique Viewers,${reportData.uniqueViewers}`);
+      csvRows.push(`Shares,${reportData.shares}`);
+      csvRows.push(`Downloads,${reportData.downloads}`);
+      csvRows.push(`Average Rating,${reportData.averageRating}`);
+      csvRows.push(`Average Time Spent,${reportData.averageTimeSpent} seconds`);
+      csvRows.push(`Engagement Score,${reportData.engagementScore}`);
+      csvRows.push(`Return Visitor Rate,${reportData.returnVisitorRate}%`);
+      csvRows.push(`Created At,${new Date(reportData.createdAt).toLocaleString()}`);
+      csvRows.push(`Updated At,${new Date(reportData.updatedAt).toLocaleString()}`);
+    }
+
+    // Create CSV content
+    const csvContent = csvRows.join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${type}_${id}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportToPDF = () => {
+    // Use browser's print functionality which allows saving as PDF
+    window.print();
   };
 
   return (
     <Layout showNavigation={true}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header - Redesigned for better UX */}
         <div className="space-y-4">
           {/* Row 1: Navigation and Actions */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/tables')}
               className="text-gray-500 hover:text-gray-700"
             >
-              <ArrowLeftIcon className="h-4 w-4 mr-2" />
               Back to Tables
             </Button>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (currentReport?.refetch) {
-                    currentReport.refetch();
-                  }
-                }}
-                disabled={isLoading}
-                className="flex items-center gap-2"
-              >
-                <ArrowPathIcon className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh Data
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport('pdf')}>
-                <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-                Export PDF
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
-                <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-                Export CSV
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (currentReport?.refetch) {
+                  currentReport.refetch();
+                }
+              }}
+              disabled={isLoading}
+            >
+              Refresh Data
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport('pdf')}>
+              Export PDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
+              Export CSV
+            </Button>
           </div>
 
           {/* Row 2: Page Title - Full Width */}
@@ -1348,69 +1466,69 @@ export const ReportDetails: React.FC = () => {
                     <thead>
                       <tr className="border-b text-gray-600 bg-gray-50">
                         <th
-                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('visitorId')}
                         >
                           Visitor <SortIndicator column="visitorId" />
                         </th>
                         <th
-                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('accountId')}
                         >
                           Account <SortIndicator column="accountId" />
                         </th>
                         <th
-                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('date')}
                         >
                           Date <SortIndicator column="date" />
                         </th>
                         <th
-                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('totalViews')}
                         >
                           Total Views <SortIndicator column="totalViews" />
                         </th>
                         <th
-                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('uTurns')}
                         >
                           U-turns <SortIndicator column="uTurns" />
                         </th>
                         <th
-                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('deadClicks')}
                         >
                           Dead clicks <SortIndicator column="deadClicks" />
                         </th>
                         <th
-                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('errorClicks')}
                         >
                           Error clicks <SortIndicator column="errorClicks" />
                         </th>
                         <th
-                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-right py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('rageClicks')}
                         >
                           Rage clicks <SortIndicator column="rageClicks" />
                         </th>
-                        <th className="text-center py-2 px-2 font-medium">Recording</th>
-                        <th className="text-left py-2 px-2 font-medium">Page parameter</th>
+                        <th className="text-center py-2 px-2 font-medium whitespace-nowrap">Recording</th>
+                        <th className="text-left py-2 px-2 font-medium whitespace-nowrap">Page parameter</th>
                         <th
-                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('serverName')}
                         >
                           Server name <SortIndicator column="serverName" />
                         </th>
                         <th
-                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('browserName')}
                         >
                           Browser Name <SortIndicator column="browserName" />
                         </th>
                         <th
-                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none"
+                          className="text-left py-2 px-2 font-medium cursor-pointer hover:bg-gray-100 select-none whitespace-nowrap"
                           onClick={() => handleSort('browserVersion')}
                         >
                           Browser Version <SortIndicator column="browserVersion" />
@@ -1421,36 +1539,35 @@ export const ReportDetails: React.FC = () => {
                       {getPaginatedEvents().length > 0 ? (
                         getPaginatedEvents().map((event, index) => (
                           <tr key={`${event.visitorId}-${event.date}-${index}`} className="border-b border-gray-100 hover:bg-gray-50">
-                            <td className="py-2 px-2 text-blue-600 hover:underline cursor-pointer">
+                            <td className="py-2 px-2 text-blue-600 hover:underline cursor-pointer whitespace-nowrap">
                               {event.visitorId}
                             </td>
-                            <td className="py-2 px-2">{event.accountId || '--'}</td>
-                            <td className="py-2 px-2">{event.date}</td>
-                            <td className="text-right py-2 px-2">{event.totalViews.toLocaleString()}</td>
-                            <td className="text-right py-2 px-2">{event.uTurns?.toLocaleString() || 0}</td>
-                            <td className="text-right py-2 px-2">{event.deadClicks?.toLocaleString() || 0}</td>
-                            <td className="text-right py-2 px-2">{event.errorClicks?.toLocaleString() || 0}</td>
-                            <td className="text-right py-2 px-2">{event.rageClicks?.toLocaleString() || 0}</td>
-                            <td className="text-center py-2 px-2">
+                            <td className="py-2 px-2 whitespace-nowrap">{event.accountId || '--'}</td>
+                            <td className="py-2 px-2 whitespace-nowrap">{event.date}</td>
+                            <td className="text-right py-2 px-2 whitespace-nowrap">{event.totalViews.toLocaleString()}</td>
+                            <td className="text-right py-2 px-2 whitespace-nowrap">{event.uTurns?.toLocaleString() || 0}</td>
+                            <td className="text-right py-2 px-2 whitespace-nowrap">{event.deadClicks?.toLocaleString() || 0}</td>
+                            <td className="text-right py-2 px-2 whitespace-nowrap">{event.errorClicks?.toLocaleString() || 0}</td>
+                            <td className="text-right py-2 px-2 whitespace-nowrap">{event.rageClicks?.toLocaleString() || 0}</td>
+                            <td className="text-center py-2 px-2 whitespace-nowrap">
                               {event.recordingId ? (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => window.open(getPendoRecordingUrl(event.recordingId!), '_blank')}
+                                <a
+                                  href={getPendoRecordingUrl(event.recordingId!)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   title="Watch session replay in Pendo"
-                                  className="inline-flex items-center gap-1 text-xs whitespace-nowrap"
+                                  className="text-blue-600 hover:text-blue-800 hover:underline text-xs cursor-pointer"
                                 >
-                                  <PlayIcon className="h-3 w-3" />
                                   View Recording
-                                </Button>
+                                </a>
                               ) : (
                                 <span className="text-gray-400 text-xs">No recording</span>
                               )}
                             </td>
-                            <td className="py-2 px-2 text-gray-400">--</td>
-                            <td className="py-2 px-2">{event.serverName || '--'}</td>
-                            <td className="py-2 px-2">{event.browserName || '--'}</td>
-                            <td className="py-2 px-2">{event.browserVersion || '--'}</td>
+                            <td className="py-2 px-2 text-gray-400 whitespace-nowrap">--</td>
+                            <td className="py-2 px-2 whitespace-nowrap">{event.serverName || '--'}</td>
+                            <td className="py-2 px-2 whitespace-nowrap">{event.browserName || '--'}</td>
+                            <td className="py-2 px-2 whitespace-nowrap">{event.browserVersion || '--'}</td>
                           </tr>
                         ))
                       ) : (

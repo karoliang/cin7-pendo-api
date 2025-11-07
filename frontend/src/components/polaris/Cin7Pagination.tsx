@@ -87,16 +87,17 @@ export const Cin7Pagination: React.FC<Cin7PaginationProps> = ({
       <style>{`
         .cin7-pagination {
           display: flex;
-          flex-direction: column;
-          gap: 1rem;
+          flex-direction: row;
+          gap: 2rem;
           align-items: center;
+          justify-content: space-between;
           padding: 1rem 0;
         }
 
         .cin7-pagination-info {
           font-size: 0.875rem;
           color: #637381;
-          text-align: center;
+          white-space: nowrap;
         }
 
         .cin7-pagination-controls {
@@ -104,7 +105,8 @@ export const Cin7Pagination: React.FC<Cin7PaginationProps> = ({
           align-items: center;
           gap: 0.5rem;
           flex-wrap: wrap;
-          justify-content: center;
+          justify-content: flex-end;
+          flex: 1;
         }
 
         .cin7-pagination-button {

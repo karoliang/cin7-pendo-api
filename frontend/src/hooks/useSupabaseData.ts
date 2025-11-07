@@ -10,22 +10,20 @@ type PageRow = Database['public']['Tables']['pendo_pages']['Row'];
 // Hook for fetching guides from Supabase
 export const useSupabaseGuides = (daysBack: number = 7) => {
   return useQuery({
-    queryKey: ['supabase-guides', daysBack],
+    queryKey: ['supabase-guides'],
     queryFn: async () => {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - daysBack);
-
       const { data, error } = await supabase
         .from('pendo_guides')
         .select('*')
-        .gte('last_synced', startDate.toISOString())
-        .order('views', { ascending: false });
+        .order('views', { ascending: false })
+        .limit(10000);
 
       if (error) {
         console.error('Error fetching guides from Supabase:', error);
         throw error;
       }
 
+      console.log(`✅ Fetched ${data.length} guides from Supabase`);
       return data as GuideRow[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -38,22 +36,20 @@ export const useSupabaseGuides = (daysBack: number = 7) => {
 // Hook for fetching features from Supabase
 export const useSupabaseFeatures = (daysBack: number = 7) => {
   return useQuery({
-    queryKey: ['supabase-features', daysBack],
+    queryKey: ['supabase-features'],
     queryFn: async () => {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - daysBack);
-
       const { data, error } = await supabase
         .from('pendo_features')
         .select('*')
-        .gte('last_synced', startDate.toISOString())
-        .order('usage_count', { ascending: false });
+        .order('usage_count', { ascending: false })
+        .limit(10000);
 
       if (error) {
         console.error('Error fetching features from Supabase:', error);
         throw error;
       }
 
+      console.log(`✅ Fetched ${data.length} features from Supabase`);
       return data as FeatureRow[];
     },
     staleTime: 5 * 60 * 1000,
@@ -66,22 +62,20 @@ export const useSupabaseFeatures = (daysBack: number = 7) => {
 // Hook for fetching pages from Supabase
 export const useSupabasePages = (daysBack: number = 7) => {
   return useQuery({
-    queryKey: ['supabase-pages', daysBack],
+    queryKey: ['supabase-pages'],
     queryFn: async () => {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - daysBack);
-
       const { data, error } = await supabase
         .from('pendo_pages')
         .select('*')
-        .gte('last_synced', startDate.toISOString())
-        .order('views', { ascending: false });
+        .order('views', { ascending: false })
+        .limit(10000);
 
       if (error) {
         console.error('Error fetching pages from Supabase:', error);
         throw error;
       }
 
+      console.log(`✅ Fetched ${data.length} pages from Supabase`);
       return data as PageRow[];
     },
     staleTime: 5 * 60 * 1000,

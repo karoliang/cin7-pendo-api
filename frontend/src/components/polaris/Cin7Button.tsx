@@ -69,7 +69,7 @@ export const Cin7Button = React.forwardRef<HTMLButtonElement, Cin7ButtonProps>(
           size={polarisSize}
           tone={tone}
         >
-          {children}
+          {children as any}
         </PolarisButton>
       </span>
     );
@@ -96,7 +96,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         submit={type === 'submit'}
         className={className}
       >
-        {String(children)}
+        {children as any}
       </Cin7Button>
     );
   }

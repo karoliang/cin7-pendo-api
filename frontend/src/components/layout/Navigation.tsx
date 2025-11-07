@@ -10,7 +10,7 @@ export const Navigation: React.FC<NavigationProps> = ({ className }) => {
   const navigate = useNavigate();
 
   const isDashboard = location.pathname === '/' || location.pathname === '/dashboard';
-  const isDataTables = location.pathname === '/tables';
+  const isDataTables = location.pathname === '/tables' || location.pathname.startsWith('/report/');
 
   const handleDashboardClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();

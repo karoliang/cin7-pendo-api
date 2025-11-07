@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Cin7Card, Cin7CardHeader, Cin7CardTitle, Cin7CardContent, Cin7Badge, BlockStack, Text } from '@/components/polaris';
 import type { Guide, Feature, Page } from '@/types/pendo';
 
@@ -26,6 +27,8 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({
   pages,
   loading = false
 }) => {
+  const navigate = useNavigate();
+
   // Calculate top guides by completion rate
   const getTopGuides = (): RankedItem[] => {
     const guidesWithRate: RankedGuide[] = guides.map(guide => ({
@@ -84,7 +87,7 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({
   };
 
   // Render a ranked list
-  const renderRankedList = (items: RankedItem[], title: string, emptyMessage: string) => (
+  const renderRankedList = (items: RankedItem[], title: string, emptyMessage: string, type: 'guides' | 'features' | 'pages') => (
     <Cin7Card className="h-full">
       <Cin7CardHeader>
         <Cin7CardTitle className="text-lg font-semibold">
@@ -107,6 +110,7 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({
               return (
                 <div
                   key={item.id}
+                  onClick={() => navigate(`/report/${type}/${item.id}`)}
                   className="group flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-[var(--cin7-hept-blue,#0033A0)] hover:bg-[var(--cin7-hept-blue-lighter,#E6EBF5)] transition-all duration-200 cursor-pointer"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -148,17 +152,20 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({
       {renderRankedList(
         topGuides,
         'Top 5 Guides',
-        'No guides available'
+        'No guides available',
+        'guides'
       )}
       {renderRankedList(
         topFeatures,
         'Top 5 Features',
-        'No features available'
+        'No features available',
+        'features'
       )}
       {renderRankedList(
         topPages,
         'Top 5 Pages',
-        'No pages available'
+        'No pages available',
+        'pages'
       )}
     </div>
   );

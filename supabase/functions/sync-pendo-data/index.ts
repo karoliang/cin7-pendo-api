@@ -34,24 +34,51 @@ interface PendoPage {
   lastUpdatedAt: number;
 }
 
-// Fetch data from Pendo API
+// Fetch data from Pendo API with pagination
 async function fetchPendoData(endpoint: string, params: Record<string, any> = {}) {
-  const url = new URL(`${PENDO_BASE_URL}/${endpoint}`);
-  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+  let allResults: any[] = [];
+  let offset = 0;
+  const limit = 500; // Fetch 500 at a time
+  let hasMore = true;
 
-  const response = await fetch(url.toString(), {
-    method: 'GET',
-    headers: {
-      'X-Pendo-Integration-Key': PENDO_API_KEY || '',
-      'Content-Type': 'application/json',
-    },
-  });
+  while (hasMore) {
+    const url = new URL(`${PENDO_BASE_URL}/${endpoint}`);
+    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('offset', offset.toString());
+    Object.keys(params).forEach(key => {
+      if (key !== 'limit' && key !== 'offset') {
+        url.searchParams.append(key, params[key]);
+      }
+    });
 
-  if (!response.ok) {
-    throw new Error(`Pendo API error: ${response.statusText}`);
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'X-Pendo-Integration-Key': PENDO_API_KEY || '',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Pendo API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const results = data.results || data || [];
+
+    allResults = allResults.concat(results);
+
+    // Check if we got fewer results than the limit, which means we're done
+    if (results.length < limit) {
+      hasMore = false;
+    } else {
+      offset += limit;
+    }
+
+    console.log(`Fetched ${results.length} records (total: ${allResults.length})`);
   }
 
-  return await response.json();
+  return allResults;
 }
 
 // Fetch aggregation data from Pendo
@@ -78,11 +105,10 @@ async function fetchPendoAggregation(request: any) {
 async function syncGuides(daysBack: number = 7) {
   console.log('Fetching guides from Pendo...');
 
-  // Fetch guide metadata
-  const guidesData = await fetchPendoData('guide', { limit: 1000 });
-  const guides = guidesData.results || guidesData || [];
+  // Fetch guide metadata (fetchPendoData now handles pagination)
+  const guides = await fetchPendoData('guide');
 
-  console.log(`Fetched ${guides.length} guides`);
+  console.log(`Fetched ${guides.length} total guides`);
 
   // Fetch analytics for guides
   const startTime = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
@@ -157,10 +183,10 @@ async function syncGuides(daysBack: number = 7) {
 async function syncFeatures(daysBack: number = 7) {
   console.log('Fetching features from Pendo...');
 
-  const featuresData = await fetchPendoData('feature', { limit: 1000 });
-  const features = featuresData.results || featuresData || [];
+  // Fetch feature metadata (fetchPendoData now handles pagination)
+  const features = await fetchPendoData('feature');
 
-  console.log(`Fetched ${features.length} features`);
+  console.log(`Fetched ${features.length} total features`);
 
   // Fetch analytics for features
   const startTime = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
@@ -223,10 +249,10 @@ async function syncFeatures(daysBack: number = 7) {
 async function syncPages(daysBack: number = 7) {
   console.log('Fetching pages from Pendo...');
 
-  const pagesData = await fetchPendoData('page', { limit: 1000 });
-  const pages = pagesData.results || pagesData || [];
+  // Fetch page metadata (fetchPendoData now handles pagination)
+  const pages = await fetchPendoData('page');
 
-  console.log(`Fetched ${pages.length} pages`);
+  console.log(`Fetched ${pages.length} total pages`);
 
   // Fetch analytics for pages
   const startTime = Date.now() - (daysBack * 24 * 60 * 60 * 1000);

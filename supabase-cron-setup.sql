@@ -14,7 +14,7 @@ GRANT USAGE ON SCHEMA cron TO postgres;
 -- Remove any existing sync jobs (for clean setup)
 SELECT cron.unschedule(jobid)
 FROM cron.job
-WHERE jobname = 'sync-pendo-metadata-every-6-hours';
+WHERE jobname IN ('sync-pendo-metadata-every-6-hours', 'sync-pendo-incremental-every-6-hours');
 
 -- Create a function to call the Edge Function
 CREATE OR REPLACE FUNCTION call_pendo_sync_edge_function()
@@ -29,7 +29,7 @@ DECLARE
 BEGIN
   -- Call the Edge Function using pg_net
   SELECT net.http_post(
-    url := 'https://nrutlzclujyejusvbafm.supabase.co/functions/v1/sync-pendo-metadata',
+    url := 'https://nrutlzclujyejusvbafm.supabase.co/functions/v1/sync-pendo-incremental',
     headers := jsonb_build_object(
       'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydXRsemNsdWp5ZWp1c3ZiYWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTM4MTAsImV4cCI6MjA3Nzk4OTgxMH0.wailzK_IBHtUig3sdragy-WVcyZDxrQEQaCt76AD130',
       'Content-Type', 'application/json'
@@ -76,8 +76,8 @@ $$;
 -- - 12:00 (noon)
 -- - 18:00 (6 PM)
 SELECT cron.schedule(
-  'sync-pendo-metadata-every-6-hours',  -- Job name
-  '0 */6 * * *',                        -- Cron expression (every 6 hours)
+  'sync-pendo-incremental-every-6-hours',  -- Job name
+  '0 */6 * * *',                           -- Cron expression (every 6 hours)
   $$SELECT call_pendo_sync_edge_function();$$
 );
 
@@ -115,23 +115,25 @@ WHERE jobname LIKE '%pendo%';
 -- SELECT call_pendo_sync_edge_function();
 
 -- To disable the cron job:
--- SELECT cron.unschedule('sync-pendo-metadata-every-6-hours');
+-- SELECT cron.unschedule('sync-pendo-incremental-every-6-hours');
 
 -- To change the schedule (e.g., every 4 hours):
--- SELECT cron.unschedule('sync-pendo-metadata-every-6-hours');
--- SELECT cron.schedule('sync-pendo-metadata-every-6-hours', '0 */4 * * *', $$SELECT call_pendo_sync_edge_function();$$);
+-- SELECT cron.unschedule('sync-pendo-incremental-every-6-hours');
+-- SELECT cron.schedule('sync-pendo-incremental-every-6-hours', '0 */4 * * *', $$SELECT call_pendo_sync_edge_function();$$);
 
 -- To view all cron jobs:
 -- SELECT * FROM cron.job;
 
 -- Comments for documentation
-COMMENT ON FUNCTION call_pendo_sync_edge_function() IS 'Triggers the Pendo metadata sync Edge Function via HTTP POST. Called by pg_cron every 6 hours.';
+COMMENT ON FUNCTION call_pendo_sync_edge_function() IS 'Triggers the Pendo incremental sync Edge Function via HTTP POST. Called by pg_cron every 6 hours. Syncs up to 5,000 records per entity type to avoid timeout.';
 
 -- Success message
 DO $$
 BEGIN
   RAISE NOTICE '✅ Cron job setup complete!';
-  RAISE NOTICE '📅 Pendo metadata will sync every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)';
+  RAISE NOTICE '📅 Pendo incremental sync will run every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)';
+  RAISE NOTICE '⚡ Syncs up to 5,000 records per type (guides, features, pages) to avoid timeout';
   RAISE NOTICE '🔄 To manually trigger: SELECT call_pendo_sync_edge_function();';
   RAISE NOTICE '📊 Check sync results in the sync_status table';
+  RAISE NOTICE '💡 For full sync, run: node scripts/sync-all-pendo-data.mjs';
 END $$;

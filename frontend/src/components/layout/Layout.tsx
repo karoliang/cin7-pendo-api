@@ -40,6 +40,17 @@ export const Layout: React.FC<LayoutProps> = ({
     }
   };
 
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user?.email) return 'U';
+    const email = user.email;
+    const nameParts = email.split('@')[0].split('.');
+    if (nameParts.length >= 2) {
+      return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
+    }
+    return email.substring(0, 2).toUpperCase();
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--p-color-bg)' }}>
       {/* App Header - Brand Banner */}
@@ -51,8 +62,8 @@ export const Layout: React.FC<LayoutProps> = ({
         <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '1440px' }}>
           <div className="flex justify-between items-center h-14">
             <InlineStack gap="300" blockAlign="center">
-              <h1 className="text-xl font-semibold">
-                Pendo Analytics Dashboard
+              <h1 className="text-xl font-semibold text-white">
+                Cin7 Pendo Analytics Dashboard
               </h1>
             </InlineStack>
 
@@ -61,9 +72,19 @@ export const Layout: React.FC<LayoutProps> = ({
               <Popover
                 active={userMenuActive}
                 activator={
-                  <Button onClick={toggleUserMenu} disclosure variant="plain">
-                    {user.email || 'User'}
-                  </Button>
+                  <button
+                    onClick={toggleUserMenu}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    {/* Avatar */}
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-semibold">
+                      {getUserInitials()}
+                    </div>
+                    {/* Email */}
+                    <span className="text-white text-sm font-medium">
+                      {user.email || 'User'}
+                    </span>
+                  </button>
                 }
                 onClose={toggleUserMenu}
                 ariaHaspopup="menu"
@@ -119,7 +140,7 @@ export const Layout: React.FC<LayoutProps> = ({
         <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4" style={{ maxWidth: '1440px' }}>
           <div className="text-center">
             <Text as="p" variant="bodySm" tone="subdued">
-              Pendo Analytics Dashboard - Real-time insights and reporting
+              Cin7 Pendo Analytics Dashboard - Real-time insights and reporting
             </Text>
           </div>
         </div>
