@@ -320,8 +320,8 @@ export const ReportDetails: React.FC = () => {
           {/* Breadcrumb Navigation */}
           <BreadcrumbWithHome
             items={[
-              { label: 'Data Tables', href: '/data' },
-              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Loading...', href: '/data' },
+              { label: 'Data Tables', href: '/tables' },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Loading...', href: '/tables' },
               { label: 'Loading...' }
             ]}
             className="mb-6"
@@ -359,8 +359,8 @@ export const ReportDetails: React.FC = () => {
           {/* Breadcrumb Navigation */}
           <BreadcrumbWithHome
             items={[
-              { label: 'Data Tables', href: '/data' },
-              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Error', href: '/data' },
+              { label: 'Data Tables', href: '/tables' },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Error', href: '/tables' },
               { label: 'Error' }
             ]}
             className="mb-6"
@@ -410,8 +410,8 @@ export const ReportDetails: React.FC = () => {
           {/* Breadcrumb Navigation */}
           <BreadcrumbWithHome
             items={[
-              { label: 'Data Tables', href: '/data' },
-              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Data', href: '/data' },
+              { label: 'Data Tables', href: '/tables' },
+              { label: type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Data', href: '/tables' },
               { label: data.name }
             ]}
             className="mb-6"
@@ -761,8 +761,8 @@ export const ReportDetails: React.FC = () => {
         {/* Breadcrumb Navigation */}
         <BreadcrumbWithHome
           items={[
-            { label: 'Data Tables', href: '/data' },
-            { label: getTabLabel(), href: '/data' },
+            { label: 'Data Tables', href: '/tables' },
+            { label: getTabLabel(), href: '/tables' },
             { label: data.name }
           ]}
         />

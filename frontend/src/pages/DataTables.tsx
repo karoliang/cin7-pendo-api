@@ -703,7 +703,7 @@ export const DataTables: React.FC = () => {
         {/* Breadcrumb Navigation */}
         <BreadcrumbWithHome
           items={[
-            { label: 'Data Tables', href: '/data' },
+            { label: 'Data Tables', href: '/tables' },
             { label: currentTab.label }
           ]}
         />
