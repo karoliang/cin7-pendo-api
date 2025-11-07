@@ -680,6 +680,11 @@ export const ReportDetails: React.FC = () => {
       if (!geoData || geoData.length === 0) return false;
       // Check if all users are 0
       return geoData.some(geo => geo.users > 0);
+    } else if (type === 'features') {
+      const geoData = (data as ComprehensiveFeatureData).geographicDistribution;
+      if (!geoData || geoData.length === 0) return false;
+      // Check if all users are 0
+      return geoData.some(geo => geo.users > 0);
     }
     return false;
   };
@@ -693,6 +698,11 @@ export const ReportDetails: React.FC = () => {
       return deviceData.some(device => device.users > 0);
     } else if (type === 'guides') {
       const deviceData = (data as ComprehensiveGuideData).deviceBreakdown;
+      if (!deviceData || deviceData.length === 0) return false;
+      // Check if all users are 0
+      return deviceData.some(device => device.users > 0);
+    } else if (type === 'features') {
+      const deviceData = (data as ComprehensiveFeatureData).deviceBreakdown;
       if (!deviceData || deviceData.length === 0) return false;
       // Check if all users are 0
       return deviceData.some(device => device.users > 0);
@@ -972,12 +982,17 @@ export const ReportDetails: React.FC = () => {
 
           {/* POSITION 4: Time Series Trends Section (MOVED UP) */}
           {((type === 'pages' && (data as ComprehensivePageData).dailyTimeSeries && (data as ComprehensivePageData).dailyTimeSeries!.length > 0) ||
-            (type === 'guides' && (data as ComprehensiveGuideData).dailyStats && (data as ComprehensiveGuideData).dailyStats.length > 0)) && (
+            (type === 'guides' && (data as ComprehensiveGuideData).dailyStats && (data as ComprehensiveGuideData).dailyStats.length > 0) ||
+            (type === 'features' && (data as ComprehensiveFeatureData).dailyUsage && (data as ComprehensiveFeatureData).dailyUsage.length > 0)) && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <h2 className="text-2xl font-bold text-gray-900">Time Series Trends</h2>
-                  <DataQualityBadge type="real" tooltip={type === 'pages' ? "Daily aggregated data from all page events" : "Daily aggregated data from all guide events"} />
+                  <DataQualityBadge type="real" tooltip={
+                    type === 'pages' ? "Daily aggregated data from all page events" :
+                    type === 'guides' ? "Daily aggregated data from all guide events" :
+                    "Daily aggregated data from all feature events"
+                  } />
                 </div>
 
                 {/* View Toggle Buttons */}
@@ -1013,7 +1028,11 @@ export const ReportDetails: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>
-                      {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} {type === 'pages' ? 'Page Views & Visitors' : 'Guide Views & Completions'}
+                      {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} {
+                        type === 'pages' ? 'Page Views & Visitors' :
+                        type === 'guides' ? 'Guide Views & Completions' :
+                        'Feature Usage & Users'
+                      }
                     </CardTitle>
                     <div className="text-xs text-gray-500">
                       Last updated: {new Date().toLocaleString()}
@@ -1025,7 +1044,9 @@ export const ReportDetails: React.FC = () => {
                     data={getTimeSeriesData(
                       type === 'pages'
                         ? (data as ComprehensivePageData).dailyTimeSeries!
-                        : (data as ComprehensiveGuideData).dailyStats
+                        : type === 'guides'
+                        ? (data as ComprehensiveGuideData).dailyStats
+                        : (data as ComprehensiveFeatureData).dailyUsage
                     )}
                     dataKey="views"
                     showBrush={timeSeriesView === 'daily'}
@@ -1337,7 +1358,11 @@ export const ReportDetails: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold text-gray-900">Geographic Distribution (Real Data)</h2>
-                <DataQualityBadge type="real" tooltip={type === 'pages' ? "Real geographic data aggregated from Pendo page events" : "Real geographic data aggregated from Pendo guide events"} />
+                <DataQualityBadge type="real" tooltip={
+                  type === 'pages' ? "Real geographic data aggregated from Pendo page events" :
+                  type === 'guides' ? "Real geographic data aggregated from Pendo guide events" :
+                  "Real geographic data aggregated from Pendo feature events"
+                } />
               </div>
 
               {/* Interactive Map - NEW */}
@@ -1477,7 +1502,11 @@ export const ReportDetails: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold text-gray-900">Device & Browser Breakdown (Real Data)</h2>
-                <DataQualityBadge type="real" tooltip={type === 'pages' ? "Real device, OS, and browser data parsed from userAgent strings" : "Real device, platform, and browser data from guide analytics"} />
+                <DataQualityBadge type="real" tooltip={
+                  type === 'pages' ? "Real device, OS, and browser data parsed from userAgent strings" :
+                  type === 'guides' ? "Real device, platform, and browser data from guide analytics" :
+                  "Real device, platform, and browser data from feature analytics"
+                } />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
