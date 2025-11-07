@@ -6,6 +6,8 @@ import type { Database } from '@/lib/supabase';
 type GuideRow = Database['public']['Tables']['pendo_guides']['Row'];
 type FeatureRow = Database['public']['Tables']['pendo_features']['Row'];
 type PageRow = Database['public']['Tables']['pendo_pages']['Row'];
+type ReportRow = Database['public']['Tables']['pendo_reports']['Row'];
+type EventRow = Database['public']['Tables']['pendo_events']['Row'];
 
 // Hook for fetching guides from Supabase
 export const useSupabaseGuides = (daysBack: number = 7) => {
@@ -85,11 +87,69 @@ export const useSupabasePages = (daysBack: number = 7) => {
   });
 };
 
+// Hook for fetching reports from Supabase
+export const useSupabaseReports = () => {
+  return useQuery({
+    queryKey: ['supabase-reports'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pendo_reports')
+        .select('*')
+        .order('last_success_run_at', { ascending: false })
+        .limit(10000);
+
+      if (error) {
+        console.error('Error fetching reports from Supabase:', error);
+        throw error;
+      }
+
+      console.log(`✅ Fetched ${data.length} reports from Supabase`);
+      return data as ReportRow[];
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Hook for fetching events from Supabase
+export const useSupabaseEvents = (daysBack: number = 7) => {
+  return useQuery({
+    queryKey: ['supabase-events', daysBack],
+    queryFn: async () => {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - daysBack);
+
+      const { data, error } = await supabase
+        .from('pendo_events')
+        .select('*')
+        .gte('browser_time', startDate.toISOString())
+        .order('browser_time', { ascending: false })
+        .limit(10000);
+
+      if (error) {
+        console.error('Error fetching events from Supabase:', error);
+        throw error;
+      }
+
+      console.log(`✅ Fetched ${data.length} events from Supabase`);
+      return data as EventRow[];
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Hook for dashboard overview using Supabase
 export const useSupabaseDashboard = (daysBack: number = 7) => {
   const guidesQuery = useSupabaseGuides(daysBack);
   const featuresQuery = useSupabaseFeatures(daysBack);
   const pagesQuery = useSupabasePages(daysBack);
+  const reportsQuery = useSupabaseReports();
+  const eventsQuery = useSupabaseEvents(daysBack);
 
   // Transform Supabase data to match Pendo types
   const transformedGuides = (guidesQuery.data || []).map(guide => ({
@@ -119,17 +179,32 @@ export const useSupabaseDashboard = (daysBack: number = 7) => {
     visitorCount: page.unique_visitors,
   }));
 
+  const transformedReports = (reportsQuery.data || []).map(report => ({
+    ...report,
+    createdAt: report.created_at,
+    updatedAt: report.last_updated_at,
+    lastSuccessRunAt: report.last_success_run_at,
+  }));
+
+  const transformedEvents = (eventsQuery.data || []).map(event => ({
+    ...event,
+    createdAt: event.created_at,
+  }));
+
   return {
     guides: transformedGuides as any, // Type assertion for Pendo compatibility
     features: transformedFeatures as any, // Type assertion for Pendo compatibility
     pages: transformedPages as any, // Type assertion for Pendo compatibility
-    reports: [] as any, // Reports not synced yet
-    isLoading: guidesQuery.isLoading || featuresQuery.isLoading || pagesQuery.isLoading,
-    error: guidesQuery.error || featuresQuery.error || pagesQuery.error,
+    reports: transformedReports as any, // Type assertion for Pendo compatibility
+    events: transformedEvents as any, // Type assertion for Pendo compatibility
+    isLoading: guidesQuery.isLoading || featuresQuery.isLoading || pagesQuery.isLoading || reportsQuery.isLoading || eventsQuery.isLoading,
+    error: guidesQuery.error || featuresQuery.error || pagesQuery.error || reportsQuery.error || eventsQuery.error,
     refetch: () => {
       guidesQuery.refetch();
       featuresQuery.refetch();
       pagesQuery.refetch();
+      reportsQuery.refetch();
+      eventsQuery.refetch();
     },
   };
 };

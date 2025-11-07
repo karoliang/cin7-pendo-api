@@ -52,6 +52,23 @@ export interface Report {
   updatedAt: string;
 }
 
+export interface Event {
+  id: string;
+  event_type: string;
+  entity_id?: string | null;
+  entity_type?: 'guide' | 'feature' | 'page' | null;
+  visitor_id?: string | null;
+  account_id?: string | null;
+  browser_time: string;
+  remote_ip?: string | null;
+  user_agent?: string | null;
+  country?: string | null;
+  region?: string | null;
+  city?: string | null;
+  metadata?: Record<string, any>;
+  created_at: string;
+}
+
 export interface DateRange {
   start?: Date;
   end?: Date;

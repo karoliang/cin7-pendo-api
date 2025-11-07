@@ -152,6 +152,153 @@ async function syncPagesIncremental() {
   return pagesFormatted.length;
 }
 
+// Sync reports (limited)
+async function syncReportsIncremental() {
+  console.log('📊 Syncing Reports (incremental)...');
+  const reports = await fetchPendoDataLimited('report');
+
+  const reportsFormatted = reports.map((report: any) => ({
+    id: report.id,
+    name: report.name || 'Unnamed Report',
+    description: report.description || null,
+    last_success_run_at: report.lastSuccessRunAt ? new Date(report.lastSuccessRunAt).toISOString() : null,
+    configuration: report.configuration || {},
+    created_at: report.createdAt ? new Date(report.createdAt).toISOString() : new Date().toISOString(),
+    last_updated_at: report.updatedAt ? new Date(report.updatedAt).toISOString() : new Date().toISOString(),
+    last_synced: new Date().toISOString(),
+  }));
+
+  const { error } = await supabase
+    .from('pendo_reports')
+    .upsert(reportsFormatted, { onConflict: 'id' });
+
+  if (error) {
+    console.error('❌ Error upserting reports:', error);
+    throw error;
+  }
+
+  console.log(`✅ Synced ${reportsFormatted.length} reports\n`);
+  return reportsFormatted.length;
+}
+
+// Fetch events using aggregation API with pipeline
+async function fetchPendoEvents(eventSource: string, daysBack: number = 7, maxResults: number = 2000): Promise<any[]> {
+  const startTimestamp = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
+
+  const pipeline = {
+    response: {
+      mimeType: 'application/json'
+    },
+    request: {
+      requestId: `${eventSource}-sync`,
+      pipeline: [
+        {
+          source: {
+            [eventSource]: null,
+            timeSeries: {
+              period: 'dayRange',
+              first: startTimestamp.toString(),
+              count: -daysBack
+            }
+          }
+        },
+        {
+          limit: maxResults
+        }
+      ]
+    }
+  };
+
+  console.log(`  📥 Fetching ${eventSource} (max ${maxResults})...`);
+
+  try {
+    const response = await fetch(`${PENDO_BASE_URL}/aggregation`, {
+      method: 'POST',
+      headers: {
+        'X-Pendo-Integration-Key': PENDO_API_KEY || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(pipeline)
+    });
+
+    if (!response.ok) {
+      console.log(`  ⚠️  ${eventSource} API returned ${response.status}`);
+      return [];
+    }
+
+    const data = await response.json();
+    const results = data.results || [];
+    console.log(`  ✓ Fetched ${results.length} ${eventSource}`);
+    return results;
+  } catch (error: any) {
+    console.error(`  ❌ Error fetching ${eventSource}:`, error.message);
+    return [];
+  }
+}
+
+// Sync events (last 7 days only for incremental)
+async function syncEventsIncremental() {
+  console.log('📊 Syncing Events (incremental, last 7 days, 2k per source)...');
+
+  const formatEvent = (event: any, eventType: string) => ({
+    id: event.id || `${event.visitorId || 'unknown'}_${event.browserTime || Date.now()}_${eventType}`,
+    event_type: eventType,
+    entity_id: event.guideId || event.featureId || event.pageId || null,
+    entity_type: event.guideId ? 'guide' : event.featureId ? 'feature' : event.pageId ? 'page' : null,
+    visitor_id: event.visitorId || null,
+    account_id: event.accountId || null,
+    browser_time: event.browserTime ? new Date(event.browserTime).toISOString() : new Date().toISOString(),
+    remote_ip: event.remoteIp || null,
+    user_agent: event.userAgent || null,
+    country: event.location?.country || event.country || null,
+    region: event.location?.region || event.region || null,
+    city: event.location?.city || event.city || null,
+    metadata: {
+      url: event.url,
+      ...(event.parameters || {}),
+    },
+    created_at: new Date().toISOString(),
+  });
+
+  let allEvents: any[] = [];
+  const seenIds = new Set<string>();
+
+  // Fetch all event types (2000 per source to avoid Edge Function timeout)
+  const eventSources = ['guideEvents', 'pageEvents', 'featureEvents'];
+
+  for (const source of eventSources) {
+    const events = await fetchPendoEvents(source, 7, 2000);
+
+    // Format and deduplicate
+    events.forEach(event => {
+      const formatted = formatEvent(event, source);
+      if (!seenIds.has(formatted.id)) {
+        seenIds.add(formatted.id);
+        allEvents.push(formatted);
+      }
+    });
+
+    console.log(`  📦 Total unique events: ${allEvents.length}`);
+  }
+
+  if (allEvents.length === 0) {
+    console.log('ℹ️  No events to sync\n');
+    return 0;
+  }
+
+  const { error } = await supabase
+    .from('pendo_events')
+    .upsert(allEvents, { onConflict: 'id' });
+
+  if (error) {
+    console.error('❌ Error upserting events:', error);
+    throw error;
+  }
+
+  console.log(`✅ Synced ${allEvents.length} events\n`);
+  return allEvents.length;
+}
+
 // Update sync status
 async function updateSyncStatus(entityType: string, status: string, recordsProcessed: number, errorMessage?: string) {
   await supabase.from('sync_status').insert({
@@ -203,6 +350,28 @@ serve(async (req) => {
       console.error('❌ Error syncing pages:', error);
       await updateSyncStatus('pages', 'failed', 0, error.message);
       results.pages = 0;
+    }
+
+    // Sync reports
+    try {
+      const reportsCount = await syncReportsIncremental();
+      results.reports = reportsCount;
+      await updateSyncStatus('reports', 'completed', reportsCount);
+    } catch (error: any) {
+      console.error('❌ Error syncing reports:', error);
+      await updateSyncStatus('reports', 'failed', 0, error.message);
+      results.reports = 0;
+    }
+
+    // Sync events
+    try {
+      const eventsCount = await syncEventsIncremental();
+      results.events = eventsCount;
+      await updateSyncStatus('events', 'completed', eventsCount);
+    } catch (error: any) {
+      console.error('❌ Error syncing events:', error);
+      await updateSyncStatus('events', 'failed', 0, error.message);
+      results.events = 0;
     }
 
     console.log('✅ Incremental sync completed:', results);

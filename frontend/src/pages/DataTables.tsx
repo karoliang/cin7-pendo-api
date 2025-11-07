@@ -8,17 +8,18 @@ import { FilterPanel } from '@/components/filters/FilterPanel';
 // import { useDashboardOverview } from '@/hooks/usePendoData'; // Using Pendo API (causes browser crash with 368k+ events)
 import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // Using Supabase synced data (300 records)
 import { useFilterStore } from '@/stores/filterStore';
-import type { Guide, Feature, Page, Report } from '@/types/pendo';
+import type { Guide, Feature, Page, Report, Event } from '@/types/pendo';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
 import {
   DocumentTextIcon,
   CubeIcon,
   GlobeAltIcon,
   ChartBarIcon,
+  BoltIcon,
 } from '@heroicons/react/24/outline';
 import { usePageTitle, PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/hooks/usePageTitle';
 
-type TabType = 'guides' | 'features' | 'pages' | 'reports';
+type TabType = 'guides' | 'features' | 'pages' | 'reports' | 'events';
 
 interface TableState {
   guides: {
@@ -57,6 +58,15 @@ interface TableState {
       hasNext: boolean;
     };
   };
+  events: {
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      hasPrevious: boolean;
+      hasNext: boolean;
+    };
+  };
 }
 
 export const DataTables: React.FC = () => {
@@ -66,7 +76,7 @@ export const DataTables: React.FC = () => {
   });
 
   const navigate = useNavigate();
-  const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
+  const { guides, features, pages, reports, events, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters } = useFilterStore();
 
   // Debug logging
@@ -76,16 +86,18 @@ export const DataTables: React.FC = () => {
     console.log('  Features:', features.length);
     console.log('  Pages:', pages.length);
     console.log('  Reports:', reports.length);
-  }, [guides.length, features.length, pages.length, reports.length]);
+    console.log('  Events:', events.length);
+  }, [guides.length, features.length, pages.length, reports.length, events.length]);
 
   const [activeTab, setActiveTab] = useState<TabType>('pages');
-  const [selectedItem, setSelectedItem] = useState<Guide | Feature | Page | Report | null>(null);
-  const [detailModalType, setDetailModalType] = useState<'guide' | 'feature' | 'page' | 'report' | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Guide | Feature | Page | Report | Event | null>(null);
+  const [detailModalType, setDetailModalType] = useState<'guide' | 'feature' | 'page' | 'report' | 'event' | null>(null);
   const [tableState, setTableState] = useState<TableState>({
     guides: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } },
     features: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } },
     pages: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } },
-    reports: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } }
+    reports: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } },
+    events: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } }
   });
 
   // Apply filters to data (same logic as Dashboard)
@@ -145,9 +157,10 @@ export const DataTables: React.FC = () => {
       guides: filterArray(guides || [], createFilterFn),
       features: filterArray(features || [], createFilterFn),
       pages: filterArray(pages || [], createFilterFn),
-      reports: filterArray(reports || [], createFilterFn)
+      reports: filterArray(reports || [], createFilterFn),
+      events: filterArray(events || [], createFilterFn)
     };
-  }, [guides, features, pages, reports, filters]);
+  }, [guides, features, pages, reports, events, filters]);
 
   // Sort data by most recent (default sorting)
   const sortedData = React.useMemo(() => {
@@ -175,6 +188,12 @@ export const DataTables: React.FC = () => {
         const dateA = new Date(a.createdAt).getTime();
         const dateB = new Date(b.createdAt).getTime();
         return dateB - dateA; // Descending order (newest first)
+      }),
+      // Events: Sort by browser_time (most recent first)
+      events: [...filteredData.events].sort((a, b) => {
+        const dateA = new Date(a.browser_time).getTime();
+        const dateB = new Date(b.browser_time).getTime();
+        return dateB - dateA; // Descending order (newest first)
       })
     };
   }, [filteredData]);
@@ -185,15 +204,17 @@ export const DataTables: React.FC = () => {
     const featuresTotal = sortedData.features.length;
     const pagesTotal = sortedData.pages.length;
     const reportsTotal = sortedData.reports.length;
+    const eventsTotal = sortedData.events.length;
 
     setTableState(prev => {
       const newGuidesTotal = prev.guides.pagination.total !== guidesTotal;
       const newFeaturesTotal = prev.features.pagination.total !== featuresTotal;
       const newPagesTotal = prev.pages.pagination.total !== pagesTotal;
       const newReportsTotal = prev.reports.pagination.total !== reportsTotal;
+      const newEventsTotal = prev.events.pagination.total !== eventsTotal;
 
       // Only update if totals actually changed
-      if (!newGuidesTotal && !newFeaturesTotal && !newPagesTotal && !newReportsTotal) {
+      if (!newGuidesTotal && !newFeaturesTotal && !newPagesTotal && !newReportsTotal && !newEventsTotal) {
         return prev;
       }
 
@@ -234,10 +255,19 @@ export const DataTables: React.FC = () => {
             hasPrevious: prev.reports.pagination.page > 1,
             hasNext: prev.reports.pagination.page * prev.reports.pagination.limit < reportsTotal
           }
+        },
+        events: {
+          ...prev.events,
+          pagination: {
+            ...prev.events.pagination,
+            total: eventsTotal,
+            hasPrevious: prev.events.pagination.page > 1,
+            hasNext: prev.events.pagination.page * prev.events.pagination.limit < eventsTotal
+          }
         }
       };
     });
-  }, [sortedData.guides.length, sortedData.features.length, sortedData.pages.length, sortedData.reports.length]);
+  }, [sortedData.guides.length, sortedData.features.length, sortedData.pages.length, sortedData.reports.length, sortedData.events.length]);
 
   // Calculate summary metrics for each tab
   const summaryMetrics = React.useMemo(() => {
@@ -361,12 +391,20 @@ export const DataTables: React.FC = () => {
       count: filteredData.reports.length,
       data: sortedData.reports,
       pagination: tableState.reports.pagination
+    },
+    {
+      id: 'events' as TabType,
+      label: 'Events',
+      icon: BoltIcon,
+      count: filteredData.events.length,
+      data: sortedData.events,
+      pagination: tableState.events.pagination
     }
   ];
 
   const currentTab = tabs.find(tab => tab.id === activeTab)!;
 
-  type TableItem = Guide | Feature | Page | Report;
+  type TableItem = Guide | Feature | Page | Report | Event;
 
   const getColumns = (): Array<{
     key: string;
@@ -489,17 +527,53 @@ export const DataTables: React.FC = () => {
             new Date(value as string).toLocaleDateString()
           )},
         ];
+      case 'events':
+        return [
+          { key: 'event_type', header: 'Event Type', sortable: true, render: (value: unknown) => (
+            <span className="font-medium text-blue-600">{value as string}</span>
+          )},
+          { key: 'entity_type', header: 'Entity', sortable: true, render: (value: unknown) => {
+            const type = value as string | null;
+            return type ? (
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                type === 'guide' ? 'bg-purple-100 text-purple-800' :
+                type === 'feature' ? 'bg-blue-100 text-blue-800' :
+                type === 'page' ? 'bg-green-100 text-green-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {type}
+              </span>
+            ) : <span className="text-gray-400">—</span>;
+          }},
+          { key: 'visitor_id', header: 'Visitor ID', sortable: false, render: (value: unknown) => (
+            value ? <span className="font-mono text-xs text-gray-600">{(value as string).substring(0, 8)}...</span> : <span className="text-gray-400">—</span>
+          )},
+          { key: 'country', header: 'Location', sortable: true, render: (value: unknown, item: TableItem) => {
+            const event = item as Event;
+            const location = [event.city, event.region, event.country].filter(Boolean).join(', ');
+            return location || <span className="text-gray-400">—</span>;
+          }},
+          { key: 'browser_time', header: 'Time', sortable: true, render: (value: unknown) => {
+            const date = new Date(value as string);
+            return (
+              <div>
+                <div className="text-sm">{date.toLocaleDateString()}</div>
+                <div className="text-xs text-gray-500">{date.toLocaleTimeString()}</div>
+              </div>
+            );
+          }},
+        ];
       default:
         return [];
     }
   };
 
-  const handleRowClick = (item: Guide | Feature | Page | Report) => {
+  const handleRowClick = (item: Guide | Feature | Page | Report | Event) => {
     // Navigate to detailed report page instead of showing modal
     console.log('Navigating to:', `/report/${activeTab}/${item.id}`, {
       activeTab,
       itemId: item.id,
-      itemName: 'name' in item ? item.name : 'Unknown'
+      itemName: 'name' in item ? item.name : 'event_type' in item ? item.event_type : 'Unknown'
     });
     navigate(`/report/${activeTab}/${item.id}`);
   };

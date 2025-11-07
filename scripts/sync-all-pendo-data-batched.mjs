@@ -198,6 +198,165 @@ async function syncPages() {
   return await fetchAndUpsertPendoDataBatched('page', 'pendo_pages', formatPage);
 }
 
+// Sync reports with batching
+async function syncReports() {
+  console.log('📊 Syncing Reports (batched)...');
+
+  const formatReport = (report) => ({
+    id: report.id,
+    name: report.name || 'Unnamed Report',
+    description: report.description || null,
+    last_success_run_at: report.lastSuccessRunAt ? new Date(report.lastSuccessRunAt).toISOString() : null,
+    configuration: report.configuration || {},
+    created_at: report.createdAt ? new Date(report.createdAt).toISOString() : new Date().toISOString(),
+    last_updated_at: report.updatedAt ? new Date(report.updatedAt).toISOString() : new Date().toISOString(),
+    last_synced: new Date().toISOString(),
+  });
+
+  return await fetchAndUpsertPendoDataBatched('report', 'pendo_reports', formatReport);
+}
+
+// Fetch events using aggregation API with pipeline
+async function fetchPendoEvents(eventSource, daysBack = 7, maxResults = 5000) {
+  const startTimestamp = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
+
+  const pipeline = {
+    response: {
+      mimeType: 'application/json'
+    },
+    request: {
+      requestId: `${eventSource}-sync`,
+      pipeline: [
+        {
+          source: {
+            [eventSource]: null,
+            timeSeries: {
+              period: 'dayRange',
+              first: startTimestamp.toString(),
+              count: -daysBack
+            }
+          }
+        },
+        {
+          limit: maxResults
+        }
+      ]
+    }
+  };
+
+  console.log(`  📥 Fetching ${eventSource} (max ${maxResults})...`);
+
+  try {
+    const response = await fetch(`${PENDO_BASE_URL}/aggregation`, {
+      method: 'POST',
+      headers: {
+        'X-Pendo-Integration-Key': PENDO_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(pipeline)
+    });
+
+    if (!response.ok) {
+      console.log(`  ⚠️  ${eventSource} API returned ${response.status}`);
+      return [];
+    }
+
+    const data = await response.json();
+    const results = data.results || [];
+    console.log(`  ✓ Fetched ${results.length} ${eventSource}`);
+    return results;
+  } catch (error) {
+    console.error(`  ❌ Error fetching ${eventSource}:`, error.message);
+    return [];
+  }
+}
+
+// Sync events with batching (last 7 days only to avoid massive data)
+async function syncEvents() {
+  console.log('📊 Syncing Events (batched, last 7 days, 5k per source)...');
+
+  const formatEvent = (event, eventType) => ({
+    id: event.id || `${event.visitorId || 'unknown'}_${event.browserTime || Date.now()}_${eventType}`,
+    event_type: eventType,
+    entity_id: event.guideId || event.featureId || event.pageId || null,
+    entity_type: event.guideId ? 'guide' : event.featureId ? 'feature' : event.pageId ? 'page' : null,
+    visitor_id: event.visitorId || null,
+    account_id: event.accountId || null,
+    browser_time: event.browserTime ? new Date(event.browserTime).toISOString() : new Date().toISOString(),
+    remote_ip: event.remoteIp || null,
+    user_agent: event.userAgent || null,
+    country: event.location?.country || event.country || null,
+    region: event.location?.region || event.region || null,
+    city: event.location?.city || event.city || null,
+    metadata: {
+      url: event.url,
+      ...(event.parameters || {}),
+    },
+    created_at: new Date().toISOString(),
+  });
+
+  let totalSynced = 0;
+  let batch = [];
+  const seenIds = new Set();
+
+  // Fetch all event types (limited to 5000 per source to avoid memory issues)
+  const eventSources = ['guideEvents', 'pageEvents', 'featureEvents'];
+
+  for (const source of eventSources) {
+    const events = await fetchPendoEvents(source, 7, 5000);
+
+    // Format events with source type
+    const formatted = events.map(event => formatEvent(event, source));
+
+    // Add to batch if not duplicate
+    formatted.forEach(event => {
+      if (!seenIds.has(event.id)) {
+        seenIds.add(event.id);
+        batch.push(event);
+      }
+    });
+
+    console.log(`  📦 Batch size: ${batch.length} (${seenIds.size} unique)`);
+
+    // Upsert when batch reaches threshold
+    if (batch.length >= BATCH_SIZE) {
+      console.log(`  📤 Upserting batch of ${batch.length} unique events to Supabase...`);
+
+      const { error } = await supabase
+        .from('pendo_events')
+        .upsert(batch, { onConflict: 'id' });
+
+      if (error) {
+        console.error(`  ❌ Error upserting events:`, error);
+        throw error;
+      }
+
+      totalSynced += batch.length;
+      console.log(`  ✅ Synced ${totalSynced} events so far\n`);
+      batch = [];
+    }
+  }
+
+  // Upsert remaining events
+  if (batch.length > 0) {
+    console.log(`  📤 Upserting final batch of ${batch.length} unique events to Supabase...`);
+
+    const { error } = await supabase
+      .from('pendo_events')
+      .upsert(batch, { onConflict: 'id' });
+
+    if (error) {
+      console.error(`  ❌ Error upserting events:`, error);
+      throw error;
+    }
+
+    totalSynced += batch.length;
+  }
+
+  console.log(`✅ Total events synced: ${totalSynced}\n`);
+  return totalSynced;
+}
+
 // Main execution
 async function main() {
   try {
@@ -206,6 +365,8 @@ async function main() {
     const guidesCount = await syncGuides();
     const featuresCount = await syncFeatures();
     const pagesCount = await syncPages();
+    const reportsCount = await syncReports();
+    const eventsCount = await syncEvents();
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
@@ -215,6 +376,8 @@ async function main() {
     console.log(`  Guides:   ${guidesCount}`);
     console.log(`  Features: ${featuresCount}`);
     console.log(`  Pages:    ${pagesCount}`);
+    console.log(`  Reports:  ${reportsCount}`);
+    console.log(`  Events:   ${eventsCount} (last 7 days, max 5k/source)`);
     console.log(`  Duration: ${duration}s`);
     console.log('═══════════════════════════════════════\n');
   } catch (error) {
