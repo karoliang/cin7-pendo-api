@@ -862,13 +862,99 @@ export const ReportDetails: React.FC = () => {
             {/* Performance Overview */}
           </div>
 
+          {/* POSITION 3.5: Audience Targeting Section (for guides type) */}
+          {type === 'guides' && (data as ComprehensiveGuideData).audience && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Audience Targeting</h2>
+                <DataQualityBadge type="real" tooltip="Target audience configuration from guide metadata" />
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <UsersIcon className="h-5 w-5 mr-2 text-blue-600" />
+                    Who Sees This Guide
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {typeof (data as ComprehensiveGuideData).audience === 'object' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono">
+                          {JSON.stringify((data as ComprehensiveGuideData).audience, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                    <div className="text-sm text-gray-600">
+                      <p className="font-medium mb-2">Targeting Configuration:</p>
+                      <p>This guide is configured to appear for specific user segments based on the rules defined above.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* POSITION 3.6: Launch Configuration Section (for guides type) */}
+          {type === 'guides' && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Launch Configuration</h2>
+                <DataQualityBadge type="real" tooltip="Guide launch settings from metadata" />
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <PlayIcon className="h-5 w-5 mr-2 text-purple-600" />
+                    How This Guide is Triggered
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="border rounded-lg p-4 bg-purple-50">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Launch Method</h4>
+                      <p className="text-lg font-semibold text-purple-900 capitalize">
+                        {(data as ComprehensiveGuideData).launchMethod || 'auto'}
+                      </p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-blue-50">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Multi-Step Guide</h4>
+                      <p className="text-lg font-semibold text-blue-900">
+                        {(data as ComprehensiveGuideData).isMultiStep ? 'Yes' : 'No'}
+                        {(data as ComprehensiveGuideData).isMultiStep && ` (${(data as ComprehensiveGuideData).stepCount} steps)`}
+                      </p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-green-50">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Auto-Advance</h4>
+                      <p className="text-lg font-semibold text-green-900">
+                        {(data as ComprehensiveGuideData).autoAdvance ? 'Enabled' : 'Disabled'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 text-sm text-gray-600 space-y-2">
+                    <p><strong>Launch Method:</strong> {
+                      (data as ComprehensiveGuideData).launchMethod === 'auto' ? 'Automatically triggers when conditions are met' :
+                      (data as ComprehensiveGuideData).launchMethod === 'manual' ? 'Triggered manually by users' :
+                      (data as ComprehensiveGuideData).launchMethod === 'badge' ? 'Triggered via badge click' :
+                      'Custom trigger configuration'
+                    }</p>
+                    {(data as ComprehensiveGuideData).autoAdvance && (
+                      <p><strong>Auto-Advance:</strong> Steps automatically progress without user interaction</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* POSITION 4: Time Series Trends Section (MOVED UP) */}
-          {type === 'pages' && (data as ComprehensivePageData).dailyTimeSeries && (data as ComprehensivePageData).dailyTimeSeries!.length > 0 && (
+          {((type === 'pages' && (data as ComprehensivePageData).dailyTimeSeries && (data as ComprehensivePageData).dailyTimeSeries!.length > 0) ||
+            (type === 'guides' && (data as ComprehensiveGuideData).dailyStats && (data as ComprehensiveGuideData).dailyStats.length > 0)) && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <h2 className="text-2xl font-bold text-gray-900">Time Series Trends</h2>
-                  <DataQualityBadge type="real" tooltip="Daily aggregated data from all page events" />
+                  <DataQualityBadge type="real" tooltip={type === 'pages' ? "Daily aggregated data from all page events" : "Daily aggregated data from all guide events"} />
                 </div>
 
                 {/* View Toggle Buttons */}
@@ -904,7 +990,7 @@ export const ReportDetails: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>
-                      {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Page Views & Visitors
+                      {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} {type === 'pages' ? 'Page Views & Visitors' : 'Guide Views & Completions'}
                     </CardTitle>
                     <div className="text-xs text-gray-500">
                       Last updated: {new Date().toLocaleString()}
@@ -913,7 +999,11 @@ export const ReportDetails: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <ReportLineChart
-                    data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
+                    data={getTimeSeriesData(
+                      type === 'pages'
+                        ? (data as ComprehensivePageData).dailyTimeSeries!
+                        : (data as ComprehensiveGuideData).dailyStats
+                    )}
                     dataKey="views"
                     showBrush={timeSeriesView === 'daily'}
                     showAverage={true}
@@ -922,32 +1012,34 @@ export const ReportDetails: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>
-                      {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Frustration Events
-                    </CardTitle>
-                    <div className="text-xs text-gray-500">
-                      Last updated: {new Date().toLocaleString()}
+              {type === 'pages' && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>
+                        {timeSeriesView === 'daily' ? 'Daily' : timeSeriesView === 'weekly' ? 'Weekly' : 'Monthly'} Frustration Events
+                      </CardTitle>
+                      <div className="text-xs text-gray-500">
+                        Last updated: {new Date().toLocaleString()}
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ReportLineChart
-                    data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
-                    dataKey="frustrationCount"
-                    showBrush={timeSeriesView === 'daily'}
-                    showAverage={true}
-                    height={350}
-                    colors={{
-                      primary: '#EF4444',
-                      secondary: '#F59E0B',
-                      tertiary: '#10B981'
-                    }}
-                  />
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent>
+                    <ReportLineChart
+                      data={getTimeSeriesData((data as ComprehensivePageData).dailyTimeSeries!)}
+                      dataKey="frustrationCount"
+                      showBrush={timeSeriesView === 'daily'}
+                      showAverage={true}
+                      height={350}
+                      colors={{
+                        primary: '#EF4444',
+                        secondary: '#F59E0B',
+                        tertiary: '#10B981'
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
@@ -1218,11 +1310,12 @@ export const ReportDetails: React.FC = () => {
           )}
 
           {/* POSITION 7: Geographic Distribution Section (MOVED UP) */}
-          {type === 'pages' && (data as ComprehensivePageData).geographicDistribution && (data as ComprehensivePageData).geographicDistribution!.length > 0 && (
+          {((type === 'pages' && (data as ComprehensivePageData).geographicDistribution && (data as ComprehensivePageData).geographicDistribution!.length > 0) ||
+            (type === 'guides' && (data as ComprehensiveGuideData).geographicDistribution && (data as ComprehensiveGuideData).geographicDistribution.length > 0)) && (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold text-gray-900">Geographic Distribution (Real Data)</h2>
-                <DataQualityBadge type="real" tooltip="Real geographic data aggregated from Pendo page events" />
+                <DataQualityBadge type="real" tooltip={type === 'pages' ? "Real geographic data aggregated from Pendo page events" : "Real geographic data aggregated from Pendo guide events"} />
               </div>
 
               {/* Interactive Map - NEW */}
@@ -1236,34 +1329,42 @@ export const ReportDetails: React.FC = () => {
                 <CardContent>
                   <GeographicMap
                     data={(() => {
-                      const eventBreakdown = (data as ComprehensivePageData).eventBreakdown || [];
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      const geoMap = eventBreakdown
-                        .filter(e => e.latitude !== undefined && e.longitude !== undefined && e.region && e.country)
-                        .reduce((acc, event) => {
-                          const key = `${event.region}-${event.country}`;
-                          if (!acc[key]) {
-                            acc[key] = {
-                              lat: event.latitude!,
-                              lon: event.longitude!,
-                              visitors: 0,
-                              views: 0,
-                              name: `${event.region}, ${event.country}`,
-                              region: event.region!,
-                              country: event.country!,
-                              avgTimeOnPage: 0,
-                              _totalTime: 0,
-                              _count: 0
-                            };
-                          }
-                          acc[key].visitors++;
-                          acc[key].views += event.totalViews || 0;
-                          acc[key]._totalTime += (event.numMinutes || 0) * 60; // Convert to seconds
-                          acc[key]._count++;
-                          acc[key].avgTimeOnPage = acc[key]._totalTime / acc[key]._count;
-                          return acc;
-                        }, {} as Record<string, any>);
-                      return Object.values(geoMap) as GeographicMapData[];
+                      if (type === 'pages') {
+                        const eventBreakdown = (data as ComprehensivePageData).eventBreakdown || [];
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const geoMap = eventBreakdown
+                          .filter(e => e.latitude !== undefined && e.longitude !== undefined && e.region && e.country)
+                          .reduce((acc, event) => {
+                            const key = `${event.region}-${event.country}`;
+                            if (!acc[key]) {
+                              acc[key] = {
+                                lat: event.latitude!,
+                                lon: event.longitude!,
+                                visitors: 0,
+                                views: 0,
+                                name: `${event.region}, ${event.country}`,
+                                region: event.region!,
+                                country: event.country!,
+                                avgTimeOnPage: 0,
+                                _totalTime: 0,
+                                _count: 0
+                              };
+                            }
+                            acc[key].visitors++;
+                            acc[key].views += event.totalViews || 0;
+                            acc[key]._totalTime += (event.numMinutes || 0) * 60; // Convert to seconds
+                            acc[key]._count++;
+                            acc[key].avgTimeOnPage = acc[key]._totalTime / acc[key]._count;
+                            return acc;
+                          }, {} as Record<string, any>);
+                        return Object.values(geoMap) as GeographicMapData[];
+                      } else {
+                        // For guides, use the geographicDistribution directly
+                        const guideGeo = (data as ComprehensiveGuideData).geographicDistribution || [];
+                        // Note: GuideGeographic doesn't have lat/lon, so we return empty array for map
+                        // The pie chart and table below will still work with the data
+                        return [] as GeographicMapData[];
+                      }
                     })()}
                     height={450}
                   />
@@ -1278,11 +1379,23 @@ export const ReportDetails: React.FC = () => {
                   </CardHeader>
                   <CardContent className="flex-1">
                     <ReportPieChart
-                      data={(data as ComprehensivePageData).geographicDistribution!.slice(0, 8).map(geo => ({
-                        name: `${geo.region}, ${geo.country}`,
-                        users: geo.visitors,
-                        percentage: geo.percentage
-                      }))}
+                      data={(() => {
+                        if (type === 'pages') {
+                          const geoData = (data as ComprehensivePageData).geographicDistribution!;
+                          return geoData.slice(0, 8).map(geo => ({
+                            name: `${geo.region}, ${geo.country}`,
+                            users: geo.visitors,
+                            percentage: geo.percentage || 0
+                          }));
+                        } else {
+                          const geoData = (data as ComprehensiveGuideData).geographicDistribution;
+                          return geoData.slice(0, 8).map(geo => ({
+                            name: `${geo.region}, ${geo.country}`,
+                            users: geo.users,
+                            percentage: geo.percentage || 0
+                          }));
+                        }
+                      })()}
                       dataKey="users"
                     />
                   </CardContent>
@@ -1305,14 +1418,29 @@ export const ReportDetails: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {(data as ComprehensivePageData).geographicDistribution!.slice(0, 10).map((geo, idx) => (
-                            <tr key={idx} className="border-b border-gray-100">
-                              <td className="py-2">{geo.region}, {geo.country}</td>
-                              <td className="text-right py-2">{geo.visitors.toLocaleString()}</td>
-                              <td className="text-right py-2">{geo.views.toLocaleString()}</td>
-                              <td className="text-right py-2">{geo.avgTimeOnPage.toFixed(0)}s</td>
-                            </tr>
-                          ))}
+                          {(() => {
+                            if (type === 'pages') {
+                              const geoData = (data as ComprehensivePageData).geographicDistribution!;
+                              return geoData.slice(0, 10).map((geo, idx) => (
+                                <tr key={idx} className="border-b border-gray-100">
+                                  <td className="py-2">{geo.region}, {geo.country}</td>
+                                  <td className="text-right py-2">{geo.visitors.toLocaleString()}</td>
+                                  <td className="text-right py-2">{geo.views.toLocaleString()}</td>
+                                  <td className="text-right py-2">{geo.avgTimeOnPage.toFixed(0)}s</td>
+                                </tr>
+                              ));
+                            } else {
+                              const geoData = (data as ComprehensiveGuideData).geographicDistribution;
+                              return geoData.slice(0, 10).map((geo, idx) => (
+                                <tr key={idx} className="border-b border-gray-100">
+                                  <td className="py-2">{geo.region}, {geo.country}</td>
+                                  <td className="text-right py-2">{geo.users.toLocaleString()}</td>
+                                  <td className="text-right py-2">-</td>
+                                  <td className="text-right py-2">-</td>
+                                </tr>
+                              ));
+                            }
+                          })()}
                         </tbody>
                       </table>
                     </div>
@@ -1323,11 +1451,12 @@ export const ReportDetails: React.FC = () => {
           )}
 
           {/* POSITION 8: Device & Browser Breakdown Section */}
-          {type === 'pages' && (data as ComprehensivePageData).deviceBrowserBreakdown && (data as ComprehensivePageData).deviceBrowserBreakdown!.length > 0 && (
+          {((type === 'pages' && (data as ComprehensivePageData).deviceBrowserBreakdown && (data as ComprehensivePageData).deviceBrowserBreakdown!.length > 0) ||
+            (type === 'guides' && (data as ComprehensiveGuideData).deviceBreakdown && (data as ComprehensiveGuideData).deviceBreakdown.length > 0)) && (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-bold text-gray-900">Device & Browser Breakdown (Real Data)</h2>
-                <DataQualityBadge type="real" tooltip="Real device, OS, and browser data parsed from userAgent strings" />
+                <DataQualityBadge type="real" tooltip={type === 'pages' ? "Real device, OS, and browser data parsed from userAgent strings" : "Real device, platform, and browser data from guide analytics"} />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
@@ -1340,12 +1469,21 @@ export const ReportDetails: React.FC = () => {
                     <ReportPieChart
                       data={(() => {
                         const deviceGroups = new Map();
-                        (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
-                          const existing = deviceGroups.get(item.device) || {name: item.device, users: 0, percentage: 0};
-                          existing.users += item.users;
-                          existing.percentage += item.percentage;
-                          deviceGroups.set(item.device, existing);
-                        });
+                        if (type === 'pages') {
+                          (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
+                            const existing = deviceGroups.get(item.device) || {name: item.device, users: 0, percentage: 0};
+                            existing.users += item.users;
+                            existing.percentage += item.percentage;
+                            deviceGroups.set(item.device, existing);
+                          });
+                        } else {
+                          (data as ComprehensiveGuideData).deviceBreakdown.forEach(item => {
+                            const existing = deviceGroups.get(item.device) || {name: item.device, users: 0, percentage: 0};
+                            existing.users += item.users;
+                            existing.percentage += item.percentage;
+                            deviceGroups.set(item.device, existing);
+                          });
+                        }
                         return Array.from(deviceGroups.values());
                       })()}
                       dataKey="users"
@@ -1362,12 +1500,21 @@ export const ReportDetails: React.FC = () => {
                     <ReportPieChart
                       data={(() => {
                         const browserGroups = new Map();
-                        (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
-                          const existing = browserGroups.get(item.browser) || {name: item.browser, users: 0, percentage: 0};
-                          existing.users += item.users;
-                          existing.percentage += item.percentage;
-                          browserGroups.set(item.browser, existing);
-                        });
+                        if (type === 'pages') {
+                          (data as ComprehensivePageData).deviceBrowserBreakdown!.forEach(item => {
+                            const existing = browserGroups.get(item.browser) || {name: item.browser, users: 0, percentage: 0};
+                            existing.users += item.users;
+                            existing.percentage += item.percentage;
+                            browserGroups.set(item.browser, existing);
+                          });
+                        } else {
+                          (data as ComprehensiveGuideData).deviceBreakdown.forEach(item => {
+                            const existing = browserGroups.get(item.browser) || {name: item.browser, users: 0, percentage: 0};
+                            existing.users += item.users;
+                            existing.percentage += item.percentage;
+                            browserGroups.set(item.browser, existing);
+                          });
+                        }
                         return Array.from(browserGroups.values()).sort((a, b) => b.users - a.users);
                       })()}
                       dataKey="users"
@@ -1379,7 +1526,7 @@ export const ReportDetails: React.FC = () => {
               {/* Detailed Breakdown Table */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Detailed Device, OS & Browser Breakdown</CardTitle>
+                  <CardTitle>Detailed Device, {type === 'pages' ? 'OS' : 'Platform'} & Browser Breakdown</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
@@ -1387,22 +1534,36 @@ export const ReportDetails: React.FC = () => {
                       <thead>
                         <tr className="border-b text-gray-600">
                           <th className="text-left py-2">Device</th>
-                          <th className="text-left py-2">Operating System</th>
+                          <th className="text-left py-2">{type === 'pages' ? 'Operating System' : 'Platform'}</th>
                           <th className="text-left py-2">Browser</th>
                           <th className="text-right py-2">Users</th>
                           <th className="text-right py-2">Percentage</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {(data as ComprehensivePageData).deviceBrowserBreakdown!.slice(0, 15).map((item, idx) => (
-                          <tr key={idx} className="border-b border-gray-100">
-                            <td className="py-2">{item.device}</td>
-                            <td className="py-2">{item.os} {item.osVersion && `(${item.osVersion})`}</td>
-                            <td className="py-2">{item.browser} {item.browserVersion && `(${item.browserVersion})`}</td>
-                            <td className="text-right py-2">{item.users.toLocaleString()}</td>
-                            <td className="text-right py-2">{item.percentage.toFixed(1)}%</td>
-                          </tr>
-                        ))}
+                        {(() => {
+                          if (type === 'pages') {
+                            return (data as ComprehensivePageData).deviceBrowserBreakdown!.slice(0, 15).map((item, idx) => (
+                              <tr key={idx} className="border-b border-gray-100">
+                                <td className="py-2">{item.device}</td>
+                                <td className="py-2">{item.os} {item.osVersion && `(${item.osVersion})`}</td>
+                                <td className="py-2">{item.browser} {item.browserVersion && `(${item.browserVersion})`}</td>
+                                <td className="text-right py-2">{item.users.toLocaleString()}</td>
+                                <td className="text-right py-2">{item.percentage.toFixed(1)}%</td>
+                              </tr>
+                            ));
+                          } else {
+                            return (data as ComprehensiveGuideData).deviceBreakdown.slice(0, 15).map((item, idx) => (
+                              <tr key={idx} className="border-b border-gray-100">
+                                <td className="py-2">{item.device}</td>
+                                <td className="py-2">{item.platform}</td>
+                                <td className="py-2">{item.browser}</td>
+                                <td className="text-right py-2">{item.users.toLocaleString()}</td>
+                                <td className="text-right py-2">{item.percentage.toFixed(1)}%</td>
+                              </tr>
+                            ));
+                          }
+                        })()}
                       </tbody>
                     </table>
                   </div>
