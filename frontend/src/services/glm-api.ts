@@ -47,7 +47,7 @@ const DEFAULT_CONFIG: Required<Omit<GLMConfig, 'apiKey'>> = {
  * 3. Update this service to call backend endpoint instead of GLM API directly
  * 4. Add rate limiting and authentication to backend endpoint
  */
-const API_KEY = 'd17ccd23cfe440f4b89aa99215f6db8a.17fzrV3YbXpWuOyB';
+const API_KEY = ''; // REMOVED FOR SECURITY - Use Netlify Function /api/ai-summary instead
 
 // ===== PROMPT TEMPLATES =====
 

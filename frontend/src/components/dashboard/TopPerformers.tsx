@@ -42,7 +42,7 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({
         id: guide.id,
         name: guide.name,
         value: guide.completionRate,
-        displayValue: `${guide.completionRate.toFixed(1)}%`
+        displayValue: `${(guide.completionRate || 0).toFixed(1)}%`
       }));
   };
 
