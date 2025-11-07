@@ -49,6 +49,9 @@ import { AISummary } from '@/components/ai/AISummary';
 // Import Spinner component
 import { InlineSpinner } from '@/components/ui/Spinner';
 
+// Import page title hook
+import { usePageTitle, PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/hooks/usePageTitle';
+
 // Import Revenue Impact component
 import { RevenueImpact } from '@/components/dashboard/RevenueImpact';
 
@@ -75,6 +78,13 @@ interface ReportDataWithState {
 export const ReportDetails: React.FC = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const navigate = useNavigate();
+
+  // Set page title
+  usePageTitle({
+    title: PAGE_TITLES.REPORT_DETAILS,
+    description: PAGE_DESCRIPTIONS.REPORT_DETAILS
+  });
+
   // Removed activeTab state - showing all content on single page
 
   // State for time series view toggle (daily, weekly, monthly)

@@ -12,8 +12,14 @@ import {
   Banner
 } from '@shopify/polaris';
 import { LockIcon } from '@shopify/polaris-icons';
+import { usePageTitle, PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/hooks/usePageTitle';
 
 export const Login: React.FC = () => {
+  usePageTitle({
+    title: PAGE_TITLES.LOGIN,
+    description: PAGE_DESCRIPTIONS.LOGIN
+  });
+
   const { user, loading, signInWithGoogle } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);

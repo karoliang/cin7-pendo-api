@@ -16,6 +16,7 @@ import {
   GlobeAltIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
+import { usePageTitle, PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/hooks/usePageTitle';
 
 type TabType = 'guides' | 'features' | 'pages' | 'reports';
 
@@ -59,6 +60,11 @@ interface TableState {
 }
 
 export const DataTables: React.FC = () => {
+  usePageTitle({
+    title: PAGE_TITLES.DATA_TABLES,
+    description: PAGE_DESCRIPTIONS.DATA_TABLES
+  });
+
   const navigate = useNavigate();
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters } = useFilterStore();

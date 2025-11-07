@@ -14,8 +14,14 @@ import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabas
 import { useFilterStore } from '@/stores/filterStore';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import { InlineSpinner } from '@/components/ui/Spinner';
+import { usePageTitle, PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/hooks/usePageTitle';
 
 export const Dashboard: React.FC = () => {
+  usePageTitle({
+    title: PAGE_TITLES.DASHBOARD,
+    description: PAGE_DESCRIPTIONS.DASHBOARD
+  });
+
   const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters } = useFilterStore();
 

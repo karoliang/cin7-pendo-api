@@ -2,8 +2,14 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Page, Text } from '@shopify/polaris';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export const AuthCallback: React.FC = () => {
+  usePageTitle({
+    title: 'Authenticating',
+    description: 'Completing your sign in to Cin7 Pendo Analytics'
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
