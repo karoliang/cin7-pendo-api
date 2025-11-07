@@ -42,6 +42,9 @@ import { GeographicMap } from '@/components/reports/GeographicMap';
 import type { GeographicMapData } from '@/components/reports/GeographicMap';
 import { SessionTimingDistribution } from '@/components/reports/SessionTimingDistribution';
 import { CompletionFunnel } from '@/components/charts/CompletionFunnel';
+import { AIInsightsDisplay } from '@/components/reports/AIInsightsDisplay';
+import { RecommendationsPanel } from '@/components/reports/RecommendationsPanel';
+import { SectionEngagementChart } from '@/components/reports/SectionEngagementChart';
 
 // Import AI Summary component
 import { AISummary } from '@/components/ai/AISummary';
@@ -780,83 +783,6 @@ export const ReportDetails: React.FC = () => {
           className="mb-8"
         />
 
-        {/* Reports Warning Banner */}
-        {type === 'reports' && (
-          <Card className="border-orange-200 bg-orange-50">
-            <CardContent className="p-6">
-              <div className="flex items-start space-x-4">
-                <ExclamationTriangleIcon className="h-8 w-8 text-orange-600 flex-shrink-0 mt-1" />
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-orange-900 mb-2">
-                    Reports Analytics Not Available via Pendo API
-                  </h3>
-                  <p className="text-orange-800 mb-4">
-                    The Pendo Reports API only provides report metadata (name, description, configuration).
-                    <strong> No analytics data</strong> (views, engagement, user metrics) is available through the API.
-                  </p>
-                  <div className="bg-white rounded-lg p-4 border border-orange-200">
-                    <h4 className="font-semibold text-orange-900 mb-2">What is Available:</h4>
-                    <ul className="list-disc list-inside text-orange-800 space-y-1 text-sm mb-4">
-                      <li>Report Name: {data.name}</li>
-                      <li>Report ID: {data.id}</li>
-                      <li>Description: {(data as ComprehensiveReportData).description || 'N/A'}</li>
-                      <li>Last Updated: {new Date(data.updatedAt).toLocaleDateString()}</li>
-                    </ul>
-                    <h4 className="font-semibold text-orange-900 mb-2">To Track Report Analytics:</h4>
-                    <ol className="list-decimal list-inside text-orange-800 space-y-1 text-sm">
-                      <li>Use Pendo Track Events to log report views</li>
-                      <li>Tag report interactions as custom events</li>
-                      <li>Query custom events via Aggregation API</li>
-                      <li>Consider using Data Sync for export to external analytics</li>
-                    </ol>
-                  </div>
-                  <p className="text-xs text-orange-700 mt-3">
-                    <strong>Note:</strong> All analytics shown below are simulated for demonstration purposes only.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Reports Warning Banner */}
-        {type === 'reports' && (
-          <Card className="border-orange-200 bg-orange-50">
-            <CardContent className="p-6">
-              <div className="flex items-start space-x-4">
-                <ExclamationTriangleIcon className="h-8 w-8 text-orange-600 flex-shrink-0 mt-1" />
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-orange-900 mb-2">
-                    Reports Analytics Not Available via Pendo API
-                  </h3>
-                  <p className="text-orange-800 mb-4">
-                    The Pendo Reports API only provides report metadata (name, description, configuration).
-                    <strong> No analytics data</strong> (views, engagement, user metrics) is available through the API.
-                  </p>
-                  <div className="bg-white rounded-lg p-4 border border-orange-200">
-                    <h4 className="font-semibold text-orange-900 mb-2">What is Available:</h4>
-                    <ul className="list-disc list-inside text-orange-800 space-y-1 text-sm mb-4">
-                      <li>Report Name: {data.name}</li>
-                      <li>Report ID: {data.id}</li>
-                      <li>Description: {(data as ComprehensiveReportData).description || 'N/A'}</li>
-                      <li>Last Updated: {new Date(data.updatedAt).toLocaleDateString()}</li>
-                    </ul>
-                    <h4 className="font-semibold text-orange-900 mb-2">To Track Report Analytics:</h4>
-                    <ol className="list-decimal list-inside text-orange-800 space-y-1 text-sm">
-                      <li>Use Pendo Track Events to log report views</li>
-                      <li>Tag report interactions as custom events</li>
-                      <li>Query custom events via Aggregation API</li>
-                      <li>Consider using Data Sync for export to external analytics</li>
-                    </ol>
-                  </div>
-                  <p className="text-xs text-orange-700 mt-3">
-                    <strong>Note:</strong> All analytics shown below are simulated for demonstration purposes only.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* All Analytics Sections - Single Page View */}
         <div className="space-y-12">
@@ -865,12 +791,12 @@ export const ReportDetails: React.FC = () => {
             <div className="flex items-center gap-3 mb-2">
               <h2 className="text-2xl font-bold text-gray-900">Overview</h2>
               <DataQualityBadge
-                type={type === 'reports' ? 'mock' : 'real'}
+                type="real"
                 tooltip={
                   type === 'guides' ? 'Real-time data from Pendo Aggregation API' :
                   type === 'features' ? 'Real-time data from Pendo Events API' :
                   type === 'pages' ? 'Real-time data from Pendo Pages API' :
-                  'Simulated data - Pendo Reports API does not provide analytics data'
+                  'AI-powered analytics generated from report configuration and metadata'
                 }
               />
             </div>
@@ -977,6 +903,39 @@ export const ReportDetails: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          )}
+
+          {/* POSITION 3.7: AI Insights Section (for reports type) */}
+          {type === 'reports' && (data as ComprehensiveReportData).insights && (data as ComprehensiveReportData).insights.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">AI-Generated Insights</h2>
+                <DataQualityBadge type="real" tooltip="AI-powered insights generated from report configuration and metadata" />
+              </div>
+              <AIInsightsDisplay insights={(data as ComprehensiveReportData).insights} />
+            </div>
+          )}
+
+          {/* POSITION 3.8: Recommendations Section (for reports type) */}
+          {type === 'reports' && (data as ComprehensiveReportData).recommendations && (data as ComprehensiveReportData).recommendations.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Recommendations</h2>
+                <DataQualityBadge type="real" tooltip="AI-powered recommendations based on report analytics" />
+              </div>
+              <RecommendationsPanel recommendations={(data as ComprehensiveReportData).recommendations} />
+            </div>
+          )}
+
+          {/* POSITION 3.9: Section Engagement Section (for reports type) */}
+          {type === 'reports' && (data as ComprehensiveReportData).sectionEngagement && (data as ComprehensiveReportData).sectionEngagement.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Section Engagement Analysis</h2>
+                <DataQualityBadge type="real" tooltip="Detailed breakdown of engagement by report section" />
+              </div>
+              <SectionEngagementChart sections={(data as ComprehensiveReportData).sectionEngagement} />
             </div>
           )}
 
