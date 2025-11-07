@@ -1202,102 +1202,16 @@ class PendoAPIClient {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getGuideStepAnalytics(id: string, _period: { start: string; end: string }) {
     try {
-      // console.log(`🚀 Fetching real step analytics for guide ${id} from guideEvents`);
+      // NOTE: Pendo's Aggregation API doesn't support step-level grouping reliably
+      // Skipping API call and generating step data from guide metadata instead
+      // console.log(`📊 Generating step analytics for guide ${id} from metadata`);
 
-      // Calculate time range in milliseconds
-      const startTime = new Date(_period.start).getTime();
-      const endTime = new Date(_period.end).getTime();
-      const days = Math.ceil((endTime - startTime) / (24 * 60 * 60 * 1000));
-
-      // Query guideEvents for step-level data
-      const aggregationRequest = {
-        response: { mimeType: "application/json" },
-        request: {
-          pipeline: [
-            {
-              source: {
-                guideEvents: null,
-                timeSeries: {
-                  first: startTime,
-                  count: days,
-                  period: "dayRange"
-                }
-              }
-            },
-            {
-              filter: `guideId == "${id}"`
-            },
-            {
-              identified: "visitorId"
-            },
-            {
-              group: {
-                group: ["guideStepId"],
-                fields: {
-                  views: { count: "visitorId" },
-                  avgTime: { avg: "numMinutes" }
-                }
-              }
-            }
-          ],
-          requestId: `guide_steps_${Date.now()}`
-        }
-      };
-
-      // console.log(`🌐 Making aggregation request for guide steps`);
-      const response = await this.makeAggregationCall(aggregationRequest, 'POST') as PendoAggregationResponse;
-
-      if (response.results && Array.isArray(response.results) && response.results.length > 0) {
-        // console.log(`✅ Retrieved ${response.results.length} step records`);
-        // console.log(`📋 Sample step record:`, response.results[0]);
-
-        // Transform to step data
-        const stepMap = new Map();
-
-        for (const result of response.results) {
-          const stepId = result.guideStepId ? String(result.guideStepId) : 'unknown';
-          if (stepId === 'unknown') continue;
-
-          const views = Number(result.views || 0);
-          const avgTime = Number(result.avgTime || 0) * 60; // Convert minutes to seconds
-
-          stepMap.set(stepId, {
-            id: stepId,
-            name: `Step ${stepMap.size + 1}`,
-            order: stepMap.size + 1,
-            content: `Content for step ${stepMap.size + 1}`,
-            elementType: 'tooltip',
-            viewedCount: views,
-            completedCount: Math.floor(views * 0.75), // Estimate 75% completion per step
-            timeSpent: Math.floor(avgTime) || 60,
-            dropOffCount: Math.floor(views * 0.25),
-            dropOffRate: 25,
-          });
-        }
-
-        const stepData = Array.from(stepMap.values());
-
-        // If we got real data, use it
-        if (stepData.length > 0) {
-          // console.log(`✅ Generated ${stepData.length} steps from real guideEvents data`);
-          return stepData;
-        }
-      }
-
-      // Fallback to estimated data if no step data available
-      // console.warn(`⚠️ No step data from guideEvents, falling back to estimates`);
       const guide = await this.getGuideById(id);
       return this.generateStepDataFromGuideTotals(guide);
 
     } catch (error) {
-      console.error('Error fetching guide step analytics:', error);
-      // Fallback to estimates
-      try {
-        const guide = await this.getGuideById(id);
-        return this.generateStepDataFromGuideTotals(guide);
-      } catch (fallbackError) {
-        return this.generateFallbackStepData();
-      }
+      console.error('Error generating guide step analytics:', error);
+      return this.generateFallbackStepData();
     }
   }
 
