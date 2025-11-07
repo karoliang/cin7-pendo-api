@@ -175,13 +175,13 @@ function compressReportData(
     case 'guides': {
       const guideData = data as ComprehensiveGuideData;
       compressed.metrics = {
-        'Total Views': guideData.viewedCount,
-        'Completions': guideData.completedCount,
-        'Completion Rate': `${guideData.completionRate.toFixed(1)}%`,
-        'Engagement Rate': `${guideData.engagementRate.toFixed(1)}%`,
-        'Drop-off Rate': `${guideData.dropOffRate.toFixed(1)}%`,
-        'Steps': guideData.stepCount,
-        'State': guideData.state,
+        'Total Views': guideData.viewedCount || 0,
+        'Completions': guideData.completedCount || 0,
+        'Completion Rate': `${(guideData.completionRate || 0).toFixed(1)}%`,
+        'Engagement Rate': `${(guideData.engagementRate || 0).toFixed(1)}%`,
+        'Drop-off Rate': `${(guideData.dropOffRate || 0).toFixed(1)}%`,
+        'Steps': guideData.stepCount || 0,
+        'State': guideData.state || 'unknown',
       };
       break;
     }
@@ -189,12 +189,12 @@ function compressReportData(
     case 'features': {
       const featureData = data as ComprehensiveFeatureData;
       compressed.metrics = {
-        'Usage Count': featureData.usageCount,
-        'Unique Users': featureData.uniqueUsers,
-        'Adoption Rate': `${featureData.adoptionRate}%`,
-        'Usage Frequency': `${featureData.usageFrequency}x/day`,
-        'Retention Rate': `${featureData.retentionRate}%`,
-        'Stickiness': `${featureData.stickinessIndex.toFixed(2)}`,
+        'Usage Count': featureData.usageCount || 0,
+        'Unique Users': featureData.uniqueUsers || 0,
+        'Adoption Rate': `${featureData.adoptionRate || 0}%`,
+        'Usage Frequency': `${featureData.usageFrequency || 0}x/day`,
+        'Retention Rate': `${featureData.retentionRate || 0}%`,
+        'Stickiness': `${(featureData.stickinessIndex || 0).toFixed(2)}`,
       };
       break;
     }
@@ -202,22 +202,22 @@ function compressReportData(
     case 'pages': {
       const pageData = data as ComprehensivePageData;
       compressed.metrics = {
-        'Page Views': pageData.viewedCount,
-        'Unique Visitors': pageData.uniqueVisitors,
-        'Avg Time on Page': `${pageData.avgTimeOnPage}s`,
-        'Bounce Rate': `${pageData.bounceRate.toFixed(1)}%`,
-        'Exit Rate': `${pageData.exitRate.toFixed(1)}%`,
-        'Conversion Rate': `${pageData.conversionRate.toFixed(1)}%`,
+        'Page Views': pageData.viewedCount || 0,
+        'Unique Visitors': pageData.uniqueVisitors || 0,
+        'Avg Time on Page': `${pageData.avgTimeOnPage || 0}s`,
+        'Bounce Rate': `${(pageData.bounceRate || 0).toFixed(1)}%`,
+        'Exit Rate': `${(pageData.exitRate || 0).toFixed(1)}%`,
+        'Conversion Rate': `${(pageData.conversionRate || 0).toFixed(1)}%`,
       };
 
       // Add frustration metrics if available
       if (pageData.frustrationMetrics) {
-        compressed.metrics['Frustration Rate'] = `${pageData.frustrationMetrics.frustrationRate.toFixed(1)}%`;
+        compressed.metrics['Frustration Rate'] = `${(pageData.frustrationMetrics.frustrationRate || 0).toFixed(1)}%`;
         compressed.metrics['Total Frustration Events'] =
-          pageData.frustrationMetrics.totalRageClicks +
-          pageData.frustrationMetrics.totalDeadClicks +
-          pageData.frustrationMetrics.totalUTurns +
-          pageData.frustrationMetrics.totalErrorClicks;
+          (pageData.frustrationMetrics.totalRageClicks || 0) +
+          (pageData.frustrationMetrics.totalDeadClicks || 0) +
+          (pageData.frustrationMetrics.totalUTurns || 0) +
+          (pageData.frustrationMetrics.totalErrorClicks || 0);
       }
       break;
     }
@@ -225,13 +225,13 @@ function compressReportData(
     case 'reports': {
       const reportData = data as ComprehensiveReportData;
       compressed.metrics = {
-        'Total Views': reportData.totalViews,
-        'Unique Viewers': reportData.uniqueViewers,
-        'Shares': reportData.shares,
-        'Downloads': reportData.downloads,
-        'Average Rating': reportData.averageRating,
-        'Engagement Score': reportData.engagementScore,
-        'Return Visitor Rate': `${reportData.returnVisitorRate}%`,
+        'Total Views': reportData.totalViews || 0,
+        'Unique Viewers': reportData.uniqueViewers || 0,
+        'Shares': reportData.shares || 0,
+        'Downloads': reportData.downloads || 0,
+        'Average Rating': reportData.averageRating || 0,
+        'Engagement Score': reportData.engagementScore || 0,
+        'Return Visitor Rate': `${reportData.returnVisitorRate || 0}%`,
       };
       break;
     }
