@@ -79,17 +79,24 @@ async function syncGuidesIncremental() {
     last_synced: new Date().toISOString(),
   }));
 
+  // Deduplicate by ID (fixes "ON CONFLICT DO UPDATE command cannot affect row a second time" error)
+  const uniqueGuides = Array.from(
+    new Map(guidesFormatted.map(guide => [guide.id, guide])).values()
+  );
+
+  console.log(`  📦 Deduplication: ${guidesFormatted.length} → ${uniqueGuides.length} unique records`);
+
   const { error } = await supabase
     .from('pendo_guides')
-    .upsert(guidesFormatted, { onConflict: 'id' });
+    .upsert(uniqueGuides, { onConflict: 'id' });
 
   if (error) {
     console.error('❌ Error upserting guides:', error);
     throw error;
   }
 
-  console.log(`✅ Synced ${guidesFormatted.length} guides\n`);
-  return guidesFormatted.length;
+  console.log(`✅ Synced ${uniqueGuides.length} unique guides\n`);
+  return uniqueGuides.length;
 }
 
 // Sync features (limited)
@@ -108,17 +115,24 @@ async function syncFeaturesIncremental() {
     last_synced: new Date().toISOString(),
   }));
 
+  // Deduplicate by ID (fixes "ON CONFLICT DO UPDATE command cannot affect row a second time" error)
+  const uniqueFeatures = Array.from(
+    new Map(featuresFormatted.map(feature => [feature.id, feature])).values()
+  );
+
+  console.log(`  📦 Deduplication: ${featuresFormatted.length} → ${uniqueFeatures.length} unique records`);
+
   const { error } = await supabase
     .from('pendo_features')
-    .upsert(featuresFormatted, { onConflict: 'id' });
+    .upsert(uniqueFeatures, { onConflict: 'id' });
 
   if (error) {
     console.error('❌ Error upserting features:', error);
     throw error;
   }
 
-  console.log(`✅ Synced ${featuresFormatted.length} features\n`);
-  return featuresFormatted.length;
+  console.log(`✅ Synced ${uniqueFeatures.length} unique features\n`);
+  return uniqueFeatures.length;
 }
 
 // Sync pages (limited)
@@ -139,17 +153,24 @@ async function syncPagesIncremental() {
     last_synced: new Date().toISOString(),
   }));
 
+  // Deduplicate by ID (fixes "ON CONFLICT DO UPDATE command cannot affect row a second time" error)
+  const uniquePages = Array.from(
+    new Map(pagesFormatted.map(page => [page.id, page])).values()
+  );
+
+  console.log(`  📦 Deduplication: ${pagesFormatted.length} → ${uniquePages.length} unique records`);
+
   const { error } = await supabase
     .from('pendo_pages')
-    .upsert(pagesFormatted, { onConflict: 'id' });
+    .upsert(uniquePages, { onConflict: 'id' });
 
   if (error) {
     console.error('❌ Error upserting pages:', error);
     throw error;
   }
 
-  console.log(`✅ Synced ${pagesFormatted.length} pages\n`);
-  return pagesFormatted.length;
+  console.log(`✅ Synced ${uniquePages.length} unique pages\n`);
+  return uniquePages.length;
 }
 
 // Sync reports (limited)
@@ -168,17 +189,24 @@ async function syncReportsIncremental() {
     last_synced: new Date().toISOString(),
   }));
 
+  // Deduplicate by ID (fixes "ON CONFLICT DO UPDATE command cannot affect row a second time" error)
+  const uniqueReports = Array.from(
+    new Map(reportsFormatted.map(report => [report.id, report])).values()
+  );
+
+  console.log(`  📦 Deduplication: ${reportsFormatted.length} → ${uniqueReports.length} unique records`);
+
   const { error } = await supabase
     .from('pendo_reports')
-    .upsert(reportsFormatted, { onConflict: 'id' });
+    .upsert(uniqueReports, { onConflict: 'id' });
 
   if (error) {
     console.error('❌ Error upserting reports:', error);
     throw error;
   }
 
-  console.log(`✅ Synced ${reportsFormatted.length} reports\n`);
-  return reportsFormatted.length;
+  console.log(`✅ Synced ${uniqueReports.length} unique reports\n`);
+  return uniqueReports.length;
 }
 
 // Fetch events using aggregation API with pipeline
