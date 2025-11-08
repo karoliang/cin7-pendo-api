@@ -75,26 +75,67 @@ async function fetchPendoDataLimited(endpoint: string, maxRecords: number = MAX_
 // Sync guides (limited) with analytics
 async function syncGuidesIncremental() {
   console.log('📊 Syncing Guides (incremental with analytics)...');
+
+  // STRATEGY CHANGE: Instead of fetching from Pendo API first,
+  // fetch guides from our local DB that need analytics updates
+  console.log('  📊 Fetching guides from local database...');
+  const { data: existingGuides, error: dbError } = await supabase
+    .from('pendo_guides')
+    .select('id, name, state, created_at, last_updated_at, steps, views, completions, completion_rate, last_synced')
+    .order('last_synced', { ascending: true }) // Prioritize guides that haven't been synced recently
+    .limit(100); // Get 100 candidates
+
+  if (dbError) {
+    console.error(`  ❌ Error fetching guides from DB:`, dbError);
+    return 0;
+  }
+
+  console.log(`  ✓ Found ${existingGuides?.length || 0} guides in database`);
+
+  // Now fetch latest metadata from Pendo for these guides (just IDs we care about)
   const guides = await fetchPendoDataLimited('guide');
+  console.log(`  ✓ Fetched ${guides.length} guides from Pendo API`);
+
+  // Merge: prioritize guides that exist in both places
+  const guidesToProcess = existingGuides.slice(0, 20);
 
   console.log('  📈 Calculating analytics for guides (max 20 to prevent timeout)...');
-
-  // Limit analytics calculation to prevent timeout (20 guides max - reduced for resource constraints)
-  const guidesForAnalytics = guides.slice(0, 20);
 
   // Process in smaller batches to avoid memory/compute issues
   const analyticsMap = new Map();
   const batchSize = 5;
 
-  for (let i = 0; i < guidesForAnalytics.length; i += batchSize) {
-    const batch = guidesForAnalytics.slice(i, i + batchSize);
+  // First, test if we can query pendo_events at all
+  console.log(`  🧪 Testing pendo_events table access...`);
+  const { data: testEvents, error: testError, count: testCount } = await supabase
+    .from('pendo_events')
+    .select('*', { count: 'exact' })
+    .limit(1);
+
+  if (testError) {
+    console.error(`  ❌ Cannot access pendo_events table:`, JSON.stringify(testError));
+    console.error(`  This means analytics will be 0 for all guides!`);
+  } else {
+    console.log(`  ✅ pendo_events table accessible (${testCount} total events)`);
+  }
+
+  for (let i = 0; i < guidesToProcess.length; i += batchSize) {
+    const batch = guidesToProcess.slice(i, i + batchSize);
+    console.log(`  🔄 Processing batch ${Math.floor(i / batchSize) + 1} with ${batch.length} guides...`);
+    console.log(`     Guide IDs: ${batch.map((g: any) => g.id.substring(0, 10)).join(', ')}...`);
+
     const batchPromises = batch.map(async (guide: any) => {
       const analytics = await calculateGuideAnalyticsFromEvents(guide.id);
-      return { id: guide.id, analytics };
+      return { id: guide.id, name: guide.name, analytics };
     });
 
     const batchResults = await Promise.all(batchPromises);
-    batchResults.forEach(r => analyticsMap.set(r.id, r.analytics));
+    batchResults.forEach(r => {
+      analyticsMap.set(r.id, r.analytics);
+      if (r.analytics.views > 0) {
+        console.log(`     ✅ ${r.name}: ${r.analytics.views} views`);
+      }
+    });
 
     console.log(`  ✓ Processed batch ${Math.floor(i / batchSize) + 1}: ${batchResults.length} guides`);
   }
@@ -103,7 +144,7 @@ async function syncGuidesIncremental() {
 
   // CRITICAL FIX: Only format guides that we actually calculated analytics for
   // This prevents overwriting existing analytics with zeros
-  const guidesFormatted = guidesForAnalytics.map((guide: any) => {
+  const guidesFormatted = guidesToProcess.map((guide: any) => {
     const analytics = analyticsMap.get(guide.id) || {
       views: 0,
       completions: 0,
@@ -112,17 +153,18 @@ async function syncGuidesIncremental() {
       avg_time_to_complete: 0
     };
 
+    // Guide data is already from DB, keep all fields and update analytics
     return {
       id: guide.id,
-      name: guide.name || 'Unnamed Guide',
-      state: guide.state || 'unknown',
-      created_at: guide.createdAt ? new Date(guide.createdAt).toISOString() : new Date().toISOString(),
-      last_updated_at: guide.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toISOString() : new Date().toISOString(),
+      name: guide.name,
+      state: guide.state,
+      created_at: guide.created_at,
+      last_updated_at: guide.last_updated_at,
       views: analytics.views,
       completions: analytics.completions,
       completion_rate: analytics.completion_rate,
       avg_time_to_complete: analytics.avg_time_to_complete,
-      steps: guide.steps?.length || 0,
+      steps: guide.steps,
       last_synced: new Date().toISOString(),
     };
   });
