@@ -801,38 +801,6 @@ export const DataTables: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'pages' && (
-              <div className="mb-6">
-                {/* Only show top pages if they have actual view data */}
-                {summaryMetrics.pages.topPages.length > 0 && summaryMetrics.pages.topPages.some(page => page.viewedCount > 0) && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">Top 5 Pages by Views</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {summaryMetrics.pages.topPages.map((page, index) => (
-                          <div key={page.id} className="flex items-center justify-between py-2 border-b last:border-0">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <span className="text-sm font-semibold text-gray-400 w-6">{index + 1}.</span>
-                              <div className="min-w-0 flex-1">
-                                <div className="text-sm font-medium text-gray-700 truncate">{page.name}</div>
-                                <div className="text-xs text-gray-500 font-mono truncate">{page.url}</div>
-                              </div>
-                            </div>
-                            <div className="ml-4 text-right">
-                              <div className="text-sm font-bold text-blue-600">{page.viewedCount.toLocaleString()}</div>
-                              <div className="text-xs text-gray-500">{page.visitorCount.toLocaleString()} visitors</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-
             {activeTab === 'reports' && (
               <div className="mb-6">
                 <Card>
