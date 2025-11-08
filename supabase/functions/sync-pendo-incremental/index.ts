@@ -10,6 +10,11 @@ const PENDO_BASE_URL = 'https://app.pendo.io/api/v1';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 
+console.log('🔧 Environment check:');
+console.log(`  SUPABASE_URL: ${SUPABASE_URL ? '✅ Set' : '❌ Missing'}`);
+console.log(`  SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log(`  PENDO_API_KEY: ${PENDO_API_KEY ? '✅ Set' : '❌ Missing'}`);
+
 // Limit for incremental updates (prevents timeout)
 const MAX_RECORDS_PER_TYPE = 5000;
 const BATCH_SIZE = 500;
@@ -378,9 +383,17 @@ async function calculateGuideAnalyticsFromEvents(guideId: string): Promise<{
       .eq('entity_id', guideId)
       .eq('entity_type', 'guide');
 
-    if (error || !events || events.length === 0) {
+    if (error) {
+      console.error(`  ❌ Error querying events for guide ${guideId}:`, error);
       return { views: 0, completions: 0, completion_rate: 0, unique_visitors: 0, avg_time_to_complete: 0 };
     }
+
+    if (!events || events.length === 0) {
+      console.log(`  ℹ️  No events found for guide ${guideId}`);
+      return { views: 0, completions: 0, completion_rate: 0, unique_visitors: 0, avg_time_to_complete: 0 };
+    }
+
+    console.log(`  ✅ Found ${events.length} events for guide ${guideId}`);
 
     // All guide events are views (event_type is just "guideEvents", not subdivided into seen/complete)
     const views = events.length;
