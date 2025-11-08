@@ -16,6 +16,7 @@ interface LayoutProps {
     content: string;
     onAction: () => void;
   }>;
+  titleActions?: React.ReactNode;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -24,7 +25,8 @@ export const Layout: React.FC<LayoutProps> = ({
   title,
   subtitle,
   primaryAction,
-  secondaryActions
+  secondaryActions,
+  titleActions
 }) => {
   const { user, signOut } = useAuth();
   const [userMenuActive, setUserMenuActive] = useState(false);
@@ -116,14 +118,41 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Main Content with Polaris Page */}
       <div className="mx-auto" style={{ maxWidth: '1440px' }}>
         {title ? (
-          <Page
-            title={title}
-            subtitle={subtitle}
-            primaryAction={primaryAction}
-            secondaryActions={secondaryActions}
-          >
-            {children}
-          </Page>
+          titleActions ? (
+            // Custom header layout with title actions
+            <div className="px-4 sm:px-6 lg:px-8">
+              <div className="py-6 border-b" style={{ borderColor: 'var(--p-color-border)' }}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <h1 className="text-2xl font-semibold" style={{ color: 'var(--p-color-text)' }}>
+                      {title}
+                    </h1>
+                    {subtitle && (
+                      <p className="mt-1 text-sm" style={{ color: 'var(--p-color-text-subdued)' }}>
+                        {subtitle}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0">
+                    {titleActions}
+                  </div>
+                </div>
+              </div>
+              <div className="py-8">
+                {children}
+              </div>
+            </div>
+          ) : (
+            // Standard Polaris Page layout
+            <Page
+              title={title}
+              subtitle={subtitle}
+              primaryAction={primaryAction}
+              secondaryActions={secondaryActions}
+            >
+              {children}
+            </Page>
+          )
         ) : (
           <div className="px-4 sm:px-6 lg:px-8 py-8">
             {children}

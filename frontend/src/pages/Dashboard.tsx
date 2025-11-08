@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { KPICard } from '@/components/dashboard/KPICard';
-import { TopPerformers } from '@/components/dashboard/TopPerformers';
 import { FrustrationMetrics } from '@/components/dashboard/FrustrationMetrics';
 import { GeographicMap } from '@/components/dashboard/GeographicMap';
 import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
@@ -541,40 +540,15 @@ export const Dashboard: React.FC = () => {
       showNavigation={true}
       title="Analytics Overview"
       subtitle="Real-time insights from your Pendo data"
-      primaryAction={{
-        content: 'Refresh',
-        onAction: () => refetch()
-      }}
+      titleActions={
+        <DateRangeSelector
+          value={dateRange}
+          onChange={updateDateRange}
+          showComparison={true}
+        />
+      }
     >
       <div className="space-y-8">
-        {/* Date Range Selector */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1">
-            <DateRangeSelector
-              value={dateRange}
-              onChange={updateDateRange}
-              showComparison={true}
-            />
-          </div>
-          <div className="lg:col-span-3">
-            <Card>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Dashboard Overview</h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Showing data for the selected period
-                      {dateRange.comparison && ' with period-over-period comparison'}
-                    </p>
-                  </div>
-                  <Button onClick={() => refetch()}>
-                    Refresh
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
 
         {/* Loading Spinner - show on initial load */}
         {isLoading && !guides && !features && !pages && !reports && (
@@ -603,14 +577,6 @@ export const Dashboard: React.FC = () => {
         {/* <GuidePerformanceChart
           guides={sortedData.guides as Guide[]}
         /> */}
-
-        {/* Top Performers - Full Width */}
-        <TopPerformers
-          guides={sortedData.guides as Guide[]}
-          features={sortedData.features as Feature[]}
-          pages={sortedData.pages as Page[]}
-          loading={isLoading}
-        />
 
         {/* Frustration Metrics - Full Width */}
         <FrustrationMetrics
