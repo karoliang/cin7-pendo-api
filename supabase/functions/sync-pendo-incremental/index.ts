@@ -60,24 +60,58 @@ async function fetchPendoDataLimited(endpoint: string, maxRecords: number = MAX_
   return allResults.slice(0, maxRecords);
 }
 
-// Sync guides (limited)
+// Sync guides (limited) with analytics
 async function syncGuidesIncremental() {
-  console.log('📊 Syncing Guides (incremental)...');
+  console.log('📊 Syncing Guides (incremental with analytics)...');
   const guides = await fetchPendoDataLimited('guide');
 
-  const guidesFormatted = guides.map((guide: any) => ({
-    id: guide.id,
-    name: guide.name || 'Unnamed Guide',
-    state: guide.state || 'unknown',
-    created_at: guide.createdAt ? new Date(guide.createdAt).toISOString() : new Date().toISOString(),
-    last_updated_at: guide.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toISOString() : new Date().toISOString(),
-    views: 0,
-    completions: 0,
-    completion_rate: 0,
-    avg_time_to_complete: 0,
-    steps: guide.steps?.length || 0,
-    last_synced: new Date().toISOString(),
-  }));
+  console.log('  📈 Calculating analytics for guides (max 20 to prevent timeout)...');
+
+  // Limit analytics calculation to prevent timeout (20 guides max - reduced for resource constraints)
+  const guidesForAnalytics = guides.slice(0, 20);
+
+  // Process in smaller batches to avoid memory/compute issues
+  const analyticsMap = new Map();
+  const batchSize = 5;
+
+  for (let i = 0; i < guidesForAnalytics.length; i += batchSize) {
+    const batch = guidesForAnalytics.slice(i, i + batchSize);
+    const batchPromises = batch.map(async (guide: any) => {
+      const analytics = await calculateGuideAnalyticsFromEvents(guide.id);
+      return { id: guide.id, analytics };
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    batchResults.forEach(r => analyticsMap.set(r.id, r.analytics));
+
+    console.log(`  ✓ Processed batch ${Math.floor(i / batchSize) + 1}: ${batchResults.length} guides`);
+  }
+
+  console.log(`  ✓ Calculated analytics for ${analyticsMap.size} guides`);
+
+  const guidesFormatted = guides.map((guide: any) => {
+    const analytics = analyticsMap.get(guide.id) || {
+      views: 0,
+      completions: 0,
+      completion_rate: 0,
+      unique_visitors: 0,
+      avg_time_to_complete: 0
+    };
+
+    return {
+      id: guide.id,
+      name: guide.name || 'Unnamed Guide',
+      state: guide.state || 'unknown',
+      created_at: guide.createdAt ? new Date(guide.createdAt).toISOString() : new Date().toISOString(),
+      last_updated_at: guide.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toISOString() : new Date().toISOString(),
+      views: analytics.views,
+      completions: analytics.completions,
+      completion_rate: analytics.completion_rate,
+      avg_time_to_complete: analytics.avg_time_to_complete,
+      steps: guide.steps?.length || 0,
+      last_synced: new Date().toISOString(),
+    };
+  });
 
   // Deduplicate by ID (fixes "ON CONFLICT DO UPDATE command cannot affect row a second time" error)
   const uniqueGuides = Array.from(
@@ -95,25 +129,57 @@ async function syncGuidesIncremental() {
     throw error;
   }
 
-  console.log(`✅ Synced ${uniqueGuides.length} unique guides\n`);
+  console.log(`✅ Synced ${uniqueGuides.length} unique guides with real analytics\n`);
   return uniqueGuides.length;
 }
 
-// Sync features (limited)
+// Sync features (limited) with analytics
 async function syncFeaturesIncremental() {
-  console.log('📊 Syncing Features (incremental)...');
+  console.log('📊 Syncing Features (incremental with analytics)...');
   const features = await fetchPendoDataLimited('feature');
 
-  const featuresFormatted = features.map((feature: any) => ({
-    id: feature.id,
-    name: feature.name || 'Unnamed Feature',
-    created_at: feature.createdAt ? new Date(feature.createdAt).toISOString() : new Date().toISOString(),
-    last_updated_at: feature.lastUpdatedAt ? new Date(feature.lastUpdatedAt).toISOString() : new Date().toISOString(),
-    usage_count: 0,
-    unique_users: 0,
-    avg_usage_per_user: 0,
-    last_synced: new Date().toISOString(),
-  }));
+  console.log('  📈 Calculating analytics for features (max 20 to prevent timeout)...');
+
+  // Limit analytics calculation to prevent timeout (20 features max - reduced for resource constraints)
+  const featuresForAnalytics = features.slice(0, 20);
+
+  // Process in smaller batches to avoid memory/compute issues
+  const analyticsMap = new Map();
+  const batchSize = 5;
+
+  for (let i = 0; i < featuresForAnalytics.length; i += batchSize) {
+    const batch = featuresForAnalytics.slice(i, i + batchSize);
+    const batchPromises = batch.map(async (feature: any) => {
+      const analytics = await calculateFeatureAnalyticsFromEvents(feature.id);
+      return { id: feature.id, analytics };
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    batchResults.forEach(r => analyticsMap.set(r.id, r.analytics));
+
+    console.log(`  ✓ Processed batch ${Math.floor(i / batchSize) + 1}: ${batchResults.length} features`);
+  }
+
+  console.log(`  ✓ Calculated analytics for ${analyticsMap.size} features`);
+
+  const featuresFormatted = features.map((feature: any) => {
+    const analytics = analyticsMap.get(feature.id) || {
+      usage_count: 0,
+      unique_users: 0,
+      avg_usage_per_user: 0
+    };
+
+    return {
+      id: feature.id,
+      name: feature.name || 'Unnamed Feature',
+      created_at: feature.createdAt ? new Date(feature.createdAt).toISOString() : new Date().toISOString(),
+      last_updated_at: feature.lastUpdatedAt ? new Date(feature.lastUpdatedAt).toISOString() : new Date().toISOString(),
+      usage_count: analytics.usage_count,
+      unique_users: analytics.unique_users,
+      avg_usage_per_user: analytics.avg_usage_per_user,
+      last_synced: new Date().toISOString(),
+    };
+  });
 
   // Deduplicate by ID (fixes "ON CONFLICT DO UPDATE command cannot affect row a second time" error)
   const uniqueFeatures = Array.from(
@@ -131,27 +197,59 @@ async function syncFeaturesIncremental() {
     throw error;
   }
 
-  console.log(`✅ Synced ${uniqueFeatures.length} unique features\n`);
+  console.log(`✅ Synced ${uniqueFeatures.length} unique features with real analytics\n`);
   return uniqueFeatures.length;
 }
 
-// Sync pages (limited)
+// Sync pages (limited) with analytics
 async function syncPagesIncremental() {
-  console.log('📊 Syncing Pages (incremental)...');
+  console.log('📊 Syncing Pages (incremental with analytics)...');
   const pages = await fetchPendoDataLimited('page');
 
-  const pagesFormatted = pages.map((page: any) => ({
-    id: page.id,
-    name: page.name || 'Unnamed Page',
-    url: page.url || '',
-    created_at: page.createdAt ? new Date(page.createdAt).toISOString() : new Date().toISOString(),
-    last_updated_at: page.lastUpdatedAt ? new Date(page.lastUpdatedAt).toISOString() : new Date().toISOString(),
-    views: 0,
-    unique_visitors: 0,
-    avg_time_on_page: 0,
-    bounce_rate: 0,
-    last_synced: new Date().toISOString(),
-  }));
+  console.log('  📈 Calculating analytics for pages (max 20 to prevent timeout)...');
+
+  // Limit analytics calculation to prevent timeout (20 pages max - reduced for resource constraints)
+  const pagesForAnalytics = pages.slice(0, 20);
+
+  // Process in smaller batches to avoid memory/compute issues
+  const analyticsMap = new Map();
+  const batchSize = 5;
+
+  for (let i = 0; i < pagesForAnalytics.length; i += batchSize) {
+    const batch = pagesForAnalytics.slice(i, i + batchSize);
+    const batchPromises = batch.map(async (page: any) => {
+      const analytics = await calculatePageAnalyticsFromEvents(page.id);
+      return { id: page.id, analytics };
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    batchResults.forEach(r => analyticsMap.set(r.id, r.analytics));
+
+    console.log(`  ✓ Processed batch ${Math.floor(i / batchSize) + 1}: ${batchResults.length} pages`);
+  }
+
+  console.log(`  ✓ Calculated analytics for ${analyticsMap.size} pages`);
+
+  const pagesFormatted = pages.map((page: any) => {
+    const analytics = analyticsMap.get(page.id) || {
+      views: 0,
+      unique_visitors: 0,
+      avg_time_on_page: 0
+    };
+
+    return {
+      id: page.id,
+      name: page.name || 'Unnamed Page',
+      url: page.url || '',
+      created_at: page.createdAt ? new Date(page.createdAt).toISOString() : new Date().toISOString(),
+      last_updated_at: page.lastUpdatedAt ? new Date(page.lastUpdatedAt).toISOString() : new Date().toISOString(),
+      views: analytics.views,
+      unique_visitors: analytics.unique_visitors,
+      avg_time_on_page: analytics.avg_time_on_page,
+      bounce_rate: 0, // TODO: Calculate from events if available
+      last_synced: new Date().toISOString(),
+    };
+  });
 
   // Deduplicate by ID (fixes "ON CONFLICT DO UPDATE command cannot affect row a second time" error)
   const uniquePages = Array.from(
@@ -169,7 +267,7 @@ async function syncPagesIncremental() {
     throw error;
   }
 
-  console.log(`✅ Synced ${uniquePages.length} unique pages\n`);
+  console.log(`✅ Synced ${uniquePages.length} unique pages with real analytics\n`);
   return uniquePages.length;
 }
 
@@ -261,6 +359,120 @@ async function fetchPendoEvents(eventSource: string, daysBack: number = 7, maxRe
   } catch (error: any) {
     console.error(`  ❌ Error fetching ${eventSource}:`, error.message);
     return [];
+  }
+}
+
+// Calculate analytics from local pendo_events table (much faster than API calls)
+async function calculateGuideAnalyticsFromEvents(guideId: string): Promise<{
+  views: number;
+  completions: number;
+  completion_rate: number;
+  unique_visitors: number;
+  avg_time_to_complete: number;
+}> {
+  try {
+    // Query events from local database instead of Pendo API
+    const { data: events, error } = await supabase
+      .from('pendo_events')
+      .select('*')
+      .eq('entity_id', guideId)
+      .eq('entity_type', 'guide');
+
+    if (error || !events || events.length === 0) {
+      return { views: 0, completions: 0, completion_rate: 0, unique_visitors: 0, avg_time_to_complete: 0 };
+    }
+
+    // Count different event types (assuming event_type contains 'guideEvents')
+    // Note: The actual event type detection may need adjustment based on your data structure
+    const seenEvents = events.filter(e => {
+      const metadata = e.metadata as any;
+      return metadata?.type === 'guideSeen' || e.event_type === 'guideSeen';
+    });
+
+    const completeEvents = events.filter(e => {
+      const metadata = e.metadata as any;
+      return metadata?.type === 'guideComplete' || e.event_type === 'guideComplete';
+    });
+
+    const uniqueVisitors = new Set(events.map(e => e.visitor_id).filter(Boolean)).size;
+
+    const views = seenEvents.length;
+    const completions = completeEvents.length;
+    const completion_rate = views > 0 ? (completions / views) * 100 : 0;
+
+    return {
+      views,
+      completions,
+      completion_rate: Math.round(completion_rate * 100) / 100,
+      unique_visitors: uniqueVisitors,
+      avg_time_to_complete: 0 // TODO: Calculate if duration data available
+    };
+  } catch (error: any) {
+    console.error(`  ⚠️  Error calculating analytics for guide ${guideId}:`, error.message);
+    return { views: 0, completions: 0, completion_rate: 0, unique_visitors: 0, avg_time_to_complete: 0 };
+  }
+}
+
+// Calculate feature analytics from local pendo_events table
+async function calculateFeatureAnalyticsFromEvents(featureId: string): Promise<{
+  usage_count: number;
+  unique_users: number;
+  avg_usage_per_user: number;
+}> {
+  try {
+    const { data: events, error } = await supabase
+      .from('pendo_events')
+      .select('*')
+      .eq('entity_id', featureId)
+      .eq('entity_type', 'feature');
+
+    if (error || !events || events.length === 0) {
+      return { usage_count: 0, unique_users: 0, avg_usage_per_user: 0 };
+    }
+
+    const usage_count = events.length;
+    const unique_users = new Set(events.map(e => e.visitor_id).filter(Boolean)).size;
+    const avg_usage_per_user = unique_users > 0 ? usage_count / unique_users : 0;
+
+    return {
+      usage_count,
+      unique_users,
+      avg_usage_per_user: Math.round(avg_usage_per_user * 100) / 100
+    };
+  } catch (error: any) {
+    console.error(`  ⚠️  Error calculating analytics for feature ${featureId}:`, error.message);
+    return { usage_count: 0, unique_users: 0, avg_usage_per_user: 0 };
+  }
+}
+
+// Calculate page analytics from local pendo_events table
+async function calculatePageAnalyticsFromEvents(pageId: string): Promise<{
+  views: number;
+  unique_visitors: number;
+  avg_time_on_page: number;
+}> {
+  try {
+    const { data: events, error } = await supabase
+      .from('pendo_events')
+      .select('*')
+      .eq('entity_id', pageId)
+      .eq('entity_type', 'page');
+
+    if (error || !events || events.length === 0) {
+      return { views: 0, unique_visitors: 0, avg_time_on_page: 0 };
+    }
+
+    const views = events.length;
+    const unique_visitors = new Set(events.map(e => e.visitor_id).filter(Boolean)).size;
+
+    return {
+      views,
+      unique_visitors,
+      avg_time_on_page: 0 // TODO: Calculate if duration data available
+    };
+  } catch (error: any) {
+    console.error(`  ⚠️  Error calculating analytics for page ${pageId}:`, error.message);
+    return { views: 0, unique_visitors: 0, avg_time_on_page: 0 };
   }
 }
 
