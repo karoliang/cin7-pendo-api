@@ -544,86 +544,15 @@ export const Dashboard: React.FC = () => {
           guides={sortedData.guides as Guide[]}
         /> */}
 
-        {/* Additional Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <FeatureAdoptionChart
-            features={sortedData.features as Feature[]}
-          />
+        {/* Feature Adoption Chart - Full Width */}
+        <FeatureAdoptionChart
+          features={sortedData.features as Feature[]}
+        />
 
-          <PageAnalyticsChart
-            pages={sortedData.pages as Page[]}
-          />
-        </div>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {(sortedData.guides as Guide[]).slice(0, 2).map((guide) => (
-                <div key={guide.id} className="flex items-center justify-between py-2 border-b">
-                  <div>
-                    <p className="font-medium">Guide "{guide.name}" {guide.state}</p>
-                    <p className="text-sm text-gray-500">
-                      Last updated: {new Date(guide.updatedAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <span className={`px-2 py-1 text-xs font-medium rounded ${
-                    guide.state === 'published'
-                      ? 'bg-green-100 text-green-800'
-                      : guide.state === 'draft'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : guide.state === '_pendingReview_'
-                      ? 'bg-orange-100 text-orange-800'
-                      : guide.state === 'archived'
-                      ? 'bg-gray-100 text-gray-800'
-                      : 'bg-blue-100 text-blue-800'
-                  }`}>
-                    {guide.state.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </span>
-                </div>
-              ))}
-              {(sortedData.features as Feature[]).slice(0, 1).map((feature) => (
-                <div key={feature.id} className="flex items-center justify-between py-2 border-b">
-                  <div>
-                    <p className="font-medium">Feature "{feature.name}" used</p>
-                    <p className="text-sm text-gray-500">
-                      {feature.usageCount} times by {feature.visitorCount} visitors
-                    </p>
-                  </div>
-                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
-                    Feature
-                  </span>
-                </div>
-              ))}
-              {(sortedData.reports as Report[]).slice(0, 1).map((report) => (
-                <div key={report.id} className="flex items-center justify-between py-2">
-                  <div>
-                    <p className="font-medium">{report.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {report.lastSuccessRunAt
-                        ? `Last run: ${new Date(report.lastSuccessRunAt).toLocaleDateString()}`
-                        : 'Not yet run'
-                      }
-                    </p>
-                  </div>
-                  <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">
-                    Report
-                  </span>
-                </div>
-              ))}
-              {sortedData.guides.length === 0 && sortedData.features.length === 0 && sortedData.reports.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No recent activity to display.</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Page Analytics Chart - Full Width */}
+        <PageAnalyticsChart
+          pages={sortedData.pages as Page[]}
+        />
       </div>
     </Layout>
   );
