@@ -6,6 +6,8 @@ import { AuthCallback } from '@/pages/AuthCallback';
 import { Dashboard } from '@/pages/Dashboard';
 import { DataTables } from '@/pages/DataTables';
 import { ReportDetails } from '@/pages/ReportDetails';
+import { SegmentsDashboard } from '@/pages/SegmentsDashboard';
+import { ReportsDashboard } from '@/pages/ReportsDashboard';
 import './index.css';
 
 function App() {
@@ -39,6 +41,22 @@ function App() {
           element={
             <ProtectedRoute>
               <ReportDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/segments"
+          element={
+            <ProtectedRoute>
+              <SegmentsDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <ReportsDashboard />
             </ProtectedRoute>
           }
         />
