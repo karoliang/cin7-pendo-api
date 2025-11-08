@@ -452,7 +452,11 @@ export const Dashboard: React.FC = () => {
         value: sortedData.guides.length.toString(),
         change: comparisonMetrics?.deltas.guides ?? 12,
         changeType: (comparisonMetrics?.deltas.guides ?? 0) >= 0 ? 'increase' as const : 'decrease' as const,
-        description: `${guides.filter(g => g.state === 'published').length} published`,
+        description: (() => {
+          const published = guides.filter(g => g.state === 'published').length;
+          const totalViews = (sortedData.guides as Guide[]).reduce((sum, g) => sum + (g.viewedCount || 0), 0);
+          return `${published} published • ${totalViews.toLocaleString()} views`;
+        })(),
         trendData: guidesSparkline
       },
       {
@@ -460,7 +464,12 @@ export const Dashboard: React.FC = () => {
         value: sortedData.features.length.toString(),
         change: comparisonMetrics?.deltas.features ?? 8,
         changeType: (comparisonMetrics?.deltas.features ?? 0) >= 0 ? 'increase' as const : 'decrease' as const,
-        description: 'Tracked features',
+        description: (() => {
+          const totalUsage = (sortedData.features as Feature[]).reduce((sum, f) => sum + (f.usageCount || 0), 0);
+          const totalUsers = (sortedData.features as Feature[]).reduce((sum, f) => sum + (f.visitorCount || 0), 0);
+          const avgPerUser = totalUsers > 0 ? (totalUsage / totalUsers).toFixed(1) : '0';
+          return `Avg ${avgPerUser} uses/user`;
+        })(),
         trendData: featuresSparkline
       },
       {
