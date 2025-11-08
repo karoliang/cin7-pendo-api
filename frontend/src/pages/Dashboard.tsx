@@ -7,11 +7,14 @@ import { GeographicMap } from '@/components/dashboard/GeographicMap';
 import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
 import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
+import { DateRangeSelector } from '@/components/filters/DateRangeSelector';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
 import { Cin7Button as Button } from '@/components/polaris';
 // import { useDashboardOverview } from '@/hooks/usePendoData'; // Using Pendo API (causes browser crash with 368k+ events)
 import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // Using Supabase synced data (300 records)
 import { useFilterStore } from '@/stores/filterStore';
+import { useDateRangeParams } from '@/hooks/useDateRangeParams';
+import { usePeriodComparison } from '@/hooks/usePeriodComparison';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import { InlineSpinner } from '@/components/ui/Spinner';
 import { usePageTitle, PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/hooks/usePageTitle';
@@ -22,8 +25,18 @@ export const Dashboard: React.FC = () => {
     description: PAGE_DESCRIPTIONS.DASHBOARD
   });
 
-  const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
-  const { filters } = useFilterStore();
+  const { filters, dateRange, updateDateRange } = useFilterStore();
+
+  // Sync date range with URL parameters
+  const { getShareableUrl } = useDateRangeParams(dateRange, updateDateRange);
+
+  const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview(
+    dateRange.start,
+    dateRange.end
+  );
+
+  // Get period comparison metrics
+  const { metrics: comparisonMetrics } = usePeriodComparison(dateRange);
 
   // Debug logging
   console.log('Dashboard render:', {
@@ -440,49 +453,49 @@ export const Dashboard: React.FC = () => {
       {
         title: 'Total Guides',
         value: sortedData.guides.length.toString(),
-        change: 12,
-        changeType: 'increase' as const,
+        change: comparisonMetrics?.deltas.guides ?? 12,
+        changeType: (comparisonMetrics?.deltas.guides ?? 0) >= 0 ? 'increase' as const : 'decrease' as const,
         description: `${guides.filter(g => g.state === 'published').length} published`,
         trendData: guidesSparkline
       },
       {
         title: 'Features',
         value: sortedData.features.length.toString(),
-        change: 8,
-        changeType: 'increase' as const,
+        change: comparisonMetrics?.deltas.features ?? 8,
+        changeType: (comparisonMetrics?.deltas.features ?? 0) >= 0 ? 'increase' as const : 'decrease' as const,
         description: 'Tracked features',
         trendData: featuresSparkline
       },
       {
         title: 'Pages',
         value: sortedData.pages.length.toString(),
-        change: -2,
-        changeType: 'decrease' as const,
+        change: comparisonMetrics?.deltas.pages ?? -2,
+        changeType: (comparisonMetrics?.deltas.pages ?? 0) >= 0 ? 'increase' as const : 'decrease' as const,
         description: 'Monitored pages',
         trendData: pagesSparkline
       },
       {
         title: 'Reports',
         value: sortedData.reports.length.toString(),
-        change: 15,
-        changeType: 'increase' as const,
+        change: comparisonMetrics?.deltas.reports ?? 15,
+        changeType: (comparisonMetrics?.deltas.reports ?? 0) >= 0 ? 'increase' as const : 'decrease' as const,
         description: 'Generated reports',
         trendData: reportsSparkline
       },
       {
         title: 'Avg. Completion Rate',
         value: avgCompletionRate.value,
-        change: avgCompletionRate.change,
-        changeType: 'increase' as const,
+        change: comparisonMetrics?.deltas.completionRate ?? avgCompletionRate.change,
+        changeType: (comparisonMetrics?.deltas.completionRate ?? 0) >= 0 ? 'increase' as const : 'decrease' as const,
         description: avgCompletionRate.description,
         trendData: completionRateSparkline
       },
       {
-        title: '7-Day Activity',
-        value: sevenDayTrend.value,
-        change: sevenDayTrend.change,
-        changeType: sevenDayTrend.changeType,
-        description: sevenDayTrend.description,
+        title: 'Period Activity',
+        value: comparisonMetrics?.current.totalActivity.toString() ?? sevenDayTrend.value,
+        change: comparisonMetrics?.deltas.activity ?? sevenDayTrend.change,
+        changeType: (comparisonMetrics?.deltas.activity ?? sevenDayTrend.change) >= 0 ? 'increase' as const : 'decrease' as const,
+        description: dateRange.comparison ? 'vs previous period' : sevenDayTrend.description,
         trendData: activitySparkline
       },
       {
@@ -510,7 +523,7 @@ export const Dashboard: React.FC = () => {
         trendData: [0, 0, 0, 0, 0, 0, 0] // Placeholder - would need historical data
       }
     ];
-  }, [sortedData]);
+  }, [sortedData, comparisonMetrics, dateRange.comparison]);
 
   if (error) {
     return (
@@ -534,6 +547,35 @@ export const Dashboard: React.FC = () => {
       }}
     >
       <div className="space-y-8">
+        {/* Date Range Selector */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1">
+            <DateRangeSelector
+              value={dateRange}
+              onChange={updateDateRange}
+              showComparison={true}
+            />
+          </div>
+          <div className="lg:col-span-3">
+            <Card>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Dashboard Overview</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Showing data for the selected period
+                      {dateRange.comparison && ' with period-over-period comparison'}
+                    </p>
+                  </div>
+                  <Button onClick={() => refetch()}>
+                    Refresh
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
         {/* Loading Spinner - show on initial load */}
         {isLoading && !guides && !features && !pages && !reports && (
           <div className="flex justify-center items-center py-20">

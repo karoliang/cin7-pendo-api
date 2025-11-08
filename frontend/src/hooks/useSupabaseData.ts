@@ -10,22 +10,32 @@ type ReportRow = Database['public']['Tables']['pendo_reports']['Row'];
 type EventRow = Database['public']['Tables']['pendo_events']['Row'];
 
 // Hook for fetching guides from Supabase
-export const useSupabaseGuides = (daysBack: number = 7) => {
+export const useSupabaseGuides = (startDate?: Date, endDate?: Date) => {
   return useQuery({
-    queryKey: ['supabase-guides'],
+    queryKey: ['supabase-guides', startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('pendo_guides')
-        .select('*')
-        .order('views', { ascending: false })
-        .limit(10000);
+        .select('*');
+
+      // Apply date filtering if provided
+      if (startDate) {
+        query = query.gte('last_updated_at', startDate.toISOString());
+      }
+      if (endDate) {
+        query = query.lte('last_updated_at', endDate.toISOString());
+      }
+
+      query = query.order('views', { ascending: false }).limit(10000);
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching guides from Supabase:', error);
         throw error;
       }
 
-      console.log(`✅ Fetched ${data.length} guides from Supabase`);
+      console.log(`✅ Fetched ${data.length} guides from Supabase (${startDate?.toLocaleDateString()} - ${endDate?.toLocaleDateString()})`);
       return data as GuideRow[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -36,15 +46,25 @@ export const useSupabaseGuides = (daysBack: number = 7) => {
 };
 
 // Hook for fetching features from Supabase
-export const useSupabaseFeatures = (daysBack: number = 7) => {
+export const useSupabaseFeatures = (startDate?: Date, endDate?: Date) => {
   return useQuery({
-    queryKey: ['supabase-features'],
+    queryKey: ['supabase-features', startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('pendo_features')
-        .select('*')
-        .order('usage_count', { ascending: false })
-        .limit(10000);
+        .select('*');
+
+      // Apply date filtering if provided
+      if (startDate) {
+        query = query.gte('last_updated_at', startDate.toISOString());
+      }
+      if (endDate) {
+        query = query.lte('last_updated_at', endDate.toISOString());
+      }
+
+      query = query.order('usage_count', { ascending: false }).limit(10000);
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching features from Supabase:', error);
@@ -62,15 +82,25 @@ export const useSupabaseFeatures = (daysBack: number = 7) => {
 };
 
 // Hook for fetching pages from Supabase
-export const useSupabasePages = (daysBack: number = 7) => {
+export const useSupabasePages = (startDate?: Date, endDate?: Date) => {
   return useQuery({
-    queryKey: ['supabase-pages'],
+    queryKey: ['supabase-pages', startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('pendo_pages')
-        .select('*')
-        .order('views', { ascending: false })
-        .limit(10000);
+        .select('*');
+
+      // Apply date filtering if provided
+      if (startDate) {
+        query = query.gte('last_updated_at', startDate.toISOString());
+      }
+      if (endDate) {
+        query = query.lte('last_updated_at', endDate.toISOString());
+      }
+
+      query = query.order('views', { ascending: false }).limit(10000);
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching pages from Supabase:', error);
@@ -114,19 +144,25 @@ export const useSupabaseReports = () => {
 };
 
 // Hook for fetching events from Supabase
-export const useSupabaseEvents = (daysBack: number = 7) => {
+export const useSupabaseEvents = (startDate?: Date, endDate?: Date) => {
   return useQuery({
-    queryKey: ['supabase-events', daysBack],
+    queryKey: ['supabase-events', startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - daysBack);
-
-      const { data, error } = await supabase
+      let query = supabase
         .from('pendo_events')
-        .select('*')
-        .gte('browser_time', startDate.toISOString())
-        .order('browser_time', { ascending: false })
-        .limit(10000);
+        .select('*');
+
+      // Apply date filtering if provided
+      if (startDate) {
+        query = query.gte('browser_time', startDate.toISOString());
+      }
+      if (endDate) {
+        query = query.lte('browser_time', endDate.toISOString());
+      }
+
+      query = query.order('browser_time', { ascending: false }).limit(10000);
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching events from Supabase:', error);
@@ -144,12 +180,12 @@ export const useSupabaseEvents = (daysBack: number = 7) => {
 };
 
 // Hook for dashboard overview using Supabase
-export const useSupabaseDashboard = (daysBack: number = 7) => {
-  const guidesQuery = useSupabaseGuides(daysBack);
-  const featuresQuery = useSupabaseFeatures(daysBack);
-  const pagesQuery = useSupabasePages(daysBack);
+export const useSupabaseDashboard = (startDate?: Date, endDate?: Date) => {
+  const guidesQuery = useSupabaseGuides(startDate, endDate);
+  const featuresQuery = useSupabaseFeatures(startDate, endDate);
+  const pagesQuery = useSupabasePages(startDate, endDate);
   const reportsQuery = useSupabaseReports();
-  const eventsQuery = useSupabaseEvents(daysBack);
+  const eventsQuery = useSupabaseEvents(startDate, endDate);
 
   // Transform Supabase data to match Pendo types
   const transformedGuides = (guidesQuery.data || []).map(guide => ({

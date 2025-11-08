@@ -19,7 +19,14 @@ console.log(`  PENDO_API_KEY: ${PENDO_API_KEY ? '✅ Set' : '❌ Missing'}`);
 const MAX_RECORDS_PER_TYPE = 5000;
 const BATCH_SIZE = 500;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+// Create Supabase client with proper auth configuration
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false
+  }
+});
 
 // Fetch LIMITED data from Pendo API (for incremental updates)
 async function fetchPendoDataLimited(endpoint: string, maxRecords: number = MAX_RECORDS_PER_TYPE) {
@@ -94,7 +101,9 @@ async function syncGuidesIncremental() {
 
   console.log(`  ✓ Calculated analytics for ${analyticsMap.size} guides`);
 
-  const guidesFormatted = guides.map((guide: any) => {
+  // CRITICAL FIX: Only format guides that we actually calculated analytics for
+  // This prevents overwriting existing analytics with zeros
+  const guidesFormatted = guidesForAnalytics.map((guide: any) => {
     const analytics = analyticsMap.get(guide.id) || {
       views: 0,
       completions: 0,
@@ -167,7 +176,9 @@ async function syncFeaturesIncremental() {
 
   console.log(`  ✓ Calculated analytics for ${analyticsMap.size} features`);
 
-  const featuresFormatted = features.map((feature: any) => {
+  // CRITICAL FIX: Only format features that we actually calculated analytics for
+  // This prevents overwriting existing analytics with zeros
+  const featuresFormatted = featuresForAnalytics.map((feature: any) => {
     const analytics = analyticsMap.get(feature.id) || {
       usage_count: 0,
       unique_users: 0,
@@ -235,7 +246,9 @@ async function syncPagesIncremental() {
 
   console.log(`  ✓ Calculated analytics for ${analyticsMap.size} pages`);
 
-  const pagesFormatted = pages.map((page: any) => {
+  // CRITICAL FIX: Only format pages that we actually calculated analytics for
+  // This prevents overwriting existing analytics with zeros
+  const pagesFormatted = pagesForAnalytics.map((page: any) => {
     const analytics = analyticsMap.get(page.id) || {
       views: 0,
       unique_visitors: 0,
@@ -385,14 +398,16 @@ async function calculateGuideAnalyticsFromEvents(guideId: string): Promise<{
 
     if (error) {
       console.error(`  ❌ Error querying events for guide ${guideId}:`, error);
+      console.error(`  Error details:`, JSON.stringify(error));
       return { views: 0, completions: 0, completion_rate: 0, unique_visitors: 0, avg_time_to_complete: 0 };
     }
 
     if (!events || events.length === 0) {
-      console.log(`  ℹ️  No events found for guide ${guideId}`);
+      // Don't log for every guide with no events (too noisy)
       return { views: 0, completions: 0, completion_rate: 0, unique_visitors: 0, avg_time_to_complete: 0 };
     }
 
+    // Only log for guides with events
     console.log(`  ✅ Found ${events.length} events for guide ${guideId}`);
 
     // All guide events are views (event_type is just "guideEvents", not subdivided into seen/complete)
