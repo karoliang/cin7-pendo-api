@@ -66,6 +66,12 @@ python3 examples/real_pendo_api_explorer.py
 - [🛡️ **Security Practices**](docs/SECURITY_VERIFICATION.md) - Safety and security guidelines
 - [🚀 **Production Deployment**](docs/PRODUCTION_READINESS.md) - Production implementation guide
 
+### **🤖 Pendo Listen Integration Research** (NEW - Nov 2025)
+- [📊 **Research Report**](PENDO_LISTEN_RESEARCH_REPORT.md) - Comprehensive API & feasibility analysis (24KB)
+- [🚀 **Implementation Plan**](PENDO_LISTEN_INTEGRATION_PLAN.md) - 5-week MVP development plan (31KB)
+- [⚡ **Quick Start Guide**](PENDO_LISTEN_QUICK_START.md) - TL;DR and fast reference
+- **Key Finding:** Pendo Listen has NO public API - Build hybrid solution for $11/month vs. $2-5k/month subscription
+
 ---
 
 ## 🛠️ **PROJECT STRUCTURE**
