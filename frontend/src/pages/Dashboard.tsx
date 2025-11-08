@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { KPICard } from '@/components/dashboard/KPICard';
+import { UsageHeatmap } from '@/components/dashboard/UsageHeatmap';
 import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
 import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
@@ -561,6 +562,12 @@ export const Dashboard: React.FC = () => {
         {/* Page Analytics Chart - Full Width */}
         <PageAnalyticsChart
           pages={sortedData.pages as Page[]}
+        />
+
+        {/* Usage Heatmap - Full Width */}
+        <UsageHeatmap
+          startDate={dateRange.start}
+          endDate={dateRange.end}
         />
       </div>
     </Layout>
