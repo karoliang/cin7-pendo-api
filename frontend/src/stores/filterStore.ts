@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { FilterState } from '@/types/pendo';
 import type { DateRangeValue } from '@/components/filters/DateRangeSelector';
-import { subDays } from 'date-fns';
 
 interface FilterStore {
   filters: FilterState;
@@ -20,13 +19,12 @@ interface FilterStore {
 
 const initialFilters: FilterState = {};
 
-// Default to last 7 days
+// Default to all time for better data overview
 const now = new Date();
-const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 const initialDateRange: DateRangeValue = {
-  start: subDays(today, 6),
+  start: new Date('2020-01-01'), // Far enough in past to capture all data
   end: now,
-  preset: '7days',
+  preset: 'all',
   comparison: false,
 };
 

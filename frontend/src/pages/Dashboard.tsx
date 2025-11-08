@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { KPICard } from '@/components/dashboard/KPICard';
-import { FrustrationMetrics } from '@/components/dashboard/FrustrationMetrics';
-import { GeographicMap } from '@/components/dashboard/GeographicMap';
 import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
 import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
@@ -482,44 +480,12 @@ export const Dashboard: React.FC = () => {
         trendData: reportsSparkline
       },
       {
-        title: 'Avg. Completion Rate',
-        value: avgCompletionRate.value,
-        change: comparisonMetrics?.deltas.completionRate ?? avgCompletionRate.change,
-        changeType: (comparisonMetrics?.deltas.completionRate ?? 0) >= 0 ? 'increase' as const : 'decrease' as const,
-        description: avgCompletionRate.description,
-        trendData: completionRateSparkline
-      },
-      {
         title: 'Period Activity',
         value: comparisonMetrics?.current.totalActivity.toString() ?? sevenDayTrend.value,
         change: comparisonMetrics?.deltas.activity ?? sevenDayTrend.change,
         changeType: (comparisonMetrics?.deltas.activity ?? sevenDayTrend.change) >= 0 ? 'increase' as const : 'decrease' as const,
         description: dateRange.comparison ? 'vs previous period' : sevenDayTrend.description,
         trendData: activitySparkline
-      },
-      {
-        title: 'Avg. Bounce Rate',
-        value: avgBounceRate.value,
-        change: 0,
-        changeType: 'increase' as const,
-        description: avgBounceRate.description,
-        trendData: bounceRateSparkline
-      },
-      {
-        title: 'Frustration Score',
-        value: frustrationScore.value,
-        change: 0,
-        changeType: 'increase' as const,
-        description: frustrationScore.description,
-        trendData: frustrationSparkline
-      },
-      {
-        title: 'Total ARR',
-        value: totalARR.value,
-        change: 0,
-        changeType: 'increase' as const,
-        description: totalARR.description,
-        trendData: [0, 0, 0, 0, 0, 0, 0] // Placeholder - would need historical data
       }
     ];
   }, [sortedData, comparisonMetrics, dateRange.comparison]);
@@ -577,18 +543,6 @@ export const Dashboard: React.FC = () => {
         {/* <GuidePerformanceChart
           guides={sortedData.guides as Guide[]}
         /> */}
-
-        {/* Frustration Metrics - Full Width */}
-        <FrustrationMetrics
-          pages={sortedData.pages as any}
-          loading={isLoading}
-        />
-
-        {/* Geographic Distribution Map - Full Width */}
-        <GeographicMap
-          pages={sortedData.pages as any}
-          loading={isLoading}
-        />
 
         {/* Additional Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
