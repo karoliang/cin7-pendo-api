@@ -592,6 +592,22 @@ export const DataTables: React.FC = () => {
               </div>
             );
           }},
+          { key: 'visitorCount', header: 'Visitors', sortable: true, render: (value: unknown) => {
+            const count = (value as number) || 0;
+            return (
+              <span className={`font-semibold ${count > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
+                {count.toLocaleString()}
+              </span>
+            );
+          }},
+          { key: 'viewedCount', header: 'Views', sortable: true, render: (value: unknown) => {
+            const count = (value as number) || 0;
+            return (
+              <span className={`font-semibold ${count > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                {count.toLocaleString()}
+              </span>
+            );
+          }},
           { key: 'createdAt', header: 'Created', sortable: true, render: (value: unknown) => (
             new Date(value as string).toLocaleDateString()
           )},
