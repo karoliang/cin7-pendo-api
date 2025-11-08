@@ -382,23 +382,14 @@ async function calculateGuideAnalyticsFromEvents(guideId: string): Promise<{
       return { views: 0, completions: 0, completion_rate: 0, unique_visitors: 0, avg_time_to_complete: 0 };
     }
 
-    // Count different event types (assuming event_type contains 'guideEvents')
-    // Note: The actual event type detection may need adjustment based on your data structure
-    const seenEvents = events.filter(e => {
-      const metadata = e.metadata as any;
-      return metadata?.type === 'guideSeen' || e.event_type === 'guideSeen';
-    });
-
-    const completeEvents = events.filter(e => {
-      const metadata = e.metadata as any;
-      return metadata?.type === 'guideComplete' || e.event_type === 'guideComplete';
-    });
-
+    // All guide events are views (event_type is just "guideEvents", not subdivided into seen/complete)
+    const views = events.length;
     const uniqueVisitors = new Set(events.map(e => e.visitor_id).filter(Boolean)).size;
 
-    const views = seenEvents.length;
-    const completions = completeEvents.length;
-    const completion_rate = views > 0 ? (completions / views) * 100 : 0;
+    // Note: Current event structure doesn't distinguish between "seen" and "complete"
+    // All events with entity_type='guide' are counted as views
+    const completions = 0; // Would require additional Pendo API call for completion data
+    const completion_rate = 0;
 
     return {
       views,
