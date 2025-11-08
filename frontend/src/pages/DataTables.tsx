@@ -9,18 +9,17 @@ import { FilterPanel } from '@/components/filters/FilterPanel';
 // import { useDashboardOverview } from '@/hooks/usePendoData'; // Using Pendo API (causes browser crash with 368k+ events)
 import { useSupabaseDashboard as useDashboardOverview } from '@/hooks/useSupabaseData'; // Using Supabase synced data (300 records)
 import { useFilterStore } from '@/stores/filterStore';
-import type { Guide, Feature, Page, Report, Event } from '@/types/pendo';
+import type { Guide, Feature, Page, Report } from '@/types/pendo';
 import { Cin7Card as Card, Cin7CardContent as CardContent, Cin7CardHeader as CardHeader, Cin7CardTitle as CardTitle } from '@/components/polaris';
 import {
   DocumentTextIcon,
   CubeIcon,
   GlobeAltIcon,
   ChartBarIcon,
-  BoltIcon,
 } from '@heroicons/react/24/outline';
 import { usePageTitle, PAGE_TITLES, PAGE_DESCRIPTIONS } from '@/hooks/usePageTitle';
 
-type TabType = 'guides' | 'features' | 'pages' | 'reports' | 'events';
+type TabType = 'guides' | 'features' | 'pages' | 'reports';
 
 interface TableState {
   guides: {
@@ -59,15 +58,6 @@ interface TableState {
       hasNext: boolean;
     };
   };
-  events: {
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      hasPrevious: boolean;
-      hasNext: boolean;
-    };
-  };
 }
 
 export const DataTables: React.FC = () => {
@@ -78,7 +68,7 @@ export const DataTables: React.FC = () => {
 
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { guides, features, pages, reports, events, isLoading, error, refetch } = useDashboardOverview();
+  const { guides, features, pages, reports, isLoading, error, refetch } = useDashboardOverview();
   const { filters, updateFilters } = useFilterStore();
 
   // Debug logging
@@ -88,12 +78,11 @@ export const DataTables: React.FC = () => {
     console.log('  Features:', features.length);
     console.log('  Pages:', pages.length);
     console.log('  Reports:', reports.length);
-    console.log('  Events:', events.length);
-  }, [guides.length, features.length, pages.length, reports.length, events.length]);
+  }, [guides.length, features.length, pages.length, reports.length]);
 
   // Get active tab from URL, default to 'pages'
   const tabFromUrl = searchParams.get('tab') as TabType | null;
-  const activeTab: TabType = tabFromUrl && ['guides', 'features', 'pages', 'reports', 'events'].includes(tabFromUrl)
+  const activeTab: TabType = tabFromUrl && ['guides', 'features', 'pages', 'reports'].includes(tabFromUrl)
     ? tabFromUrl
     : 'pages';
 
@@ -101,14 +90,13 @@ export const DataTables: React.FC = () => {
   const setActiveTab = (tab: TabType) => {
     setSearchParams({ tab });
   };
-  const [selectedItem, setSelectedItem] = useState<Guide | Feature | Page | Report | Event | null>(null);
-  const [detailModalType, setDetailModalType] = useState<'guide' | 'feature' | 'page' | 'report' | 'event' | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Guide | Feature | Page | Report | null>(null);
+  const [detailModalType, setDetailModalType] = useState<'guide' | 'feature' | 'page' | 'report' | null>(null);
   const [tableState, setTableState] = useState<TableState>({
     guides: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } },
     features: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } },
     pages: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } },
-    reports: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } },
-    events: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } }
+    reports: { pagination: { page: 1, limit: 25, total: 0, hasPrevious: false, hasNext: false } }
   });
 
   // Apply filters to data (same logic as Dashboard)
@@ -164,41 +152,13 @@ export const DataTables: React.FC = () => {
       return true;
     };
 
-    // Separate filter for events (simpler logic)
-    const filterEvents = (eventsList: Event[]): Event[] => {
-      return eventsList.filter(event => {
-        if (filters.searchQuery) {
-          const searchLower = filters.searchQuery.toLowerCase();
-          const typeMatch = event.event_type?.toLowerCase().includes(searchLower);
-          const entityMatch = event.entity_type?.toLowerCase().includes(searchLower);
-          const countryMatch = event.country?.toLowerCase().includes(searchLower);
-          if (!typeMatch && !entityMatch && !countryMatch) {
-            return false;
-          }
-        }
-
-        if (filters.dateRange?.start || filters.dateRange?.end) {
-          const eventDate = new Date(event.browser_time);
-          if (filters.dateRange.start && eventDate < filters.dateRange.start) {
-            return false;
-          }
-          if (filters.dateRange.end && eventDate > filters.dateRange.end) {
-            return false;
-          }
-        }
-
-        return true;
-      });
-    };
-
     return {
       guides: filterArray(guides || [], createFilterFn),
       features: filterArray(features || [], createFilterFn),
       pages: filterArray(pages || [], createFilterFn),
-      reports: filterArray(reports || [], createFilterFn),
-      events: filterEvents(events || [])
+      reports: filterArray(reports || [], createFilterFn)
     };
-  }, [guides, features, pages, reports, events, filters]);
+  }, [guides, features, pages, reports, filters]);
 
   // Sort data by most recent (default sorting)
   const sortedData = React.useMemo(() => {
@@ -226,12 +186,6 @@ export const DataTables: React.FC = () => {
         const dateA = new Date(a.createdAt).getTime();
         const dateB = new Date(b.createdAt).getTime();
         return dateB - dateA; // Descending order (newest first)
-      }),
-      // Events: Sort by browser_time (most recent first)
-      events: [...filteredData.events].sort((a, b) => {
-        const dateA = new Date(a.browser_time).getTime();
-        const dateB = new Date(b.browser_time).getTime();
-        return dateB - dateA; // Descending order (newest first)
       })
     };
   }, [filteredData]);
@@ -242,17 +196,15 @@ export const DataTables: React.FC = () => {
     const featuresTotal = sortedData.features.length;
     const pagesTotal = sortedData.pages.length;
     const reportsTotal = sortedData.reports.length;
-    const eventsTotal = sortedData.events.length;
 
     setTableState(prev => {
       const newGuidesTotal = prev.guides.pagination.total !== guidesTotal;
       const newFeaturesTotal = prev.features.pagination.total !== featuresTotal;
       const newPagesTotal = prev.pages.pagination.total !== pagesTotal;
       const newReportsTotal = prev.reports.pagination.total !== reportsTotal;
-      const newEventsTotal = prev.events.pagination.total !== eventsTotal;
 
       // Only update if totals actually changed
-      if (!newGuidesTotal && !newFeaturesTotal && !newPagesTotal && !newReportsTotal && !newEventsTotal) {
+      if (!newGuidesTotal && !newFeaturesTotal && !newPagesTotal && !newReportsTotal) {
         return prev;
       }
 
@@ -293,19 +245,10 @@ export const DataTables: React.FC = () => {
             hasPrevious: prev.reports.pagination.page > 1,
             hasNext: prev.reports.pagination.page * prev.reports.pagination.limit < reportsTotal
           }
-        },
-        events: {
-          ...prev.events,
-          pagination: {
-            ...prev.events.pagination,
-            total: eventsTotal,
-            hasPrevious: prev.events.pagination.page > 1,
-            hasNext: prev.events.pagination.page * prev.events.pagination.limit < eventsTotal
-          }
         }
       };
     });
-  }, [sortedData.guides.length, sortedData.features.length, sortedData.pages.length, sortedData.reports.length, sortedData.events.length]);
+  }, [sortedData.guides.length, sortedData.features.length, sortedData.pages.length, sortedData.reports.length]);
 
   // Calculate summary metrics for each tab
   const summaryMetrics = React.useMemo(() => {
@@ -367,41 +310,6 @@ export const DataTables: React.FC = () => {
       return lastRun >= weekAgo;
     }).length;
 
-    // Events metrics
-    const eventsData = sortedData.events as Event[];
-    const eventTypeBreakdown = eventsData.reduce((acc, event) => {
-      const type = event.event_type || 'unknown';
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const topEventTypes = Object.entries(eventTypeBreakdown)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([type, count]) => ({ type, count }));
-
-    const entityTypeBreakdown = eventsData.reduce((acc, event) => {
-      const type = event.entity_type || 'other';
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const topCountries = eventsData.reduce((acc, event) => {
-      const country = event.country || 'Unknown';
-      acc[country] = (acc[country] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const topCountriesList = Object.entries(topCountries)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([country, count]) => ({ country, count }));
-
-    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const recentEventsCount = eventsData.filter(e =>
-      new Date(e.browser_time) >= last24Hours
-    ).length;
-
     return {
       guides: {
         published: publishedGuides,
@@ -428,13 +336,6 @@ export const DataTables: React.FC = () => {
         withRuns: reportsWithRuns,
         neverRun: reportsNeverRun,
         recentRuns: recentReports
-      },
-      events: {
-        topEventTypes,
-        entityTypeBreakdown,
-        topCountries: topCountriesList,
-        recentCount: recentEventsCount,
-        totalEvents: eventsData.length
       }
     };
   }, [sortedData]);
@@ -471,20 +372,12 @@ export const DataTables: React.FC = () => {
       count: filteredData.reports.length,
       data: sortedData.reports,
       pagination: tableState.reports.pagination
-    },
-    {
-      id: 'events' as TabType,
-      label: 'Events',
-      icon: BoltIcon,
-      count: filteredData.events.length,
-      data: sortedData.events,
-      pagination: tableState.events.pagination
     }
   ];
 
   const currentTab = tabs.find(tab => tab.id === activeTab)!;
 
-  type TableItem = Guide | Feature | Page | Report | Event;
+  type TableItem = Guide | Feature | Page | Report;
 
   const getColumns = (): Array<{
     key: string;
@@ -623,53 +516,17 @@ export const DataTables: React.FC = () => {
             new Date(value as string).toLocaleDateString()
           )},
         ];
-      case 'events':
-        return [
-          { key: 'event_type', header: 'Event Type', sortable: true, render: (value: unknown) => (
-            <span className="font-medium text-blue-600">{value as string}</span>
-          )},
-          { key: 'entity_type', header: 'Entity', sortable: true, render: (value: unknown) => {
-            const type = value as string | null;
-            return type ? (
-              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                type === 'guide' ? 'bg-purple-100 text-purple-800' :
-                type === 'feature' ? 'bg-blue-100 text-blue-800' :
-                type === 'page' ? 'bg-green-100 text-green-800' :
-                'bg-gray-100 text-gray-800'
-              }`}>
-                {type}
-              </span>
-            ) : <span className="text-gray-400">—</span>;
-          }},
-          { key: 'visitor_id', header: 'Visitor ID', sortable: false, render: (value: unknown) => (
-            value ? <span className="font-mono text-xs text-gray-600">{(value as string).substring(0, 8)}...</span> : <span className="text-gray-400">—</span>
-          )},
-          { key: 'country', header: 'Location', sortable: true, render: (value: unknown, item: TableItem) => {
-            const event = item as Event;
-            const location = [event.city, event.region, event.country].filter(Boolean).join(', ');
-            return location || <span className="text-gray-400">—</span>;
-          }},
-          { key: 'browser_time', header: 'Time', sortable: true, render: (value: unknown) => {
-            const date = new Date(value as string);
-            return (
-              <div>
-                <div className="text-sm">{date.toLocaleDateString()}</div>
-                <div className="text-xs text-gray-500">{date.toLocaleTimeString()}</div>
-              </div>
-            );
-          }},
-        ];
       default:
         return [];
     }
   };
 
-  const handleRowClick = (item: Guide | Feature | Page | Report | Event) => {
+  const handleRowClick = (item: Guide | Feature | Page | Report) => {
     // Navigate to detailed report page with tab state for back navigation
     console.log('Navigating to:', `/report/${activeTab}/${item.id}`, {
       activeTab,
       itemId: item.id,
-      itemName: 'name' in item ? item.name : 'event_type' in item ? item.event_type : 'Unknown'
+      itemName: 'name' in item ? item.name : 'Unknown'
     });
     navigate(`/report/${activeTab}/${item.id}`, { state: { fromTab: activeTab } });
   };
@@ -802,95 +659,6 @@ export const DataTables: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'events' && (
-              <div className="mb-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">Event Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center p-4 bg-blue-50 rounded-lg">
-                          <div className="text-2xl font-bold text-blue-600">{summaryMetrics.events.totalEvents.toLocaleString()}</div>
-                          <div className="text-xs text-gray-600 mt-1">Total Events</div>
-                        </div>
-                        <div className="text-center p-4 bg-green-50 rounded-lg">
-                          <div className="text-2xl font-bold text-green-600">{summaryMetrics.events.recentCount.toLocaleString()}</div>
-                          <div className="text-xs text-gray-600 mt-1">Last 24 Hours</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">Entity Breakdown</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {Object.entries(summaryMetrics.events.entityTypeBreakdown).map(([type, count]) => (
-                          <div key={type} className="flex items-center justify-between py-2 border-b last:border-0">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              type === 'guide' ? 'bg-purple-100 text-purple-800' :
-                              type === 'feature' ? 'bg-blue-100 text-blue-800' :
-                              type === 'page' ? 'bg-green-100 text-green-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {type}
-                            </span>
-                            <span className="text-sm font-bold text-gray-700">{(count as number).toLocaleString()}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {summaryMetrics.events.topEventTypes.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">Top 5 Event Types</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {summaryMetrics.events.topEventTypes.map((event, index) => (
-                          <div key={event.type} className="flex items-center justify-between py-2 border-b last:border-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-gray-400 w-6">{index + 1}.</span>
-                              <span className="text-sm font-medium text-gray-700">{event.type}</span>
-                            </div>
-                            <span className="text-sm font-bold text-blue-600">{event.count.toLocaleString()}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {summaryMetrics.events.topCountries.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">Top 5 Countries</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {summaryMetrics.events.topCountries.map((location, index) => (
-                          <div key={location.country} className="flex items-center justify-between py-2 border-b last:border-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-gray-400 w-6">{index + 1}.</span>
-                              <span className="text-sm font-medium text-gray-700">{location.country}</span>
-                            </div>
-                            <span className="text-sm font-bold text-green-600">{location.count.toLocaleString()}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-
             <Cin7DataTable
               data={currentTab.data as any}
               columns={getColumns() as any}
@@ -907,11 +675,11 @@ export const DataTables: React.FC = () => {
         </div>
       </div>
 
-      {/* Detail Modal - Only for non-Event types */}
-      {selectedItem && detailModalType && detailModalType !== 'event' && (
+      {/* Detail Modal */}
+      {selectedItem && detailModalType && (
         <DetailModal
-          item={selectedItem as Guide | Feature | Page | Report}
-          type={detailModalType as 'guide' | 'feature' | 'page' | 'report'}
+          item={selectedItem}
+          type={detailModalType}
           isOpen={true}
           onClose={() => {
             setSelectedItem(null);
