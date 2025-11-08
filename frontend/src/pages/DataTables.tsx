@@ -776,31 +776,6 @@ export const DataTables: React.FC = () => {
           {/* Table Content */}
           <div className="p-6">
 
-            {activeTab === 'features' && (
-              <div className="mb-6">
-                {summaryMetrics.features.topFeatures.length > 0 && summaryMetrics.features.topFeatures.some(f => f.usageCount > 0) && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">Top 5 Features by Usage</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {summaryMetrics.features.topFeatures.map((feature, index) => (
-                          <div key={feature.id} className="flex items-center justify-between py-2 border-b last:border-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-gray-400 w-6">{index + 1}.</span>
-                              <span className="text-sm font-medium text-gray-700">{feature.name}</span>
-                            </div>
-                            <span className="text-sm font-bold text-blue-600">{feature.usageCount.toLocaleString()}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-
             {activeTab === 'reports' && (
               <div className="mb-6">
                 <Card>
