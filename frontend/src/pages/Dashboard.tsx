@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { UsageHeatmap } from '@/components/dashboard/UsageHeatmap';
+import { FeatureCategoryChart } from '@/components/dashboard/FeatureCategoryChart';
 import { GuidePerformanceChart } from '@/components/charts/GuidePerformanceChart';
 import { FeatureAdoptionChart } from '@/components/charts/FeatureAdoptionChart';
 import { PageAnalyticsChart } from '@/components/charts/PageAnalyticsChart';
@@ -569,6 +570,9 @@ export const Dashboard: React.FC = () => {
           startDate={dateRange.start}
           endDate={dateRange.end}
         />
+
+        {/* Feature Category Analysis - Full Width */}
+        <FeatureCategoryChart features={sortedData.features as Feature[]} />
       </div>
     </Layout>
   );

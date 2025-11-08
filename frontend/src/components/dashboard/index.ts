@@ -4,3 +4,4 @@ export { FrustrationMetrics } from './FrustrationMetrics';
 export { GeographicMap } from './GeographicMap';
 export { RevenueImpact } from './RevenueImpact';
 export { UsageHeatmap } from './UsageHeatmap';
+export { FeatureCategoryChart } from './FeatureCategoryChart';
