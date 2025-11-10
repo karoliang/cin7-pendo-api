@@ -166,7 +166,7 @@ async function step5_GenerateReenableSQL() {
   console.log('📊 STEP 5: Generate Re-Enable SQL Commands\n');
 
   const sql = `-- Re-enable Pendo Data Sync Cronjob
--- Run this in Supabase SQL Editor: https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/sql
+-- Run this in Supabase SQL Editor: https://supabase.com/dashboard/project/your-supabase-project-id/sql
 
 -- Re-create the cronjob schedule
 SELECT cron.schedule(
@@ -215,7 +215,7 @@ async function step6_Instructions() {
   console.log('   ⚠️  NOTE: Cronjob re-enablement requires Supabase SQL Editor\n');
   console.log('   NEXT STEPS:\n');
   console.log('   1️⃣  Open Supabase SQL Editor:');
-  console.log('      https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/sql\n');
+  console.log('      https://supabase.com/dashboard/project/your-supabase-project-id/sql\n');
   console.log('   2️⃣  Run the SQL from: scripts/reenable-cronjob.sql\n');
   console.log('   3️⃣  Verify the cronjob is scheduled (check the query results)\n');
   console.log('   4️⃣  Monitor for next 24 hours:');
@@ -224,7 +224,7 @@ async function step6_Instructions() {
   console.log('      SELECT * FROM sync_status ORDER BY last_sync_end DESC LIMIT 5;\n');
   console.log('   MONITORING:\n');
   console.log('   - Cronjob runs at: 00:00, 06:00, 12:00, 18:00 UTC');
-  console.log('   - Check Edge Function logs: https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/functions');
+  console.log('   - Check Edge Function logs: https://supabase.com/dashboard/project/your-supabase-project-id/functions');
   console.log('   - Verify guides with views stays ~92+ (not dropping)\n');
   console.log('   ROLLBACK (if analytics get zeroed):');
   console.log('   - Run: SELECT cron.unschedule(\'sync-pendo-incremental-every-6-hours\');');

@@ -29,9 +29,9 @@ DECLARE
 BEGIN
   -- Call the Edge Function using pg_net
   SELECT net.http_post(
-    url := 'https://nrutlzclujyejusvbafm.supabase.co/functions/v1/sync-pendo-incremental',
+    url := 'https://your-supabase-project-id.supabase.co/functions/v1/sync-pendo-incremental',
     headers := jsonb_build_object(
-      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydXRsemNsdWp5ZWp1c3ZiYWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTM4MTAsImV4cCI6MjA3Nzk4OTgxMH0.wailzK_IBHtUig3sdragy-WVcyZDxrQEQaCt76AD130',
+      'Authorization', 'Bearer your-supabase-anon-key',
       'Content-Type', 'application/json'
     ),
     body := '{}'::jsonb

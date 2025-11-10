@@ -71,7 +71,7 @@ interface VulnerableComponent {
 }
 
 export const VulnerableComponent: React.FC = () => {
-  const apiKey = "f4acdb2c-038c-4de1-a88b-ab90423037bf.us"; // Hardcoded key
+  const apiKey = "your-pendo-integration-key"; // Hardcoded key
   const [userData, setUserData] = useState(null);
 
   // Direct API call without proper validation
@@ -322,7 +322,7 @@ const securityConfig = {
 - **API Security**: Pendo API integration security
 
 ### Sensitive Assets
-- **Pendo API Key**: `f4acdb2c-038c-4de1-a88b-ab90423037bf.us`
+- **Pendo API Key**: `your-pendo-integration-key`
 - **Supabase Configuration**: Database connection strings
 - **User Data**: Analytics data and user information
 - **Business Intelligence**: Cin7 proprietary analytics

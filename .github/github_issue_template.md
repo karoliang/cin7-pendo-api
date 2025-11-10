@@ -72,7 +72,7 @@ Implement comprehensive project management:
 
 ### API Integration Template
 - Pendo API endpoint information
-- Authentication key context (f4acdb2c-038c-4de1-a88b-ab90423037bf.us)
+- Authentication key context (your-pendo-integration-key)
 - Rate limiting considerations
 - Data sync status with Supabase
 - Business impact on Cin7 analytics
@@ -207,7 +207,7 @@ Implement comprehensive project management:
 ### Internal References
 - Repository structure: `/frontend/src/`, `/src/pendo_client.py`
 - Technology stack: React 19.1.1, TypeScript 5.9.3, TanStack Query, Supabase
-- Pendo API integration: Key `f4acdb2c-038c-4de1-a88b-ab90423037bf.us`
+- Pendo API integration: Key `your-pendo-integration-key`
 - Recent deployment history: Repository reset after extensive troubleshooting
 
 ### External References

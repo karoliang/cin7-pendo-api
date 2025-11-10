@@ -236,7 +236,7 @@ async function step5_ReEnableInstructions() {
 INSTRUCTIONS TO RE-ENABLE CRONJOB:
 
 1️⃣  FIX RLS POLICIES (REQUIRED FIRST):
-   - Go to: https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/sql
+   - Go to: https://supabase.com/dashboard/project/your-supabase-project-id/sql
    - Run the SQL from: scripts/fix-rls-policies.sql
    - Choose Option 1 (disable RLS) or Option 2 (enable with service_role bypass)
 
@@ -246,7 +246,7 @@ INSTRUCTIONS TO RE-ENABLE CRONJOB:
    - Confirm analytics calculation works
 
 3️⃣  RE-ENABLE THE CRONJOB:
-   - Go to: https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/sql
+   - Go to: https://supabase.com/dashboard/project/your-supabase-project-id/sql
    - Run this SQL:
 
      SELECT cron.schedule(

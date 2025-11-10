@@ -1,5 +1,5 @@
 -- Re-enable Pendo Data Sync Cronjob
--- Run this in Supabase SQL Editor: https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/sql
+-- Run this in Supabase SQL Editor: https://supabase.com/dashboard/project/your-supabase-project-id/sql
 
 -- Re-create the cronjob schedule
 SELECT cron.schedule(

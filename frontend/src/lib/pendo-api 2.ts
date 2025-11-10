@@ -227,7 +227,7 @@ interface GuideStepData {
 }
 
 const PENDO_BASE_URL = 'https://app.pendo.io';
-const PENDO_API_KEY = 'f4acdb2c-038c-4de1-a88b-ab90423037bf.us';
+const PENDO_API_KEY = import.meta.env.VITE_PENDO_API_KEY;
 
 class PendoAPIClient {
   private headers = {

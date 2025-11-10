@@ -46,7 +46,7 @@ async function disableCronjob() {
     console.log(`   ⚠️  Could not unschedule via RPC: ${error.message}`);
     console.log('   Please run this SQL in Supabase SQL Editor:\n');
     console.log('   SELECT cron.unschedule(\'sync-pendo-incremental-every-6-hours\');\n');
-    console.log('   Dashboard: https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/sql\n');
+    console.log('   Dashboard: https://supabase.com/dashboard/project/your-supabase-project-id/sql\n');
   } else {
     console.log(`   ✅ Cronjob unscheduled successfully\n`);
   }
@@ -55,7 +55,7 @@ async function disableCronjob() {
 disableCronjob().catch(error => {
   console.error('\n❌ Error:', error);
   console.log('\n📌 MANUAL STEP REQUIRED:');
-  console.log('   Go to: https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/sql');
+  console.log('   Go to: https://supabase.com/dashboard/project/your-supabase-project-id/sql');
   console.log('   Run: SELECT cron.unschedule(\'sync-pendo-incremental-every-6-hours\');\n');
   process.exit(1);
 });

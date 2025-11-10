@@ -67,7 +67,7 @@ Provide detailed steps to reproduce the issue:
 
 ## Pendo API Context (if applicable)
 - **API Endpoint**: `GET /api/pendo/endpoint`
-- **Authentication**: Using integration key `f4acdb2c-038c-4de1-a88b-ab90423037bf.us`
+- **Authentication**: Using integration key `your-pendo-integration-key`
 - **Rate Limit Status**: [Current usage/limits]
 - **Data Sync Status**: [Last sync with Supabase]
 

@@ -12,7 +12,7 @@ A clear description of the Pendo API integration problem.
 ## Pendo API Information
 - **Endpoint**: `GET/POST/PUT/DELETE /api/pendo/[endpoint]`
 - **Method**: [HTTP method]
-- **Authentication**: Integration Key `f4acdb2c-038c-4de1-a88b-ab90423037bf.us`
+- **Authentication**: Integration Key `your-pendo-integration-key`
 - **Subscription Level**: [Current Pendo subscription tier]
 - **Access Rights**: Read-only/Read-write/Admin
 
@@ -33,7 +33,7 @@ A clear description of the Pendo API integration problem.
 const response = await fetch('/api/pendo/guides', {
   method: 'GET',
   headers: {
-    'X-Pendo-Integration-Key': 'f4acdb2c-038c-4de1-a88b-ab90423037bf.us',
+    'X-Pendo-Integration-Key': 'your-pendo-integration-key',
     'Content-Type': 'application/json'
   },
   // Request body if applicable
@@ -75,7 +75,7 @@ const response = await fetch('/api/pendo/guides', {
 ```bash
 # curl command for manual testing
 curl -X GET "https://app.pendo.io/api/v1/endpoint" \
-  -H "X-Pendo-Integration-Key: f4acdb2c-038c-4de1-a88b-ab90423037bf.us" \
+  -H "X-Pendo-Integration-Key: your-pendo-integration-key" \
   -H "Content-Type: application/json"
 ```
 

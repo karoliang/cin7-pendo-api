@@ -275,7 +275,7 @@ export class EnhancedPendoAPIClient {
   private static instance: EnhancedPendoAPIClient;
 
   private readonly headers = {
-    'X-Pendo-Integration-Key': import.meta.env.VITE_PENDO_API_KEY || 'f4acdb2c-038c-4de1-a88b-ab90423037bf.us',
+    'X-Pendo-Integration-Key': import.meta.env.VITE_PENDO_API_KEY || 'your-pendo-integration-key',
     'Content-Type': 'application/json',
     'User-Agent': 'Cin7-Pendo-API/1.0 (enhanced-client)',
   };

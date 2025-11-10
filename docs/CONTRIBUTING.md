@@ -13,7 +13,7 @@ Thank you for your interest in contributing to the **cin7-pendo-api** project! T
 - **Backend**: Python Pendo API client
 - **Database**: Supabase (PostgreSQL) with Row Level Security
 - **Deployment**: Netlify with Edge Functions
-- **API Integration**: Pendo.io with key `f4acdb2c-038c-4de1-a88b-ab90423037bf.us`
+- **API Integration**: Pendo.io with integration key from environment variables
 
 ### Key Features
 - **Real-time Analytics**: 2,313+ records across guides, features, pages, and reports
@@ -936,7 +936,7 @@ const UserContent: React.FC<{ content: string }> = ({ content }) => {
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: https:;
       font-src 'self' data:;
-      connect-src 'self' https://app.pendo.io https://data.pendo.io https://cdn.pendo.io https://nrutlzclujyejusvbafm.supabase.co;
+      connect-src 'self' https://app.pendo.io https://data.pendo.io https://cdn.pendo.io https://your-project.supabase.co;
       frame-ancestors 'none';
     """
 ```

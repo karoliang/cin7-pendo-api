@@ -3,8 +3,8 @@
 // Quick verification script to check Pendo data sync
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
 
-const SUPABASE_URL = 'https://nrutlzclujyejusvbafm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ydXRsemNsdWp5ZWp1c3ZiYWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MTM4MTAsImV4cCI6MjA3Nzk4OTgxMH0.wailzK_IBHtUig3sdragy-WVcyZDxrQEQaCt76AD130';
+const SUPABASE_URL = 'https://your-supabase-project-id.supabase.co';
+const SUPABASE_ANON_KEY = 'your-supabase-anon-key';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

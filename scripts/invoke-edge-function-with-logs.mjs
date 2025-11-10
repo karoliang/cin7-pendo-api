@@ -43,7 +43,7 @@ async function invokeEdgeFunction() {
     console.log('');
 
     console.log('\n💡 To see Edge Function logs:');
-    console.log('   1. Go to: https://supabase.com/dashboard/project/nrutlzclujyejusvbafm/functions/sync-pendo-incremental/logs');
+    console.log('   1. Go to: https://supabase.com/dashboard/project/your-supabase-project-id/functions/sync-pendo-incremental/logs');
     console.log('   2. Or run: supabase functions serve (for local testing)');
     console.log('');
 
