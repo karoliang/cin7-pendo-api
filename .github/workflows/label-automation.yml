@@ -1,0 +1,17 @@
+name: Auto-label Issues and Pull Requests
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited, ready_for_review]
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-label issues
+        uses: actions/labeler@v4
+        with:
+          configuration-path: .github/labeler.yml
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          sync-labels: true

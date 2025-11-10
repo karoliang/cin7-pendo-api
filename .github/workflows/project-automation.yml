@@ -1,0 +1,138 @@
+name: Project Board Automation
+
+on:
+  issues:
+    types: [opened, closed, labeled, unlabeled, reopened]
+  pull_request:
+    types: [opened, closed, ready_for_review, merged]
+  project_card:
+    types: [created, moved, converted, deleted]
+  project:
+    types: [created, updated, closed]
+
+jobs:
+  manage-project-board:
+    runs-on: ubuntu-latest
+    if: github.repository == 'karoliang/cin7-pendo-api'
+    steps:
+      - name: Check project access
+        run: |
+          echo "Project automation starting for ${{ github.repository }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Action: ${{ github.event.action }}"
+
+      - name: Handle new issues
+        if: github.event_name == 'issues' && github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+
+            // Auto-assign to triage column for new issues
+            if (issue.labels.includes('security') && issue.labels.includes('critical')) {
+              // Critical security issues get high priority
+              github.rest.projects.createCard({
+                column_id: getColumnId('High Priority'),
+                content_id: issue.id,
+                content_type: 'Issue'
+              });
+            } else if (issue.labels.includes('critical')) {
+              // All critical issues go to high priority
+              github.rest.projects.createCard({
+                column_id: getColumnId('High Priority'),
+                content_id: issue.id,
+                content_type: 'Issue'
+              });
+            } else if (issue.labels.includes('bug') && issue.labels.includes('high')) {
+              // High priority bugs go to current sprint
+              github.rest.projects.createCard({
+                column_id: getColumnId('Current Sprint'),
+                content_id: issue.id,
+                content_type: 'Issue'
+              });
+            } else {
+              // Everything else goes to backlog for triage
+              github.rest.projects.createCard({
+                column_id: getColumnId('Backlog'),
+                content_id: issue.id,
+                content_type: 'Issue'
+              });
+            }
+
+      - name: Update based on labels
+        if: github.event_name == 'issues' && (github.event.action == 'labeled' || github.event.action == 'unlabeled')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const label = context.payload.label?.name;
+
+            // Handle priority changes
+            if (label === 'critical') {
+              moveCard(issue.id, 'High Priority');
+            } else if (label === 'high') {
+              moveCard(issue.id, 'High Priority');
+            } else if (label === 'medium') {
+              moveCard(issue.id, 'Medium Priority');
+            } else if (label === 'low') {
+              moveCard(issue.id, 'Low Priority');
+            }
+
+            // Handle status changes
+            if (label === 'in-progress') {
+              moveCard(issue.id, 'In Progress');
+            } else if (label === 'blocked') {
+              moveCard(issue.id, 'Blocked');
+            } else if (label === 'fixed') {
+              moveCard(issue.id, 'Testing');
+            }
+
+      - name: Handle PR changes
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            if (github.event.action === 'opened') {
+              // New PR goes to review column
+              github.rest.projects.createCard({
+                column_id: getColumnId('Code Review'),
+                content_id: pr.id,
+                content_type: 'PullRequest'
+              });
+            } else if (github.event.action === 'ready_for_review') {
+              // Ready for review
+              moveCard(pr.id, 'Code Review');
+            } else if (github.event.action === 'closed' && pr.merged) {
+              // Merged PR goes to done
+              moveCard(pr.id, 'Done');
+            } else if (github.event.action === 'closed' && !pr.merged) {
+              // Closed but not merged goes to backlog or removed
+              moveCard(pr.id, 'Backlog');
+            }
+
+      - name: Update milestone progress
+        if: github.event_name == 'issues' && github.event.action == 'closed'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+
+            if (issue.milestone) {
+              // Update milestone progress
+              const milestoneNumber = issue.milestone.number;
+              updateMilestoneProgress(milestoneNumber);
+            }
+
+  # Helper function for getting column IDs
+  # Note: These would need to be replaced with actual column IDs from your GitHub project
+  env:
+    PROJECT_ID: "1"  # Replace with actual project ID
+    BACKLOG_COLUMN: "2"  # Replace with actual column ID
+    TODO_COLUMN: "3"     # Replace with actual column ID
+    IN_PROGRESS_COLUMN: "4"  # Replace with actual column ID
+    REVIEW_COLUMN: "5"   # Replace with actual column ID
+    TESTING_COLUMN: "6"  # Replace with actual column ID
+    DONE_COLUMN: "7"     # Replace with actual column ID
+    BLOCKED_COLUMN: "8"  # Replace with actual column ID

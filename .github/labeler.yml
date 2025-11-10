@@ -1,0 +1,210 @@
+# Labeler Configuration for cin7-pendo-api
+# Automatically apply labels based on file changes and content
+
+# Frontend/React Issues
+frontend:
+  - changed-files:
+      - 'frontend/src/**/*.{ts,tsx,js,jsx}'
+      - 'frontend/package.json'
+      - 'frontend/vite.config.ts'
+      - 'frontend/tsconfig*.json'
+  labels:
+    - frontend
+    - react
+    - needs-triage
+
+# TypeScript Issues
+typescript:
+  - changed-files:
+      - '**/*.ts'
+      - '**/*.tsx'
+      - 'frontend/tsconfig*.json'
+  labels:
+    - typescript
+    - frontend
+
+# API/Pendo Integration Issues
+api:
+  - changed-files:
+      - '**/pendo-api*'
+      - 'src/pendo_client*'
+      - '**/supabase/**'
+      - '**/netlify/functions/**'
+  labels:
+    - api
+    - pendo-api
+    - backend
+
+# Supabase Database Issues
+supabase:
+  - changed-files:
+      - '**/supabase/**'
+      - 'supabase-migrations/**'
+  labels:
+    - supabase
+    - database
+
+# Documentation Changes
+documentation:
+  - changed-files:
+      - '**/*.md'
+      - 'docs/**/*'
+      - '.github/**/*'
+  labels:
+    - documentation
+
+# Configuration and Infrastructure
+infrastructure:
+  - changed-files:
+      - '**/package*.json'
+      - '**/netlify.toml'
+      - '**/.github/workflows/**'
+      - '**/Dockerfile*'
+      - '**/docker-compose*'
+  labels:
+    - infrastructure
+    - configuration
+
+# Testing Files
+testing:
+  - changed-files:
+      - '**/*.test.*'
+      - '**/*.spec.*'
+      - 'frontend/jest.config.*'
+      - 'frontend/playwright.config.*'
+  labels:
+    - testing
+
+# Performance Related
+performance:
+  - files:
+      - '**/*perf*'
+      - '**/*bundle*'
+      - '**/*optimization*'
+      - '**/lazy*'
+      - '**/memo*'
+  labels:
+    - performance
+    - enhancement
+
+# Security Related
+security:
+  - files:
+      - '**/*security*'
+      - '**/*auth*'
+      - '**/*rls*'
+      - '**/*csp*'
+      - '**/*encrypt*'
+  labels:
+    - security
+    - critical
+
+# UI Components and Styling
+ui-components:
+  - changed-files:
+      - 'frontend/src/components/**/*'
+      - 'frontend/src/lib/design-tokens.ts'
+      - 'tailwind.config.*'
+  labels:
+    - ui-components
+    - frontend
+
+# Charts and Data Visualization
+charts:
+  - changed-files:
+      - 'frontend/src/components/charts/**/*'
+      - 'frontend/src/**/*chart*'
+  labels:
+    - charts
+    - frontend
+
+# State Management
+state-management:
+  - changed-files:
+      - 'frontend/src/stores/**/*'
+      - 'frontend/src/**/*store*'
+      - 'frontend/src/**/*zustand*'
+  labels:
+    - state-management
+    - frontend
+
+# Data Fetching
+data-fetching:
+  - changed-files:
+      - 'frontend/src/**/*query*'
+      - 'frontend/src/**/*fetch*'
+      - 'frontend/src/hooks/use*Data*'
+  labels:
+    - data-fetching
+    - frontend
+
+# Edge Functions
+edge-functions:
+  - changed-files:
+      - 'netlify/functions/**/*'
+  labels:
+    - edge-functions
+    - backend
+    - netlify
+
+# Build System
+build:
+  - changed-files:
+      - 'vite.config.*'
+      - 'esbuild.config.*'
+      - 'rollup.config.*'
+      - 'webpack.config.*'
+  labels:
+    - build
+    - infrastructure
+
+# E2E Testing
+e2e-testing:
+  - changed-files:
+      - 'frontend/playwright.config.*'
+      - 'frontend/tests/e2e/**/*'
+  labels:
+    - e2e-testing
+    - testing
+
+# Linting and Code Quality
+linting:
+  - changed-files:
+      - 'eslint.config.*'
+      - '.eslintrc*'
+      - 'prettier.config.*'
+      - '.prettierrc*'
+  labels:
+    - linting
+    - enhancement
+
+# Dependency Management
+dependencies:
+  - changed-files:
+      - 'frontend/package-lock.json'
+      - 'package-lock.json'
+      - 'yarn.lock'
+      - 'pnpm-lock.yaml'
+  labels:
+    - dependency
+    - infrastructure
+
+# Accessibility Issues
+accessibility:
+  - files:
+      - '**/*a11y*'
+      - '**/*accessibility*'
+      - '**/*wcag*'
+  labels:
+    - accessibility
+    - enhancement
+
+# Bundle Analysis
+bundle-analysis:
+  - files:
+      - '**/*bundle*'
+      - '**/*analyze*'
+      - 'frontend/vite.bundle-analyzer.js'
+  labels:
+    - bundle-analysis
+    - performance
