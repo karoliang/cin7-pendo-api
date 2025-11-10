@@ -58,3 +58,4 @@ supabase/.temp/
 
 # Local Netlify folder
 .netlify
+client_secret_*.json
