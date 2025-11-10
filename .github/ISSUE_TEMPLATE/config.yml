@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 🚨 Security Issue
+    url: https://github.com/karoliang/cin7-pendo-api/security/advisories/new
+    about: Please report security vulnerabilities privately
+  - name: ❓ General Question
+    url: https://github.com/karoliang/cin7-pendo-api/discussions
+    about: Ask questions and discuss ideas
+  - name: 📧 Email Support
+    url: mailto:support@cin7.com
+    about: Contact Cin7 support for assistance
