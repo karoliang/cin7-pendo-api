@@ -51,7 +51,7 @@
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: https:;
       font-src 'self' data:;
-      connect-src 'self' https://app.pendo.io https://data.pendo.io https://cdn.pendo.io https://your-supabase-project-id.supabase.co https://accounts.google.com;
+      connect-src 'self' https://app.pendo.io https://data.pendo.io https://cdn.pendo.io https://*.supabase.co https://accounts.google.com;
       frame-ancestors 'none';
       base-uri 'self';
       form-action 'self';
