@@ -35,10 +35,10 @@ npm run dev
 ## 🔑 **API ACCESS STATUS**
 
 ### **Primary Key**
-- **Key**: `f4acdb4c-038c-4de1-a88b-ab90423037bf.us`
-- **Status**: ✅ Working - Production Ready
-- **Access**: Read-only analytics
-- **Data**: 2,313+ records accessible
+- **Key**: `your-pendo-integration-key`
+- **Status**: 🔧 Configure with your Pendo API key
+- **Access**: Depends on your Pendo subscription
+- **Data**: Available based on your Pendo account permissions
 
 ### **🎯 Key Finding**: Current keys provide **read-only analytics access** - write capabilities require subscription upgrade
 

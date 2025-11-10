@@ -85,8 +85,8 @@ cin7-pendo-api/
 ## 🔑 **API ACCESS STATUS**
 
 ### **Primary Integration Key**
-- **Key**: `f4acdb4c-038c-4de1-a88b-ab90423037bf.us`
-- **Status**: ✅ Working - Production Ready
+- **Key**: `your-pendo-integration-key`
+- **Status**: 🔧 Configure with your Pendo API key
 - **Access**: Read-only analytics
 - **Data**: 2,313+ records accessible
 

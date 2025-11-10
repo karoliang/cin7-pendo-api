@@ -93,7 +93,7 @@ npm run build
 ### **Required Environment Variables**
 ```bash
 # Pendo API
-VITE_PENDO_INTEGRATION_KEY=f4acdb4c-038c-4de1-a88b-ab90423037bf.us
+VITE_PENDO_INTEGRATION_KEY=your-pendo-integration-key
 
 # Supabase
 VITE_SUPABASE_URL=https://your-project.supabase.co

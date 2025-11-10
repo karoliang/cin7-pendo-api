@@ -10,7 +10,7 @@ This document provides complete API reference for the Pendo.io integration, incl
 All API requests require the Pendo integration key in the header:
 
 ```bash
-curl -H "X-Pendo-Integration-Key: f4acdb4c-038c-4de1-a88b-ab90423037bf.us" \
+curl -H "X-Pendo-Integration-Key: your-pendo-integration-key" \
   https://app.pendo.io/api/v1/endpoint
 ```
 
