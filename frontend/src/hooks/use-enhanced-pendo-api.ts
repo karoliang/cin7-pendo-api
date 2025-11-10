@@ -3,7 +3,7 @@
  * Provides seamless integration with React Query and error boundaries
  */
 
-import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { enhancedPendoAPI, PendoApiError, RateLimitError, CircuitBreakerError } from '@/lib/enhanced-pendo-api';
 import type { Guide, Feature, Page, Report } from '@/types/pendo';
@@ -371,20 +371,24 @@ export const usePendoHealthMonitor = (interval: number = 30000) => {
       issues.push('API health check failed');
     }
 
-    if (health.details.successRate < 0.95) {
-      issues.push(`Low success rate: ${(health.details.successRate * 100).toFixed(1)}%`);
+    const successRate = typeof health.details.successRate === 'number' ? health.details.successRate : 0;
+    const avgResponseTime = typeof health.details.averageResponseTime === 'number' ? health.details.averageResponseTime : 0;
+    const availableTokens = typeof health.details.availableTokens === 'number' ? health.details.availableTokens : 0;
+
+    if (successRate < 0.95) {
+      issues.push(`Low success rate: ${(successRate * 100).toFixed(1)}%`);
     }
 
-    if (health.details.averageResponseTime > 5000) {
-      issues.push(`High response time: ${health.details.averageResponseTime}ms`);
+    if (avgResponseTime > 5000) {
+      issues.push(`High response time: ${avgResponseTime}ms`);
     }
 
     if (health.details.circuitBreakerState !== 'CLOSED') {
       issues.push(`Circuit breaker ${health.details.circuitBreakerState}`);
     }
 
-    if (health.details.availableTokens < 5) {
-      issues.push(`Low available tokens: ${health.details.availableTokens}`);
+    if (availableTokens < 5) {
+      issues.push(`Low available tokens: ${availableTokens}`);
     }
 
     const status = issues.length === 0 ? 'healthy' :

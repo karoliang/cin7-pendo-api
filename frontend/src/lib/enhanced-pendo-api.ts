@@ -213,7 +213,7 @@ class RetryHandler {
 
 // Enhanced API metrics collector
 class ApiMetricsCollector {
-  private metrics: ApiMetrics = {
+  private metrics: ApiMetrics & { responseTimes: number[] } = {
     totalRequests: 0,
     successfulRequests: 0,
     failedRequests: 0,
@@ -222,7 +222,7 @@ class ApiMetricsCollector {
     averageResponseTime: 0,
     lastResetTime: Date.now(),
     responseTimes: []
-  } as ApiMetrics & { responseTimes: number[] };
+  };
 
   recordRequest(responseTime: number, success: boolean, error?: Error): void {
     this.metrics.totalRequests++;
@@ -268,12 +268,14 @@ class ApiMetricsCollector {
   }
 }
 
+const PENDO_BASE_URL = 'https://app.pendo.io';
+
 // Main enhanced API client
 export class EnhancedPendoAPIClient {
   private static instance: EnhancedPendoAPIClient;
 
   private readonly headers = {
-    'X-Pendo-Integration-Key': process.env.NEXT_PUBLIC_PENDO_API_KEY || 'f4acdb2c-038c-4de1-a88b-ab90423037bf.us',
+    'X-Pendo-Integration-Key': import.meta.env.VITE_PENDO_API_KEY || 'f4acdb2c-038c-4de1-a88b-ab90423037bf.us',
     'Content-Type': 'application/json',
     'User-Agent': 'Cin7-Pendo-API/1.0 (enhanced-client)',
   };
@@ -367,7 +369,7 @@ export class EnhancedPendoAPIClient {
       }
 
       return this.retryHandler.executeWithRetry(async () => {
-        const url = `https://app.pendo.io${endpoint}`;
+        const url = new URL(`${PENDO_BASE_URL}${endpoint}`);
         const requestOptions: RequestInit = {
           method,
           headers: this.headers,
