@@ -18,18 +18,24 @@ Comprehensive Pendo.io API integration project with **100% data-safe analysis** 
 ### **🔧 Installation & Setup**
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/karoliang/cin7-pendo-api.git
 cd cin7-pendo-api
 
-# Install dependencies
-pip install -r requirements.txt
+# Frontend setup
+cd frontend
+npm install
 
-# Configure API key
+# Configure environment
 cp .env.example .env
-# Edit .env with your Pendo integration key
+# Edit .env with your Pendo integration key and Supabase credentials
 
-# Test connection
-python3 examples/real_pendo_api_explorer.py
+# Start development server
+npm run dev
+# Visit http://localhost:5173
+
+# For detailed setup instructions, see:
+# 📖 [Contributing Guide](./CONTRIBUTING.md)
+# ❓ [FAQ](./FAQ.md)
 ```
 
 ---
@@ -304,11 +310,41 @@ With write access (obtainable through Pendo subscription upgrade), this integrat
 
 ---
 
+## 📚 **Documentation & Resources**
+
+### **Developer Documentation**
+- 📖 **[Contributing Guide](./CONTRIBUTING.md)** - Complete development setup and standards
+- ❓ **[FAQ](./FAQ.md)** - Common questions and troubleshooting
+- 🏗️ **[GitHub Issue Templates](.github/ISSUE_TEMPLATE/)** - Standardized issue reporting
+- 🔧 **[Component Engineering](frontend/COMPONENT_ENGINEERING.md)** - UI development standards
+
+### **Project Documentation**
+- 📊 **[GITHUB_CAPABILITIES_HUB.md](./GITHUB_CAPABILITIES_HUB.md)** - Complete feature reference
+- 🚀 **[Phase 3 Completion](./PHASE_3_COMPLETION_SUMMARY.md)** - Recent development achievements
+- 🔍 **[API Analysis](./PENDO_API_ANALYSIS.md)** - Deep technical analysis
+- ⚡ **[Performance Guide](./PERFORMANCE_OPTIMIZATIONS.md)** - Optimization strategies
+
+### **Getting Help**
+- 🐛 **[Report Issues](https://github.com/karoliang/cin7-pendo-api/issues/new/choose)** - Bug reports and feature requests
+- 💬 **[GitHub Discussions](https://github.com/karoliang/cin7-pendo-api/discussions)** - Questions and ideas
+- 🔒 **[Security Issues](https://github.com/karoliang/cin7-pendo-api/security/advisories/new)** - Private security reports
+
+---
+
+## 🤝 **Contributing**
+
+We welcome contributions! Please see our **[Contributing Guide](./CONTRIBUTING.md)** for:
+- Development setup instructions
+- Coding standards and best practices
+- Testing requirements
+- Pull request process
+- Community guidelines
+
 **Your Pendo.io API integration is production-ready and delivering immediate business value!** 🎯
 
 ---
 
 **Project Status**: ✅ Complete and Production Ready
-**Last Updated**: 2025-10-28
+**Last Updated**: 2025-01-11
 **Security Status**: 🔒 100% Protected
 **Business Impact**: 🚀 Immediate Value Delivered
